@@ -73,6 +73,7 @@ export class CaveCreator {
      * @param rooms 
      */
     private static fillInRestofNetwork(options: WumpusOptions, rooms: WumpusRoom[]) {
+        // TODO there's a bug in here where a duplicate room is placed occasionally.
         for(let fromIndex = 0; fromIndex < rooms.length; fromIndex++) {
             let from: WumpusRoom = rooms[fromIndex];
             while(this.roomHasNeighborsAvailable(options.numDoors, from)) {
@@ -106,27 +107,27 @@ export class CaveCreator {
     private static roomHasNeighborsAvailable(maxNeighbors: number, room: WumpusRoom): boolean {
         return room.numNeighbors() < maxNeighbors;
     }
+}
 
-    /**
-     * Print the cave layout in a graphviz format.
-     * @param rooms The rooms of the cave.
-     */
-    private static printCave(rooms: WumpusRoom[]) {
-        let s: string = "digraph {\n";
-        for(let i = 0; i < rooms.length; i++) {
-            let room: WumpusRoom = rooms[i];
-            let roomNumber: number = room.getRoomNumber();
-            s += `${roomNumber};\n`
+/**
+* Print the cave layout in a graphviz format.
+* @param rooms The rooms of the cave.
+*/
+export function printCave(rooms: WumpusRoom[]) {
+   let s: string = "digraph {\n";
+   for(let i = 0; i < rooms.length; i++) {
+       let room: WumpusRoom = rooms[i];
+       let roomNumber: number = room.getRoomNumber();
+       s += `${roomNumber};\n`
 
-            let neighbors: WumpusRoom[] = room.getNeighbors();
-            if(neighbors.length > 0) {
-                for(let j = 0; j < neighbors.length; j++) {
-                    s += `${roomNumber} -> ${neighbors[j].getRoomNumber()};\n`;
-                }
-            }
+       let neighbors: WumpusRoom[] = room.getNeighbors();
+       if(neighbors.length > 0) {
+           for(let j = 0; j < neighbors.length; j++) {
+               s += `${roomNumber} -> ${neighbors[j].getRoomNumber()};\n`;
+           }
+       }
 
-        }
-        s += "}";
-        console.log(s);
-    }
+   }
+   s += "}";
+   console.log(s);
 }

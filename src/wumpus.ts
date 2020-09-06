@@ -2,6 +2,7 @@
 import { WumpusOptions } from './wumpusOptions'
 import { WumpusCave } from './wumpusCave'
 import { WumpusRoom } from './wumpusRoom'
+import { WumpusDisplay } from './wumpusDisplay'
 
 /**
  * Hunt the Wumpus game.
@@ -9,43 +10,20 @@ import { WumpusRoom } from './wumpusRoom'
 export class Wumpus {
     private options: WumpusOptions;
     private cave: WumpusCave;
+    private display: WumpusDisplay;
 
-    public constructor(options: WumpusOptions, cave: WumpusCave) {
+    public constructor(options: WumpusOptions,
+                       cave: WumpusCave,
+                       display: WumpusDisplay) {
         this.options = options;
         this.cave = cave;
+        this.display = display;
     }
 
     public run() {
-        this.showIntroduction();
+        this.display.showIntroduction(this.options);
         
         let currentRoom: WumpusRoom = this.cave.getCurrentRoom();
-        this.printRoom(currentRoom);
-        this.printNeighbors(currentRoom.getNeighbors());
-    }
-
-    private showIntroduction() {
-        console.log(`Hunt the Wumpus!
-
-You're in a cave with ${this.options.numRooms} rooms and ${this.options.numDoors} tunnels leading from each room.\n
-There are ${this.options.numBats} bats and ${this.options.numPits} pits scattered throughout the cave, and your\n
-quiver holds ${this.options.numArrows} custom super anti-evil Wumpus arrows. Good luck.\n`);
-    }
-
-    private printRoom(room: WumpusRoom) {
-        console.log(`You are in room ${room.getRoomNumber()} of the cave`);
-        
-        let neighbors: WumpusRoom[] = room.getNeighbors();
-        this.printNeighbors(neighbors);
-
-    }
-
-    private printNeighbors(neighbors: WumpusRoom[])
-    {
-        if(neighbors.length > 0) {
-            console.log(`There are tunnels to rooms ${neighbors[0].getRoomNumber()}`);
-            for(let i = 1; i < neighbors.length; i++) {
-                console.log(`, ${neighbors[i].getRoomNumber()}`);
-            }
-        }
+        this.display.showRoomEntry(currentRoom);
     }
 }

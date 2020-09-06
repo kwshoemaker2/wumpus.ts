@@ -1,6 +1,5 @@
 
-import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom'
-import { WumpusOptions } from './wumpusOptions'
+import { WumpusRoom } from './wumpusRoom'
 
 /**
  * Allows traversing the Wumpus cave.
