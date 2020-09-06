@@ -31,24 +31,4 @@ describe('CaveCreator.createCave tests', function() {
             }
         }
     });
-
-    it('has rooms with neighbors connected back to it', function() {
-        let rooms: WumpusRoom[] = CaveCreator.createCave(options);
-
-        // Depending on the cave layout, there might be one room with a one-way connection
-        // to other rooms. There should only be one at the most however.
-        let oneWayRooms: WumpusRoom[] = [];
-        for(let i = 0; i < rooms.length; i++) {
-            const room: WumpusRoom = rooms[i];
-            let neighbors: WumpusRoom[] = room.getNeighbors();
-            for(let j = 0; j < neighbors.length; j++) {
-                let thisNeighbor: WumpusRoom = neighbors[j];
-                if(!thisNeighbor.hasNeighbor(room)) {
-                    oneWayRooms.push(room);
-                }
-            }
-        }
-
-        expect(oneWayRooms.length).lte(1);
-    });
 })
