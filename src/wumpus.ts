@@ -19,7 +19,8 @@ export class Wumpus {
         this.showIntroduction();
         
         let currentRoom: WumpusRoom = this.cave.getCurrentRoom();
-
+        this.printRoom(currentRoom);
+        this.printNeighbors(currentRoom.getNeighbors());
     }
 
     private showIntroduction() {
