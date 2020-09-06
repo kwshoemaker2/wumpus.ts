@@ -1,6 +1,7 @@
 
 import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom'
 import { WumpusOptions } from './wumpusOptions'
+import { getRandomIntBetween } from './wumpusUtils'
 
 /**
  * Static class that creates the cave for Hunt the Wumpus.
@@ -15,7 +16,9 @@ export class CaveCreator {
         CaveCreator.shuffleRooms(rooms);
         CaveCreator.makeConnectedNetwork(options, rooms);
         CaveCreator.fillInRestofNetwork(options, rooms);
-        this.printCave(rooms);
+        
+        // Uncomment this to get a graphviz printout
+        //this.printCave(rooms);
         return rooms;
     }
 
@@ -43,7 +46,7 @@ export class CaveCreator {
         // Implementation of the Fisher-Yates shuffle algorithm.
         let arrayLen: number = rooms.length;
         for(let fromIndex = 0; fromIndex < arrayLen - 1; fromIndex++) {
-            let toIndex: number = this.getRandomIntBetween(fromIndex, arrayLen);
+            let toIndex: number = getRandomIntBetween(fromIndex, arrayLen);
             [rooms[fromIndex], rooms[toIndex]] = [rooms[toIndex], rooms[fromIndex]];
         }
     }
@@ -57,13 +60,12 @@ export class CaveCreator {
             let from: WumpusRoom = rooms[i];
             let to: WumpusRoom = null;
             do {
-                to = rooms[this.getRandomIntBetween(0, i)];
+                to = rooms[getRandomIntBetween(0, i)];
             } while(from.hasNeighbor(to) || !this.roomHasNeighborsAvailable(options.numDoors, to));
             from.addNeighbor(to);
             to.addNeighbor(from);
         }
     }
-
 
     /**
      * Fill in any extra rooms on the cave network.
@@ -89,7 +91,7 @@ export class CaveCreator {
                     to.addNeighbor(from);
                 } else {
                     // The last room may end up with two free slots; make them one-way
-                    to = rooms[this.getRandomIntBetween(0, fromIndex)];
+                    to = rooms[getRandomIntBetween(0, fromIndex)];
                     from.addNeighbor(to);
                 }
             }
@@ -103,17 +105,6 @@ export class CaveCreator {
      */
     private static roomHasNeighborsAvailable(maxNeighbors: number, room: WumpusRoom): boolean {
         return room.numNeighbors() < maxNeighbors;
-    }
-
-    /**
-     * Get a random number between min and max such that min <= n < max.
-     * @param min The lower bound (inclusive).
-     * @param max The upper bound (exclusive).
-     */
-    private static getRandomIntBetween(min: number, max: number): number { 
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min) + min);
     }
 
     /**

@@ -42,9 +42,9 @@ quiver holds ${this.options.numArrows} custom super anti-evil Wumpus arrows. Goo
     private printNeighbors(neighbors: WumpusRoom[])
     {
         if(neighbors.length > 0) {
-            console.log(`There are tunnels to rooms ${neighbors[0]}`);
-            for(let i = 0; i < neighbors.length; i++) {
-                console.log(`, ${neighbors[i]}`);
+            console.log(`There are tunnels to rooms ${neighbors[0].getRoomNumber()}`);
+            for(let i = 1; i < neighbors.length; i++) {
+                console.log(`, ${neighbors[i].getRoomNumber()}`);
             }
         }
     }
