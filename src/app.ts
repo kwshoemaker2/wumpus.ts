@@ -1,5 +1,5 @@
 
-import { Wumpus } from './wumpus'
+import { Game } from './game'
 import { WumpusOptions } from './wumpusOptions'
 import { WumpusCaveImpl } from './wumpusCave'
 import { CaveCreator } from './caveCreator';
@@ -14,8 +14,8 @@ class App {
         let cave: WumpusCaveImpl = new WumpusCaveImpl(CaveCreator.createCave(options));
         let display: WumpusConsoleDisplay = new WumpusConsoleDisplay();
 
-        let wumpus: Wumpus = new Wumpus(options, cave, display);
-        wumpus.run();
+        let game: Game = new Game(options, cave, display);
+        game.run();
     }
 }
 

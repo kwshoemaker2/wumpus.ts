@@ -7,7 +7,7 @@ import { WumpusDisplay } from './wumpusDisplay'
 /**
  * Hunt the Wumpus game.
  */
-export class Wumpus {
+export class Game {
     private options: WumpusOptions;
     private cave: WumpusCave;
     private display: WumpusDisplay;
