@@ -1,6 +1,6 @@
 
 import { expect } from 'chai'
-import { WumpusConsoleDisplay, ConsoleWrite } from './wumpusConsoleDisplay'
+import { WumpusConsoleDisplay, ConsoleWrite, ConsolePrompt } from './wumpusConsoleDisplay'
 import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom'
 import { WumpusOptions } from './wumpusOptions'
 
@@ -14,15 +14,36 @@ class ConsoleWriteFake {
     }
 }
 
+class ConsolePromptFake {
+    private prompt: string = "";
+    private answer: string = "";
+
+    public getPrompt(): string { return this.prompt; }
+
+    public setAnswer(answer: string): void { this.answer = answer; }
+
+    public getConsolePromptFunction(): ConsolePrompt {
+        return (prompt: string): Promise<string> => {
+            this.prompt = prompt;
+            return new Promise<string>((resolve) => {
+                resolve(this.answer);
+            });
+        }
+    }
+}
+
 describe('WumpusConsoleDisplay', () => {
 
     let consoleWriteFake: ConsoleWriteFake;
+    let consolePromptFake: ConsolePromptFake;
     let display: WumpusConsoleDisplay;
     let options: WumpusOptions;
 
     beforeEach(() => {
         consoleWriteFake = new ConsoleWriteFake();
-        display = new WumpusConsoleDisplay(consoleWriteFake.getConsoleWriteFunction());
+        consolePromptFake = new ConsolePromptFake();
+        display = new WumpusConsoleDisplay(consoleWriteFake.getConsoleWriteFunction(),
+                                           consolePromptFake.getConsolePromptFunction());
         options = new WumpusOptions();
     });
 

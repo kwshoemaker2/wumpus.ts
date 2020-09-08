@@ -2,8 +2,10 @@
 import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusOptions } from './wumpusOptions'
+import { WumpusAction } from './wumpusAction';
 
-export type ConsoleWrite = (s: string) => void;
+export type ConsoleWrite = (message: string) => void;
+export type ConsolePrompt = (prompt: string) => Promise<string>;
 
 /**
  * WumpusDisplay implementation that outputs to the console.
@@ -11,9 +13,11 @@ export type ConsoleWrite = (s: string) => void;
 export class WumpusConsoleDisplay implements WumpusDisplay {
 
     private writeConsole: ConsoleWrite;
+    private promptUser: ConsolePrompt;
 
-    public constructor(theConsole: ConsoleWrite) {
+    public constructor(theConsole: ConsoleWrite, consolePrompt: ConsolePrompt) {
         this.writeConsole = theConsole;
+        this.promptUser = consolePrompt;
     }
 
     public showIntroduction(options: WumpusOptions): void {
@@ -25,15 +29,10 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
     }
 
     public showRoomEntry(room: WumpusRoom): void {
-        this.printRoom(room);
-    }
-
-    private printRoom(room: WumpusRoom) {
         this.writeConsole(`You are in room ${room.getRoomNumber()} of the cave`);
         
         let neighbors: WumpusRoom[] = room.getNeighbors();
         this.printNeighbors(neighbors);
-
     }
 
     private printNeighbors(neighbors: WumpusRoom[])
@@ -45,5 +44,12 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
             }
             this.writeConsole(output);
         }
+    }
+
+    public async getUserAction(): Promise<WumpusAction> {
+        const answer = await this.promptUser("-> Move or shoot? [ms?q] ");
+        return new Promise<WumpusAction>((resolve) => {
+            resolve(WumpusAction.Quit);
+        });
     }
 }

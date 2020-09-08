@@ -3,6 +3,7 @@ import { WumpusOptions } from './wumpusOptions'
 import { WumpusCave } from './wumpusCave'
 import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
+import { WumpusAction } from './wumpusAction';
 
 /**
  * Hunt the Wumpus game.
@@ -20,10 +21,23 @@ export class Game {
         this.display = display;
     }
 
-    public run() {
+    public async run(): Promise<void> {
         this.display.showIntroduction(this.options);
+
+        this.gameLoop();
+    }
+
+    private async gameLoop(): Promise<void> {
+        let running: boolean = true;
+        while(running) {
+            let currentRoom: WumpusRoom = this.cave.getCurrentRoom();
+            this.display.showRoomEntry(currentRoom);
+
+            const nextAction = await this.display.getUserAction();
+            if(nextAction === WumpusAction.Quit) {
+                running = false;
+            }
+        }
         
-        let currentRoom: WumpusRoom = this.cave.getCurrentRoom();
-        this.display.showRoomEntry(currentRoom);
     }
 }
