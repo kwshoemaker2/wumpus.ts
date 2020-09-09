@@ -24,7 +24,7 @@ export class Game {
     public async run(): Promise<void> {
         this.display.showIntroduction(this.options);
 
-        this.gameLoop();
+        await this.gameLoop();
     }
 
     private async gameLoop(): Promise<void> {

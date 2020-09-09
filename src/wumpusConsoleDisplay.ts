@@ -47,9 +47,20 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
     }
 
     public async getUserAction(): Promise<WumpusAction> {
-        const answer = await this.promptUser("-> Move or shoot? [ms?q] ");
+        let validAnswer: boolean = false;
+        let action: WumpusAction = null;
+        while(!validAnswer) {
+            const answer = await this.promptUser("-> Move or shoot? [ms?q] ");
+            if(answer === "q") {
+                action = WumpusAction.Quit;
+            } else {
+                this.writeConsole(" > I don't understand. Try '?' for help.\n");
+            }
+            validAnswer = (action !== null);
+        }
+
         return new Promise<WumpusAction>((resolve) => {
-            resolve(WumpusAction.Quit);
+            resolve(action);
         });
     }
 }
