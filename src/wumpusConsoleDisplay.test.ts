@@ -1,8 +1,10 @@
 
-import { expect } from 'chai'
-import { WumpusConsoleDisplay, ConsoleWrite, ConsolePrompt } from './wumpusConsoleDisplay'
-import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom'
-import { WumpusOptions } from './wumpusOptions'
+import * as sinon from 'sinon';
+import { expect } from 'chai';
+import { WumpusConsoleDisplay, ConsoleWrite, ConsolePrompt } from './wumpusConsoleDisplay';
+import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom';
+import { WumpusOptions } from './wumpusOptions';
+import { WumpusAction } from './wumpusAction';
 
 class ConsoleWriteFake {
     private consoleOutput: string = "";
@@ -14,36 +16,18 @@ class ConsoleWriteFake {
     }
 }
 
-class ConsolePromptFake {
-    private prompt: string = "";
-    private answer: string = "";
-
-    public getPrompt(): string { return this.prompt; }
-
-    public setAnswer(answer: string): void { this.answer = answer; }
-
-    public getConsolePromptFunction(): ConsolePrompt {
-        return (prompt: string): Promise<string> => {
-            this.prompt = prompt;
-            return new Promise<string>((resolve) => {
-                resolve(this.answer);
-            });
-        }
-    }
-}
-
 describe('WumpusConsoleDisplay', () => {
 
     let consoleWriteFake: ConsoleWriteFake;
-    let consolePromptFake: ConsolePromptFake;
+    let consolePromptFake: sinon.SinonStub;
     let display: WumpusConsoleDisplay;
     let options: WumpusOptions;
 
     beforeEach(() => {
         consoleWriteFake = new ConsoleWriteFake();
-        consolePromptFake = new ConsolePromptFake();
+        consolePromptFake = sinon.stub();
         display = new WumpusConsoleDisplay(consoleWriteFake.getConsoleWriteFunction(),
-                                           consolePromptFake.getConsolePromptFunction());
+                                           consolePromptFake);
         options = new WumpusOptions();
     });
 
@@ -85,6 +69,32 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
             const expected: string = 'You are in room 10 of the cave\n' +
                                      'There are tunnels leading to rooms 1, 2, 3\n';
             expect(consoleWriteFake.getConsoleOutput()).equals(expected);
+        });
+    });
+
+    describe('getUserAction', () => {
+
+        const promptText = "-> Move or shoot? [ms?q] ";
+        const invalidCommandText = " > I don't understand. Try '?' for help.\n\n";
+
+        it('Responds to \'q\' by exiting', () => {
+            consolePromptFake.withArgs(promptText)
+                .returns(new Promise<string>((resolve) => { resolve("q"); }));
+            const action = display.getUserAction();
+            return action.then(result => expect(result).equals(WumpusAction.Quit));
+        });
+
+        it('Responds to invalid command by prompting again', () => {
+            consolePromptFake.onFirstCall().returns(new Promise<string>((resolve) => { resolve("asdf"); }));
+            consolePromptFake.onSecondCall().returns(new Promise<string>((resolve) => { resolve("q"); }));
+
+            const action = display.getUserAction();
+            return action.then((result) => {
+                expect(result).equals(WumpusAction.Quit);
+                expect(consolePromptFake.firstCall.lastArg).equals(promptText);
+                expect(consolePromptFake.secondCall.lastArg).equals(promptText);
+                expect(consoleWriteFake.getConsoleOutput()).equals(invalidCommandText);
+            });
         });
     });
 
