@@ -3,7 +3,7 @@ import { WumpusOptions } from './wumpusOptions'
 import { WumpusCave } from './wumpusCave'
 import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
-import { WumpusAction } from './wumpusAction';
+import { WumpusCommand } from './wumpusAction';
 
 /**
  * Hunt the Wumpus game.
@@ -34,10 +34,9 @@ export class Game {
             this.display.showRoomEntry(currentRoom);
 
             const nextAction = await this.display.getUserAction();
-            if(nextAction === WumpusAction.Quit) {
+            if(nextAction.command === WumpusCommand.Quit) {
                 running = false;
             }
         }
-        
     }
 }

@@ -2,7 +2,7 @@
 import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusOptions } from './wumpusOptions'
-import { WumpusAction } from './wumpusAction';
+import { WumpusCommand, WumpusAction } from './wumpusAction';
 
 export type ConsoleWrite = (message: string) => void;
 export type ConsolePrompt = (prompt: string) => Promise<string>;
@@ -52,7 +52,10 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
         while(!validAnswer) {
             const answer = await this.promptUser("-> Move or shoot? [ms?q] ");
             if(answer === "q") {
-                action = WumpusAction.Quit;
+                action = new WumpusAction(WumpusCommand.Quit, []);
+            } else if(answer.startsWith("m")) {
+                const strArgs = answer.split(" ");
+                action = new WumpusAction(WumpusCommand.Move, [ parseInt(strArgs[1]) ]);
             } else {
                 this.writeConsole(" > I don't understand. Try '?' for help.\n");
             }

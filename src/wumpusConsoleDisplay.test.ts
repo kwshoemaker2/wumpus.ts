@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { WumpusConsoleDisplay, ConsoleWrite, ConsolePrompt } from './wumpusConsoleDisplay';
 import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom';
 import { WumpusOptions } from './wumpusOptions';
-import { WumpusAction } from './wumpusAction';
+import { WumpusCommand } from './wumpusAction';
 
 class ConsoleWriteFake {
     private consoleOutput: string = "";
@@ -77,11 +77,23 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
         const promptText = "-> Move or shoot? [ms?q] ";
         const invalidCommandText = " > I don't understand. Try '?' for help.\n\n";
 
-        it('Responds to \'q\' by exiting', () => {
+        it('Responds to "q" by exiting', () => {
             consolePromptFake.withArgs(promptText)
                 .returns(new Promise<string>((resolve) => { resolve("q"); }));
             const action = display.getUserAction();
-            return action.then(result => expect(result).equals(WumpusAction.Quit));
+            return action.then(result => expect(result.command).equals(WumpusCommand.Quit));
+        });
+
+        it('Parses "m 1" into the right action', () => {
+            consolePromptFake.withArgs(promptText)
+                .returns(new Promise<string>((resolve) => { resolve("m 1"); }));
+            const action = display.getUserAction();
+            return action.then((result) => {
+                expect(result.command).equals(WumpusCommand.Move)
+                expect(result.args.length).equals(1);
+                const arg = result.args[0];
+                expect(arg).equals(1);
+            });
         });
 
         it('Responds to invalid command by prompting again', () => {
@@ -90,7 +102,7 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
 
             const action = display.getUserAction();
             return action.then((result) => {
-                expect(result).equals(WumpusAction.Quit);
+                expect(result.command).equals(WumpusCommand.Quit);
                 expect(consolePromptFake.firstCall.lastArg).equals(promptText);
                 expect(consolePromptFake.secondCall.lastArg).equals(promptText);
                 expect(consoleWriteFake.getConsoleOutput()).equals(invalidCommandText);
