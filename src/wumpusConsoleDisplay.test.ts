@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { WumpusConsoleDisplay, ConsoleWrite, ConsolePrompt } from './wumpusConsoleDisplay';
 import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom';
 import { WumpusOptions } from './wumpusOptions';
-import { WumpusCommand } from './wumpusAction';
+import { WumpusCommand, WumpusAction } from './wumpusAction';
 
 class ConsoleWriteFake {
     private consoleOutput: string = "";
@@ -75,37 +75,56 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
     describe('getUserAction', () => {
 
         const promptText = "-> Move or shoot? [ms?q] ";
-        const invalidCommandText = " > I don't understand. Try '?' for help.\n\n";
+
+        function makeConsolePromptAnswer(answer: string): Promise<string>
+        {
+            return new Promise<string>((resolve) => { resolve(answer); } );
+        }
+
+        function validateMoveAction(action: WumpusAction, expectedRoom: number): void
+        {
+            expect(action.command).equals(WumpusCommand.Move);
+            expect(action.args.length).equals(1);
+            const roomArg = action.args[0];
+            expect(roomArg).equals(expectedRoom);
+        }
 
         it('Responds to "q" by exiting', () => {
             consolePromptFake.withArgs(promptText)
-                .returns(new Promise<string>((resolve) => { resolve("q"); }));
+                .returns(makeConsolePromptAnswer("q"));
             const action = display.getUserAction();
             return action.then(result => expect(result.command).equals(WumpusCommand.Quit));
         });
 
         it('Parses "m 1" into the right action', () => {
             consolePromptFake.withArgs(promptText)
-                .returns(new Promise<string>((resolve) => { resolve("m 1"); }));
+                .returns(makeConsolePromptAnswer("m 1"));
             const action = display.getUserAction();
             return action.then((result) => {
-                expect(result.command).equals(WumpusCommand.Move)
-                expect(result.args.length).equals(1);
-                const arg = result.args[0];
-                expect(arg).equals(1);
+                validateMoveAction(result, 1);
+            });
+        });
+
+        it('Prompts again when user enters "m"', () => {
+            consolePromptFake.onFirstCall().returns(makeConsolePromptAnswer("m"));
+            consolePromptFake.onSecondCall().returns(makeConsolePromptAnswer("m 1"));
+            const action = display.getUserAction();
+            return action.then((result) => {
+                validateMoveAction(result, 1);
+                expect(consoleWriteFake.getConsoleOutput()).equals("Move where? For example: 'm 1'\n");
             });
         });
 
         it('Responds to invalid command by prompting again', () => {
-            consolePromptFake.onFirstCall().returns(new Promise<string>((resolve) => { resolve("asdf"); }));
-            consolePromptFake.onSecondCall().returns(new Promise<string>((resolve) => { resolve("q"); }));
+            consolePromptFake.onFirstCall().returns(makeConsolePromptAnswer("asdf"));
+            consolePromptFake.onSecondCall().returns(makeConsolePromptAnswer("q"));
 
             const action = display.getUserAction();
             return action.then((result) => {
                 expect(result.command).equals(WumpusCommand.Quit);
                 expect(consolePromptFake.firstCall.lastArg).equals(promptText);
                 expect(consolePromptFake.secondCall.lastArg).equals(promptText);
-                expect(consoleWriteFake.getConsoleOutput()).equals(invalidCommandText);
+                expect(consoleWriteFake.getConsoleOutput()).equals(" > I don't understand. Try '?' for help.\n\n");
             });
         });
     });

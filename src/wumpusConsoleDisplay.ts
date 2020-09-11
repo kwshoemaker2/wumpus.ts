@@ -54,8 +54,12 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
             if(answer === "q") {
                 action = new WumpusAction(WumpusCommand.Quit, []);
             } else if(answer.startsWith("m")) {
-                const strArgs = answer.split(" ");
-                action = new WumpusAction(WumpusCommand.Move, [ parseInt(strArgs[1]) ]);
+                const rooms = this.parseRooms(answer);
+                if(rooms.length > 0) {
+                    action = new WumpusAction(WumpusCommand.Move, rooms);
+                } else {
+                    this.writeConsole("Move where? For example: 'm 1'");
+                }
             } else {
                 this.writeConsole(" > I don't understand. Try '?' for help.\n");
             }
@@ -65,5 +69,14 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
         return new Promise<WumpusAction>((resolve) => {
             resolve(action);
         });
+    }
+
+    private parseRooms(answer: string): number[] {
+        let rooms: number[] = [];
+        const strArgs = answer.split(" ").splice(1);
+        for(let i = 0; i < strArgs.length; i++) {
+            rooms.push(parseInt(strArgs[i]));
+        }
+        return rooms;
     }
 }
