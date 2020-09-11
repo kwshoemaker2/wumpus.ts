@@ -8,5 +8,7 @@ export interface WumpusDisplay {
 
     showRoomEntry(room: WumpusRoom): void;
 
+    showPlayerHitWall(): void;
+
     getUserAction(): Promise<WumpusAction>;
 }

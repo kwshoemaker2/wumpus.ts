@@ -46,6 +46,10 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
         }
     }
 
+    public showPlayerHitWall(): void {
+        this.writeConsole("Oof! (you hit the wall)\n")
+    }
+
     public async getUserAction(): Promise<WumpusAction> {
         let validAnswer: boolean = false;
         let action: WumpusAction = null;

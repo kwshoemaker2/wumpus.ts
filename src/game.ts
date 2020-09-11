@@ -36,7 +36,18 @@ export class Game {
             const nextAction = await this.display.getUserAction();
             if(nextAction.command === WumpusCommand.Quit) {
                 running = false;
+            } else if(nextAction.command === WumpusCommand.Move) {
+                this.movePlayer(nextAction.args[0]);
             }
+        }
+    }
+
+    private movePlayer(roomNumber: number): void
+    {
+        if(this.cave.adjacentRoom(roomNumber)) {
+            this.cave.move(roomNumber);
+        } else {
+            this.display.showPlayerHitWall();
         }
     }
 }
