@@ -24,15 +24,27 @@ export interface WumpusRoom {
      * Returns true if the room is a neighbor of this room.
      */
     hasNeighbor(room: WumpusRoom): boolean;
+
+    /**
+     * Set whether the room has a pit.
+     */
+    setPit(hasPit: boolean): void;
+
+    /**
+     * Returns true if the room contains a pit.
+     */
+    hasPit(): boolean;
 }
 
 export class WumpusRoomImpl implements WumpusRoom {
     private roomNumber: number;
     private neighbors: WumpusRoom[];
+    private hasPit_: boolean;
 
     constructor(roomNumber: number) {
         this.roomNumber = roomNumber;
         this.neighbors = [];
+        this.hasPit_ = false;
     }
 
     getRoomNumber(): number { return this.roomNumber; }
@@ -53,4 +65,8 @@ export class WumpusRoomImpl implements WumpusRoom {
         }
         return false;
     }
+
+    setPit(hasPit: boolean): void { this.hasPit_ = hasPit; }
+
+    hasPit(): boolean { return this.hasPit_; }
 }

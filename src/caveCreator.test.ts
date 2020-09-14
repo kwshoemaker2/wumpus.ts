@@ -1,10 +1,11 @@
 import { expect } from 'chai';
 import { WumpusOptions } from './wumpusOptions'
 import { CaveCreator } from './caveCreator'
-import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom'
+import { WumpusRoom } from './wumpusRoom'
 
 describe('CaveCreator.createCave tests', function() {
     const options: WumpusOptions = new WumpusOptions();
+
     it('has the options.numRooms number of rooms', function() {
         let rooms: WumpusRoom[] = CaveCreator.createCave(options);
         expect(rooms.length).equal(options.numRooms);
@@ -30,5 +31,16 @@ describe('CaveCreator.createCave tests', function() {
                 }
             }
         }
+    });
+
+    it('creates a cave with options.numPits number of pits', function() {
+        let rooms: WumpusRoom[] = CaveCreator.createCave(options);
+        let numPits: number = 0;
+
+        for(let i = 0; i < rooms.length; i++) {
+            if(rooms[i].hasPit()) { numPits++; }
+        }
+
+        expect(numPits).equals(options.numPits);
     });
 })

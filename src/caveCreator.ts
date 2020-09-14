@@ -2,6 +2,7 @@
 import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom'
 import { WumpusOptions } from './wumpusOptions'
 import { getRandomIntBetween } from './wumpusUtils'
+import { assert } from 'chai';
 
 /**
  * Static class that creates the cave for Hunt the Wumpus.
@@ -16,9 +17,10 @@ export class CaveCreator {
         CaveCreator.shuffleRooms(rooms);
         CaveCreator.makeConnectedNetwork(options, rooms);
         CaveCreator.fillInRestofNetwork(options, rooms);
+        CaveCreator.fillInCaveInhabitants(options, rooms);
         
-        // Uncomment this to get a graphviz printout
-        //this.printCave(rooms);
+        //printCave(rooms);
+
         return rooms;
     }
 
@@ -69,8 +71,6 @@ export class CaveCreator {
 
     /**
      * Fill in any extra rooms on the cave network.
-     * @param options 
-     * @param rooms 
      */
     private static fillInRestofNetwork(options: WumpusOptions, rooms: WumpusRoom[]) {
         // TODO there's a bug in here where a duplicate room is placed occasionally.
@@ -107,27 +107,49 @@ export class CaveCreator {
     private static roomHasNeighborsAvailable(maxNeighbors: number, room: WumpusRoom): boolean {
         return room.numNeighbors() < maxNeighbors;
     }
+
+    /**
+     * Fill in the rest of the cave inhabitants (i.e. pits, bats, wumpus)
+     */
+    private static fillInCaveInhabitants(options: WumpusOptions, rooms: WumpusRoom[]) {
+        let numPitsAdded = 0;
+        assert(rooms.length >= options.numPits, `Not enough rooms (${rooms.length}) for number of pits (${options.numPits})`);
+        while(numPitsAdded < options.numPits) {
+            const pitLoc = getRandomIntBetween(0, rooms.length);
+            const room = rooms[pitLoc];
+            if(!room.hasPit()) {
+                room.setPit(true);
+                numPitsAdded++;
+            }
+        }
+    }
 }
 
 /**
 * Print the cave layout in a graphviz format.
 * @param rooms The rooms of the cave.
 */
-export function printCave(rooms: WumpusRoom[]) {
-   let s: string = "digraph {\n";
-   for(let i = 0; i < rooms.length; i++) {
-       let room: WumpusRoom = rooms[i];
-       let roomNumber: number = room.getRoomNumber();
-       s += `${roomNumber};\n`
+function printCave(rooms: WumpusRoom[]) {
+    let s: string = "digraph {\n";
+    for(let i = 0; i < rooms.length; i++) {
+        let room: WumpusRoom = rooms[i];
+        let roomNumber: number = room.getRoomNumber();
+        s += `${roomNumber}`
 
-       let neighbors: WumpusRoom[] = room.getNeighbors();
-       if(neighbors.length > 0) {
-           for(let j = 0; j < neighbors.length; j++) {
-               s += `${roomNumber} -> ${neighbors[j].getRoomNumber()};\n`;
-           }
-       }
+        if(room.hasPit()) {
+            s += '[fillColor="black" fontColor="white"]'
+        }
 
-   }
-   s += "}";
-   console.log(s);
-}
+        s += ";\n";
+ 
+        let neighbors: WumpusRoom[] = room.getNeighbors();
+        if(neighbors.length > 0) {
+            for(let j = 0; j < neighbors.length; j++) {
+                s += `${roomNumber} -> ${neighbors[j].getRoomNumber()};\n`;
+            }
+        }
+ 
+    }
+    s += "}";
+    console.log(s);
+ }
