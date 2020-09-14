@@ -62,4 +62,28 @@ describe("Game", () => {
         const showedOptions = display.showIntroduction.firstCall.lastArg
         expect(showedOptions).equals(options);
     });
+
+    it("moves the player to the room when it's adjacent", async () => {
+        const roomNumber = 10;
+        makeMove(roomNumber, 0);
+        makeQuit(1);
+
+        cave.adjacentRoom.withArgs(roomNumber).returns(true);
+
+        await game.run();
+
+        expect(cave.move.firstCall.calledWith(roomNumber));
+    });
+
+    it("tells player they hit a wall when moving to a non-adjacent room", async () => {
+        const roomNumber = 10;
+        makeMove(roomNumber, 0);
+        makeQuit(1);
+
+        cave.adjacentRoom.withArgs(roomNumber).returns(false);
+
+        await game.run();
+
+        expect(display.showPlayerHitWall.calledOnce);
+    });
 });
