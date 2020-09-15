@@ -59,6 +59,21 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
             expect(consoleWriteFake.getConsoleOutput()).equals(expected);
         });
 
+        it('displays a message if a pit is nearby', () => {
+            let pitRoom: WumpusRoomImpl = new WumpusRoomImpl(12);
+            pitRoom.setPit(true);
+            room.addNeighbor(pitRoom);
+            room.addNeighbor(new WumpusRoomImpl(13));
+            room.addNeighbor(new WumpusRoomImpl(14));
+
+            display.showRoomEntry(room);
+
+            const expected: string = 'You are in room 10 of the cave\n' +
+                                     'There are tunnels leading to rooms 12, 13, 14\n' +
+                                     '*whoosh* (I feel a draft from some pits).\n';
+            expect(consoleWriteFake.getConsoleOutput()).equals(expected);
+        });
+
         it('displays the room and the neighbors', () => {
             room.addNeighbor(new WumpusRoomImpl(1));
             room.addNeighbor(new WumpusRoomImpl(2));

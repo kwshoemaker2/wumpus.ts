@@ -31,8 +31,15 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
     public showRoomEntry(room: WumpusRoom): void {
         this.writeConsole(`You are in room ${room.getRoomNumber()} of the cave`);
         
-        let neighbors: WumpusRoom[] = room.getNeighbors();
+        const neighbors: WumpusRoom[] = room.getNeighbors();
         this.printNeighbors(neighbors);
+
+        for(let i = 0; i < neighbors.length; i++) {
+            if(neighbors[i].hasPit()) {
+                this.writeConsole("*whoosh* (I feel a draft from some pits).")
+            }
+        }
+
     }
 
     private printNeighbors(neighbors: WumpusRoom[])
