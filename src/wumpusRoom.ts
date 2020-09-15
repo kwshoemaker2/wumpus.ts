@@ -34,6 +34,11 @@ export interface WumpusRoom {
      * Returns true if the room contains a pit.
      */
     hasPit(): boolean;
+
+    /**
+     * Returns true if a pit is in a neighboring room.
+     */
+    pitNearby(): boolean;
 }
 
 export class WumpusRoomImpl implements WumpusRoom {
@@ -69,4 +74,13 @@ export class WumpusRoomImpl implements WumpusRoom {
     setPit(hasPit: boolean): void { this.hasPit_ = hasPit; }
 
     hasPit(): boolean { return this.hasPit_; }
+
+    pitNearby(): boolean {
+        for(let i = 0; i < this.neighbors.length; i++) {
+            if(this.neighbors[i].hasPit()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

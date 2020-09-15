@@ -34,12 +34,9 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
         const neighbors: WumpusRoom[] = room.getNeighbors();
         this.printNeighbors(neighbors);
 
-        for(let i = 0; i < neighbors.length; i++) {
-            if(neighbors[i].hasPit()) {
-                this.writeConsole("*whoosh* (I feel a draft from some pits).")
-            }
+        if(room.pitNearby()) {
+            this.writeConsole("*whoosh* (I feel a draft from some pits).");
         }
-
     }
 
     private printNeighbors(neighbors: WumpusRoom[])
