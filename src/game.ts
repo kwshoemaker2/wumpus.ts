@@ -9,21 +9,16 @@ import { WumpusCommand } from './wumpusAction';
  * Hunt the Wumpus game.
  */
 export class Game {
-    private options: WumpusOptions;
     private cave: WumpusCave;
     private display: WumpusDisplay;
 
-    public constructor(options: WumpusOptions,
-                       cave: WumpusCave,
+    public constructor(cave: WumpusCave,
                        display: WumpusDisplay) {
-        this.options = options;
         this.cave = cave;
         this.display = display;
     }
 
     public async run(): Promise<void> {
-        this.display.showIntroduction(this.options);
-
         await this.gameLoop();
     }
 

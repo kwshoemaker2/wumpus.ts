@@ -17,7 +17,7 @@ describe("Game", () => {
         options = new WumpusOptions;
         cave = tsSinon.stubInterface<WumpusCave>();
         display = tsSinon.stubInterface<WumpusDisplay>();
-        game = new Game(options, cave, display);
+        game = new Game(cave, display);
     });
 
     function setUserAction(promise: Promise<WumpusAction>, callNumber?: number) {
@@ -50,17 +50,6 @@ describe("Game", () => {
         await game.run();
 
         expect(display.getUserAction.calledOnce).equals(true);
-    });
-
-    it("displays the introduction using the options", async () => {
-        makeQuit();
-
-        await game.run();
-
-        expect(display.showIntroduction.calledOnce);
-
-        const showedOptions = display.showIntroduction.firstCall.lastArg
-        expect(showedOptions).equals(options);
     });
 
     it("moves the player to the room when it's adjacent", async () => {

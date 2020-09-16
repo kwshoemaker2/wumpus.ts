@@ -31,7 +31,10 @@ class App {
         let cave: WumpusCaveImpl = new WumpusCaveImpl(CaveCreator.createCave(options));
         let display: WumpusConsoleDisplay = new WumpusConsoleDisplay(App.consoleWrite, App.consolePrompt);
 
-        let game: Game = new Game(options, cave, display);
+        let game: Game = new Game(cave, display);
+
+        display.showIntroduction(options);
+
         await game.run();
         
         App.shutdown();
