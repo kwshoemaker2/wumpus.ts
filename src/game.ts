@@ -37,17 +37,31 @@ export class Game {
             if(nextAction.command === WumpusCommand.Quit) {
                 running = false;
             } else if(nextAction.command === WumpusCommand.Move) {
-                this.movePlayer(nextAction.args[0]);
+                running = !this.movePlayer(nextAction.args[0]);
             }
         }
     }
 
-    private movePlayer(roomNumber: number): void
+    /**
+     * Move the player to the specified room.
+     * 
+     * Returns true if the player died.
+     */
+    private movePlayer(roomNumber: number): boolean
     {
+        let playerDied: boolean = false;
+
         if(this.cave.adjacentRoom(roomNumber)) {
             this.cave.move(roomNumber);
+            const currentRoom = this.cave.getCurrentRoom();
+            if(currentRoom.hasPit()) {
+                this.display.showPlayerFellInPit();
+                playerDied = true;
+            }
         } else {
             this.display.showPlayerHitWall();
         }
+
+        return playerDied
     }
 }

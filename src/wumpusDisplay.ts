@@ -10,5 +10,7 @@ export interface WumpusDisplay {
 
     showPlayerHitWall(): void;
 
+    showPlayerFellInPit(): void;
+
     getUserAction(): Promise<WumpusAction>;
 }

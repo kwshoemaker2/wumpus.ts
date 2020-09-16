@@ -37,13 +37,13 @@ describe('WumpusConsoleDisplay', () => {
 
             const expected: string = `Hunt the Wumpus!
 
-You're in a cave with ${options.numRooms} rooms and ${options.numDoors} tunnels leading from each room.\n
-There are ${options.numBats} bats and ${options.numPits} pits scattered throughout the cave, and your\n
+You're in a cave with ${options.numRooms} rooms and ${options.numDoors} tunnels leading from each room.
+There are ${options.numBats} bats and ${options.numPits} pits scattered throughout the cave, and your
 quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luck.\n\n`;
 
             expect(consoleWriteFake.getConsoleOutput()).equals(expected);
         });
-    })
+    });
 
     describe('showRoomEntry', () => {
         let room: WumpusRoom;

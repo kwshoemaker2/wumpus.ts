@@ -23,8 +23,8 @@ export class WumpusConsoleDisplay implements WumpusDisplay {
     public showIntroduction(options: WumpusOptions): void {
         this.writeConsole(`Hunt the Wumpus!
 
-You're in a cave with ${options.numRooms} rooms and ${options.numDoors} tunnels leading from each room.\n
-There are ${options.numBats} bats and ${options.numPits} pits scattered throughout the cave, and your\n
+You're in a cave with ${options.numRooms} rooms and ${options.numDoors} tunnels leading from each room.
+There are ${options.numBats} bats and ${options.numPits} pits scattered throughout the cave, and your
 quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luck.\n`);
     }
 
@@ -52,6 +52,16 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
 
     public showPlayerHitWall(): void {
         this.writeConsole("Oof! (you hit the wall)\n")
+    }
+
+    showPlayerFellInPit(): void
+    {
+        this.writeConsole(`*AAAUUUUGGGGGHHHHHhhhhhhhhhh...*
+The whistling sound and updraft as you walked into this room of the
+cave apparently wasn't enough to clue you in to the presence of the
+bottomless pit.  You have a lot of time to reflect on this error as
+you fall many miles to the core of the earth.  Look on the bright side;
+you can at least find out if Jules Verne was right...\n`);
     }
 
     public async getUserAction(): Promise<WumpusAction> {

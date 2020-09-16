@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { WumpusOptions } from './wumpusOptions'
 import { WumpusCave, WumpusCaveImpl } from './wumpusCave'
-import { WumpusRoom } from './wumpusRoom'
+import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusCommand, WumpusAction } from './wumpusAction';
 import { Game } from './game';
@@ -49,7 +49,7 @@ describe("Game", () => {
 
         await game.run();
 
-        expect(display.getUserAction.calledOnce);
+        expect(display.getUserAction.calledOnce).equals(true);
     });
 
     it("displays the introduction using the options", async () => {
@@ -68,11 +68,15 @@ describe("Game", () => {
         makeMove(roomNumber, 0);
         makeQuit(1);
 
+        const nextRoom = new WumpusRoomImpl(roomNumber);
+        nextRoom.setPit(false);
+        cave.getCurrentRoom.onSecondCall().returns(nextRoom);
+
         cave.adjacentRoom.withArgs(roomNumber).returns(true);
 
         await game.run();
 
-        expect(cave.move.firstCall.calledWith(roomNumber));
+        expect(cave.move.firstCall.calledWith(roomNumber)).equals(true);
     });
 
     it("tells player they hit a wall when moving to a non-adjacent room", async () => {
@@ -84,6 +88,22 @@ describe("Game", () => {
 
         await game.run();
 
-        expect(display.showPlayerHitWall.calledOnce);
+        expect(display.showPlayerHitWall.calledOnce).equals(true);
+    });
+
+    it("tells player they fell in a pit when they enter a room with a pit", async () => {
+        const roomNumber = 10;
+        const pitRoom = new WumpusRoomImpl(roomNumber);
+        pitRoom.setPit(true);
+
+        cave.getCurrentRoom.onSecondCall().returns(pitRoom);
+        cave.adjacentRoom.onFirstCall().returns(true);
+
+        makeMove(roomNumber, 0);
+        makeQuit(1);
+
+        await game.run();
+
+        expect(display.showPlayerFellInPit.calledOnce).equals(true);
     });
 });
