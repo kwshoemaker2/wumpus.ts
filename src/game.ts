@@ -2,7 +2,7 @@ import { WumpusCave } from './wumpusCave'
 import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusCommand, WumpusAction } from './wumpusAction';
-import { PlayerAction, PlayerActionFactory, PlayerActionFactoryImp } from './playerAction';
+import { PlayerAction, PlayerActionFactory } from './playerAction';
 
 /**
  * Hunt the Wumpus game.
@@ -10,13 +10,14 @@ import { PlayerAction, PlayerActionFactory, PlayerActionFactoryImp } from './pla
 export class Game {
     private cave: WumpusCave;
     private display: WumpusDisplay;
-    private playerActionFactory: PlayerActionFactoryImp;
+    private playerActionFactory: PlayerActionFactory;
 
     public constructor(cave: WumpusCave,
-                       display: WumpusDisplay) {
+                       display: WumpusDisplay,
+                       playerActionFactory: PlayerActionFactory) {
         this.cave = cave;
         this.display = display;
-        this.playerActionFactory = new PlayerActionFactoryImp();
+        this.playerActionFactory = playerActionFactory;
     }
 
     /**
