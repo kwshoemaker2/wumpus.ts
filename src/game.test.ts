@@ -21,8 +21,8 @@ describe("Game", () => {
         game = new Game(cave, display, playerActionFactory);
     });
 
-    function setUserAction(promise: Promise<WumpusCommand>, callNumber: number = 0) {
-        display.getUserAction.onCall(callNumber).returns(promise);
+    function setUserCommand(promise: Promise<WumpusCommand>, callNumber: number = 0) {
+        display.getUserCommand.onCall(callNumber).returns(promise);
     }
 
     function setPlayerAction(playerAction: PlayerAction, callNumber: number = 0): void {
@@ -30,7 +30,7 @@ describe("Game", () => {
             resolve(new WumpusCommand(WumpusCommandType.Quit, []))
         });
 
-        setUserAction(promise, callNumber);
+        setUserCommand(promise, callNumber);
         playerActionFactory.createPlayerAction.onCall(callNumber).returns(playerAction);
     }
 
@@ -41,7 +41,7 @@ describe("Game", () => {
 
         await game.run();
 
-        expect(display.getUserAction.calledOnce).equals(true);
+        expect(display.getUserCommand.calledOnce).equals(true);
         expect(playerActionFactory.createPlayerAction.calledOnce).equals(true);
     });
 
@@ -58,7 +58,7 @@ describe("Game", () => {
 
         await game.run();
 
-        expect(display.getUserAction.calledThrice).equals(true);
+        expect(display.getUserCommand.calledThrice).equals(true);
         expect(playerActionFactory.createPlayerAction.calledThrice).equals(true);
     });
 

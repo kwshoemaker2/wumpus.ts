@@ -64,7 +64,7 @@ you fall many miles to the core of the earth.  Look on the bright side;
 you can at least find out if Jules Verne was right...\n`);
     }
 
-    public async getUserAction(): Promise<WumpusCommand> {
+    public async getUserCommand(): Promise<WumpusCommand> {
         let validAnswer: boolean = false;
         let command: WumpusCommand = null;
         while(!validAnswer) {

@@ -107,14 +107,14 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
         it('Responds to "q" by exiting', () => {
             consolePromptFake.withArgs(promptText)
                 .returns(makeConsolePromptAnswer("q"));
-            const command = display.getUserAction();
+            const command = display.getUserCommand();
             return command.then(result => expect(result.type).equals(WumpusCommandType.Quit));
         });
 
         it('Parses "m 1" into the right action', () => {
             consolePromptFake.withArgs(promptText)
                 .returns(makeConsolePromptAnswer("m 1"));
-            const command = display.getUserAction();
+            const command = display.getUserCommand();
             return command.then((result) => {
                 validateMoveCommand(result, 1);
             });
@@ -123,7 +123,7 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
         it('Prompts again when user enters "m"', () => {
             consolePromptFake.onFirstCall().returns(makeConsolePromptAnswer("m"));
             consolePromptFake.onSecondCall().returns(makeConsolePromptAnswer("m 1"));
-            const command = display.getUserAction();
+            const command = display.getUserCommand();
             return command.then((result) => {
                 validateMoveCommand(result, 1);
                 expect(consoleWriteFake.getConsoleOutput()).equals("Move where? For example: 'm 1'\n");
@@ -134,7 +134,7 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
             consolePromptFake.onFirstCall().returns(makeConsolePromptAnswer("asdf"));
             consolePromptFake.onSecondCall().returns(makeConsolePromptAnswer("q"));
 
-            const command = display.getUserAction();
+            const command = display.getUserCommand();
             return command.then((result) => {
                 expect(result.type).equals(WumpusCommandType.Quit);
                 expect(consolePromptFake.firstCall.lastArg).equals(promptText);

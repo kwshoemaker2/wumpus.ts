@@ -12,5 +12,5 @@ export interface WumpusDisplay {
 
     showPlayerFellInPit(): void;
 
-    getUserAction(): Promise<WumpusCommand>;
+    getUserCommand(): Promise<WumpusCommand>;
 }

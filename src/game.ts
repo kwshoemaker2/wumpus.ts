@@ -34,7 +34,7 @@ export class Game {
         let running: boolean = true;
         while(running) {
             this.displayCurrentRoom();
-            const nextCommand = await this.getNextAction();
+            const nextCommand = await this.getNextCommand();
             running = this.doAction(nextCommand);
         }
     }
@@ -44,8 +44,8 @@ export class Game {
         this.display.showRoomEntry(currentRoom);
     }
 
-    private async getNextAction(): Promise<WumpusCommand> {
-        return await this.display.getUserAction();
+    private async getNextCommand(): Promise<WumpusCommand> {
+        return await this.display.getUserCommand();
     }
 
     private doAction(command: WumpusCommand): boolean {
