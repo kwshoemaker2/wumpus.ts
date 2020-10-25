@@ -1,8 +1,8 @@
 import { WumpusCave } from './wumpusCave'
 import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
-import { WumpusCommand, WumpusAction } from './wumpusAction';
-import { PlayerAction, PlayerActionFactory } from './playerAction';
+import { WumpusCommand } from './wumpusCommand';
+import { PlayerActionFactory } from './playerAction';
 
 /**
  * Hunt the Wumpus game.
@@ -34,8 +34,8 @@ export class Game {
         let running: boolean = true;
         while(running) {
             this.displayCurrentRoom();
-            const nextAction = await this.getNextAction();
-            running = this.doAction(nextAction);
+            const nextCommand = await this.getNextAction();
+            running = this.doAction(nextCommand);
         }
     }
 
@@ -44,12 +44,12 @@ export class Game {
         this.display.showRoomEntry(currentRoom);
     }
 
-    private async getNextAction(): Promise<WumpusAction> {
+    private async getNextAction(): Promise<WumpusCommand> {
         return await this.display.getUserAction();
     }
 
-    private doAction(action: WumpusAction): boolean {
-        const userAction = this.playerActionFactory.createPlayerAction(action);
+    private doAction(command: WumpusCommand): boolean {
+        const userAction = this.playerActionFactory.createPlayerAction(command);
         return userAction.perform(this.cave, this.display);
     }
 }

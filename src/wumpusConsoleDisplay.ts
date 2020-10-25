@@ -2,7 +2,7 @@
 import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusOptions } from './wumpusOptions'
-import { WumpusCommand, WumpusAction } from './wumpusAction';
+import { WumpusCommandType, WumpusCommand } from './wumpusCommand';
 
 export type ConsoleWrite = (message: string) => void;
 export type ConsolePrompt = (prompt: string) => Promise<string>;
@@ -64,28 +64,28 @@ you fall many miles to the core of the earth.  Look on the bright side;
 you can at least find out if Jules Verne was right...\n`);
     }
 
-    public async getUserAction(): Promise<WumpusAction> {
+    public async getUserAction(): Promise<WumpusCommand> {
         let validAnswer: boolean = false;
-        let action: WumpusAction = null;
+        let command: WumpusCommand = null;
         while(!validAnswer) {
             const answer = await this.promptUser("-> Move or shoot? [ms?q] ");
             if(answer === "q") {
-                action = new WumpusAction(WumpusCommand.Quit, []);
+                command = new WumpusCommand(WumpusCommandType.Quit, []);
             } else if(answer.startsWith("m")) {
                 const rooms = this.parseRooms(answer);
                 if(rooms.length > 0) {
-                    action = new WumpusAction(WumpusCommand.Move, rooms);
+                    command = new WumpusCommand(WumpusCommandType.Move, rooms);
                 } else {
                     this.writeConsole("Move where? For example: 'm 1'");
                 }
             } else {
                 this.writeConsole(" > I don't understand. Try '?' for help.\n");
             }
-            validAnswer = (action !== null);
+            validAnswer = (command !== null);
         }
 
-        return new Promise<WumpusAction>((resolve) => {
-            resolve(action);
+        return new Promise<WumpusCommand>((resolve) => {
+            resolve(command);
         });
     }
 

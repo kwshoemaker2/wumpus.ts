@@ -3,7 +3,7 @@ import * as tsSinon from "ts-sinon"
 import { WumpusCave } from './wumpusCave'
 import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
-import { WumpusCommand, WumpusAction } from './wumpusAction';
+import { WumpusCommandType, WumpusCommand } from './wumpusCommand';
 import { Game } from './game';
 import { PlayerAction, PlayerActionFactory } from './playerAction';
 
@@ -21,13 +21,13 @@ describe("Game", () => {
         game = new Game(cave, display, playerActionFactory);
     });
 
-    function setUserAction(promise: Promise<WumpusAction>, callNumber: number = 0) {
+    function setUserAction(promise: Promise<WumpusCommand>, callNumber: number = 0) {
         display.getUserAction.onCall(callNumber).returns(promise);
     }
 
     function setPlayerAction(playerAction: PlayerAction, callNumber: number = 0): void {
-        const promise = new Promise<WumpusAction>(resolve => { 
-            resolve(new WumpusAction(WumpusCommand.Quit, []))
+        const promise = new Promise<WumpusCommand>(resolve => { 
+            resolve(new WumpusCommand(WumpusCommandType.Quit, []))
         });
 
         setUserAction(promise, callNumber);

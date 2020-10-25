@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { WumpusConsoleDisplay, ConsoleWrite, ConsolePrompt } from './wumpusConsoleDisplay';
 import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom';
 import { WumpusOptions } from './wumpusOptions';
-import { WumpusCommand, WumpusAction } from './wumpusAction';
+import { WumpusCommandType, WumpusCommand } from './wumpusCommand';
 
 class ConsoleWriteFake {
     private consoleOutput: string = "";
@@ -96,36 +96,36 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
             return new Promise<string>((resolve) => { resolve(answer); } );
         }
 
-        function validateMoveAction(action: WumpusAction, expectedRoom: number): void
+        function validateMoveCommand(command: WumpusCommand, expectedRoom: number): void
         {
-            expect(action.command).equals(WumpusCommand.Move);
-            expect(action.args.length).equals(1);
-            const roomArg = action.args[0];
+            expect(command.type).equals(WumpusCommandType.Move);
+            expect(command.args.length).equals(1);
+            const roomArg = command.args[0];
             expect(roomArg).equals(expectedRoom);
         }
 
         it('Responds to "q" by exiting', () => {
             consolePromptFake.withArgs(promptText)
                 .returns(makeConsolePromptAnswer("q"));
-            const action = display.getUserAction();
-            return action.then(result => expect(result.command).equals(WumpusCommand.Quit));
+            const command = display.getUserAction();
+            return command.then(result => expect(result.type).equals(WumpusCommandType.Quit));
         });
 
         it('Parses "m 1" into the right action', () => {
             consolePromptFake.withArgs(promptText)
                 .returns(makeConsolePromptAnswer("m 1"));
-            const action = display.getUserAction();
-            return action.then((result) => {
-                validateMoveAction(result, 1);
+            const command = display.getUserAction();
+            return command.then((result) => {
+                validateMoveCommand(result, 1);
             });
         });
 
         it('Prompts again when user enters "m"', () => {
             consolePromptFake.onFirstCall().returns(makeConsolePromptAnswer("m"));
             consolePromptFake.onSecondCall().returns(makeConsolePromptAnswer("m 1"));
-            const action = display.getUserAction();
-            return action.then((result) => {
-                validateMoveAction(result, 1);
+            const command = display.getUserAction();
+            return command.then((result) => {
+                validateMoveCommand(result, 1);
                 expect(consoleWriteFake.getConsoleOutput()).equals("Move where? For example: 'm 1'\n");
             });
         });
@@ -134,9 +134,9 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
             consolePromptFake.onFirstCall().returns(makeConsolePromptAnswer("asdf"));
             consolePromptFake.onSecondCall().returns(makeConsolePromptAnswer("q"));
 
-            const action = display.getUserAction();
-            return action.then((result) => {
-                expect(result.command).equals(WumpusCommand.Quit);
+            const command = display.getUserAction();
+            return command.then((result) => {
+                expect(result.type).equals(WumpusCommandType.Quit);
                 expect(consolePromptFake.firstCall.lastArg).equals(promptText);
                 expect(consolePromptFake.secondCall.lastArg).equals(promptText);
                 expect(consoleWriteFake.getConsoleOutput()).equals(" > I don't understand. Try '?' for help.\n\n");

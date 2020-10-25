@@ -1,7 +1,7 @@
 
 import { WumpusRoom } from './wumpusRoom'
 import { WumpusOptions } from './wumpusOptions'
-import { WumpusAction } from './wumpusAction'
+import { WumpusCommand } from './wumpusCommand'
 
 export interface WumpusDisplay {
     showIntroduction(options: WumpusOptions): void;
@@ -12,5 +12,5 @@ export interface WumpusDisplay {
 
     showPlayerFellInPit(): void;
 
-    getUserAction(): Promise<WumpusAction>;
+    getUserAction(): Promise<WumpusCommand>;
 }

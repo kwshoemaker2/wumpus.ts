@@ -1,7 +1,6 @@
 import { WumpusCave } from './wumpusCave'
-import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
-import { WumpusCommand, WumpusAction } from './wumpusAction';
+import { WumpusCommandType, WumpusCommand } from './wumpusCommand';
 
 /**
  * Abstraction for an action a player can perform.
@@ -66,20 +65,20 @@ export class MovePlayer implements PlayerAction {
  */
 export interface PlayerActionFactory {
     /**
-     * Create the PlayerAction from the WumpusAction.
-     * @param action 
+     * Create the player action from the player command.
+     * @param command 
      */
-    createPlayerAction(action: WumpusAction): PlayerAction;
+    createPlayerAction(action: WumpusCommand): PlayerAction;
 }
 
 export class PlayerActionFactoryImpl implements PlayerActionFactory {
 
-    createPlayerAction(action: WumpusAction): PlayerAction {
-        if(action.command === WumpusCommand.Move) {
-            const roomNumber = action.args[0];
+    createPlayerAction(command: WumpusCommand): PlayerAction {
+        if(command.type === WumpusCommandType.Move) {
+            const roomNumber = command.args[0];
             return new MovePlayer(roomNumber);
         }
-        else if(action.command === WumpusCommand.Quit) {
+        else if(command.type === WumpusCommandType.Quit) {
             return new QuitGame();
         }
         else
