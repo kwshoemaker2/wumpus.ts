@@ -4,7 +4,7 @@ import { WumpusCave } from './wumpusCave'
 import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusCommand, WumpusAction } from './wumpusAction';
-import { MovePlayer } from './playerAction';
+import { MovePlayer, PlayerActionFactoryImpl, QuitGame } from './playerAction';
 
 describe("MovePlayer", () => {
     let cave: tsSinon.StubbedInstance<WumpusCave> = null;
@@ -60,5 +60,21 @@ describe("MovePlayer", () => {
 
         expect(gameRunning).equals(true);
         expect(display.showPlayerHitWall.calledOnce).equals(true);
+    });
+});
+
+describe("PlayerActionFactoryImp", () => {
+    let factory: PlayerActionFactoryImpl = new PlayerActionFactoryImpl();
+
+    it("returns a move player action when given a move command and room number", () => {
+        const commandAction = new WumpusAction(WumpusCommand.Move, [ 1 ]);
+        const action = factory.createPlayerAction(commandAction);
+        expect(action.constructor.name).equals(MovePlayer.name);
+    });
+
+    it("returns a quit game action when given a quit command", () => {
+        const commandAction = new WumpusAction(WumpusCommand.Quit, []);
+        const action = factory.createPlayerAction(commandAction);
+        expect(action.constructor.name).equals(QuitGame.name);
     });
 });

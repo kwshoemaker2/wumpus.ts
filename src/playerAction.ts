@@ -72,7 +72,7 @@ export interface PlayerActionFactory {
     createPlayerAction(action: WumpusAction): PlayerAction;
 }
 
-export class PlayerActionFactoryImp implements PlayerActionFactory {
+export class PlayerActionFactoryImpl implements PlayerActionFactory {
 
     createPlayerAction(action: WumpusAction): PlayerAction {
         if(action.command === WumpusCommand.Move) {

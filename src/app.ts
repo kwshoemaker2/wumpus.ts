@@ -5,7 +5,7 @@ import { WumpusOptions } from './wumpusOptions';
 import { WumpusCaveImpl } from './wumpusCave';
 import { CaveCreator } from './caveCreator';
 import { WumpusConsoleDisplay, ConsoleWrite, ConsolePrompt } from './wumpusConsoleDisplay';
-import { PlayerActionFactoryImp } from './playerAction';
+import { PlayerActionFactoryImpl } from './playerAction';
 
 /**
  * App entry point.
@@ -31,7 +31,7 @@ class App {
         let options: WumpusOptions = new WumpusOptions();
         let cave: WumpusCaveImpl = new WumpusCaveImpl(CaveCreator.createCave(options));
         let display: WumpusConsoleDisplay = new WumpusConsoleDisplay(App.consoleWrite, App.consolePrompt);
-        let playerActionFactory = new PlayerActionFactoryImp();
+        let playerActionFactory = new PlayerActionFactoryImpl();
 
         let game: Game = new Game(cave, display, playerActionFactory);
 
