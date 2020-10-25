@@ -19,7 +19,7 @@ export interface PlayerAction {
 /**
  * Handles quitting the game.
  */
-class QuitGame implements PlayerAction {
+export class QuitGame implements PlayerAction {
     perform(cave: WumpusCave, display: WumpusDisplay): boolean {
         // FUTURE Prompt the user if they want to quit.
         cave;
@@ -31,7 +31,7 @@ class QuitGame implements PlayerAction {
 /**
  * Handles moving the player.
  */
-class MovePlayer implements PlayerAction {
+export class MovePlayer implements PlayerAction {
 
     private roomNumber: number;
 
