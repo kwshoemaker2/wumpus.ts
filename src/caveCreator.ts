@@ -4,49 +4,31 @@ import { WumpusOptions } from './wumpusOptions'
 import { getRandomIntBetween } from './wumpusUtils'
 const assert = require('assert').strict;
 
-/**
- * Static class that creates the cave for Hunt the Wumpus.
- */
-export class CaveCreator {
-    /**
-     * Creates the Wumpus cave from the game options.
-     * @param options The game options.
-     */
-    public static createCave(options: WumpusOptions): WumpusRoom[] {
-        let rooms: WumpusRoom[] = CaveCreator.initRooms(options.numRooms);
-        CaveCreator.shuffleRooms(rooms);
-        CaveCreator.makeConnectedNetwork(options, rooms);
-        CaveCreator.fillInRestofNetwork(options, rooms);
-        CaveCreator.fillInCaveInhabitants(options, rooms);
-        
-        //printCave(rooms);
+class CaveBuilder {
+    private rooms: WumpusRoomImpl[];
 
-        return rooms;
+    public constructor(numRooms: number)
+    {
+        this.rooms = [];
+        this.initRooms(numRooms);
     }
 
-    /**
-     * Create an array of WumpusRoom objects numbered 1..numRooms.
-     * @param numRooms The number of rooms in the cave.
-     */
-    private static initRooms(numRooms: number): WumpusRoom[] {
-        let rooms: WumpusRoom[] = [];
-
+    private initRooms(numRooms: number)
+    {
         for(let i = 0; i < numRooms; i++)
         {
             const roomNum = i + 1;
-            rooms.push(new WumpusRoomImpl(roomNum));
+            this.rooms.push(new WumpusRoomImpl(roomNum));
         }
-
-        return rooms;
     }
 
     /**
-     * Shuffle the rooms array randomly.
-     * @param rooms The rooms to shuffle.
+     * Randomly shuffle the rooms in the cave.
      */
-    private static shuffleRooms(rooms: WumpusRoom[]) {
+    public shuffleRooms() {
         // Implementation of the Fisher-Yates shuffle algorithm.
-        let arrayLen: number = rooms.length;
+        const rooms = this.rooms;
+        const arrayLen: number = this.rooms.length;
         for(let fromIndex = 0; fromIndex < arrayLen - 1; fromIndex++) {
             let toIndex: number = getRandomIntBetween(fromIndex, arrayLen);
             [rooms[fromIndex], rooms[toIndex]] = [rooms[toIndex], rooms[fromIndex]];
@@ -54,16 +36,25 @@ export class CaveCreator {
     }
 
     /**
-     * Makes a network where each room is connected to another.
-     * @param rooms The array of rooms to connect.
+     * Build the doors between each room.
+     * @param numDoors 
      */
-    private static makeConnectedNetwork(options: WumpusOptions, rooms: WumpusRoom[]) {
+    public buildDoors(numDoors: number) {
+        this.makeConnectedNetwork(numDoors);
+        this.fillInRestofNetwork(numDoors);
+    }
+
+    /**
+     * Makes a network where each room is connected to another.
+     */
+    private makeConnectedNetwork(numDoors: number) {
+        const rooms = this.rooms;
         for(let i = 1; i < rooms.length; i++) {
             let from: WumpusRoom = rooms[i];
             let to: WumpusRoom = null;
             do {
                 to = rooms[getRandomIntBetween(0, i)];
-            } while(from.hasNeighbor(to) || !this.roomHasNeighborsAvailable(options.numDoors, to));
+            } while(from.hasNeighbor(to) || !this.roomHasNeighborsAvailable(numDoors, to));
             from.addNeighbor(to);
             to.addNeighbor(from);
         }
@@ -72,15 +63,16 @@ export class CaveCreator {
     /**
      * Fill in any extra rooms on the cave network.
      */
-    private static fillInRestofNetwork(options: WumpusOptions, rooms: WumpusRoom[]) {
+    private fillInRestofNetwork(numDoors: number) {
         // TODO there's a bug in here where a duplicate room is placed occasionally.
+        const rooms = this.rooms;
         for(let fromIndex = 0; fromIndex < rooms.length; fromIndex++) {
             let from: WumpusRoom = rooms[fromIndex];
-            while(this.roomHasNeighborsAvailable(options.numDoors, from)) {
+            while(this.roomHasNeighborsAvailable(numDoors, from)) {
                 let to: WumpusRoom = null;
                 for(let toIndex = fromIndex+1; toIndex < rooms.length; toIndex++) {
                     to = rooms[toIndex];
-                    if(this.roomHasNeighborsAvailable(options.numDoors, to) && !to.hasNeighbor(from)) {
+                    if(this.roomHasNeighborsAvailable(numDoors, to) && !to.hasNeighbor(from)) {
                         break;
                     } else {
                         to = null;
@@ -104,22 +96,15 @@ export class CaveCreator {
      * @param maxNeighbors The max number of neighbors a room can have.
      * @param room The room being checked.
      */
-    private static roomHasNeighborsAvailable(maxNeighbors: number, room: WumpusRoom): boolean {
+    private roomHasNeighborsAvailable(maxNeighbors: number, room: WumpusRoom): boolean {
         return room.numNeighbors() < maxNeighbors;
-    }
-
-    /**
-     * Fill in the rest of the cave inhabitants (i.e. pits, bats, wumpus)
-     */
-    private static fillInCaveInhabitants(options: WumpusOptions, rooms: WumpusRoom[]): void {
-        CaveCreator.addPits(options.numPits, rooms);
-        CaveCreator.addBats(options.numBats, rooms);
     }
 
     /**
      * Add pits to the cave.
      */
-    private static addPits(numPits: number, rooms: WumpusRoom[]): void {
+    public addPits(numPits: number): void {
+        const rooms = this.rooms;
         let numPitsAdded = 0;
         assert(rooms.length >= numPits, `Not enough rooms (${rooms.length}) for number of pits (${numPits})`);
         while(numPitsAdded < numPits) {
@@ -135,7 +120,8 @@ export class CaveCreator {
     /**
      * Add bats to the cave.
      */
-    private static addBats(numBats: number, rooms: WumpusRoom[]): void {
+    public addBats(numBats: number): void {
+        const rooms = this.rooms;
         let numBatsAdded = 0;
         assert(rooms.length >= numBats, `Not enough rooms (${rooms.length}) for number of bats (${numBats})`);
         while(numBatsAdded < numBats) {
@@ -146,6 +132,31 @@ export class CaveCreator {
                 numBatsAdded++;
             }
         }
+    }
+
+    public getRooms(): WumpusRoom[] {
+        return this.rooms;
+    }
+}
+
+/**
+ * Static class that creates the cave for Hunt the Wumpus.
+ */
+export class CaveCreator {
+    /**
+     * Creates the Wumpus cave from the game options.
+     * @param options The game options.
+     */
+    public static createCave(options: WumpusOptions): WumpusRoom[] {
+        const builder = new CaveBuilder(options.numRooms);
+        builder.shuffleRooms();
+        builder.buildDoors(options.numDoors);
+        builder.addPits(options.numPits);
+        builder.addBats(options.numBats);
+        
+        const rooms = builder.getRooms();
+        //printCave(rooms);
+        return rooms;
     }
 }
 
