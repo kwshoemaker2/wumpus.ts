@@ -2,7 +2,7 @@
 import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom'
 import { WumpusOptions } from './wumpusOptions'
 import { getRandomIntBetween } from './wumpusUtils'
-import { assert } from 'chai';
+const assert = require('assert').strict;
 
 /**
  * Static class that creates the cave for Hunt the Wumpus.
@@ -111,15 +111,39 @@ export class CaveCreator {
     /**
      * Fill in the rest of the cave inhabitants (i.e. pits, bats, wumpus)
      */
-    private static fillInCaveInhabitants(options: WumpusOptions, rooms: WumpusRoom[]) {
+    private static fillInCaveInhabitants(options: WumpusOptions, rooms: WumpusRoom[]): void {
+        CaveCreator.addPits(options.numPits, rooms);
+        CaveCreator.addBats(options.numBats, rooms);
+    }
+
+    /**
+     * Add pits to the cave.
+     */
+    private static addPits(numPits: number, rooms: WumpusRoom[]): void {
         let numPitsAdded = 0;
-        assert(rooms.length >= options.numPits, `Not enough rooms (${rooms.length}) for number of pits (${options.numPits})`);
-        while(numPitsAdded < options.numPits) {
+        assert(rooms.length >= numPits, `Not enough rooms (${rooms.length}) for number of pits (${numPits})`);
+        while(numPitsAdded < numPits) {
             const pitLoc = getRandomIntBetween(0, rooms.length);
             const room = rooms[pitLoc];
-            if(!room.hasPit()) {
+            if(!room.hasPit() && !room.hasPit()) {
                 room.setPit(true);
                 numPitsAdded++;
+            }
+        }
+    }
+
+    /**
+     * Add bats to the cave.
+     */
+    private static addBats(numBats: number, rooms: WumpusRoom[]): void {
+        let numBatsAdded = 0;
+        assert(rooms.length >= numBats, `Not enough rooms (${rooms.length}) for number of bats (${numBats})`);
+        while(numBatsAdded < numBats) {
+            const batLoc = getRandomIntBetween(0, rooms.length);
+            const room = rooms[batLoc];
+            if(!room.hasBats() && !room.hasPit()) {
+                room.setBats(true);
+                numBatsAdded++;
             }
         }
     }

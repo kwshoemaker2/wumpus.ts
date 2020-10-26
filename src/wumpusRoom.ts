@@ -39,17 +39,35 @@ export interface WumpusRoom {
      * Returns true if a pit is in a neighboring room.
      */
     pitNearby(): boolean;
+
+    /**
+     * Set whether the room has bats.
+     * @param hasBat 
+     */
+    setBats(hasBat: boolean): void;
+
+    /**
+     * Returns a boolean indicating if bats are in the room.
+     */
+    hasBats(): boolean;
+
+    /**
+     * Returns true if bats are in a neighboring room.
+     */
+    batsNearby(): boolean;
 }
 
 export class WumpusRoomImpl implements WumpusRoom {
     private roomNumber: number;
     private neighbors: WumpusRoom[];
     private hasPit_: boolean;
+    private hasBats_: boolean;
 
     constructor(roomNumber: number) {
         this.roomNumber = roomNumber;
         this.neighbors = [];
         this.hasPit_ = false;
+        this.hasBats_ = false;
     }
 
     getRoomNumber(): number { return this.roomNumber; }
@@ -78,6 +96,26 @@ export class WumpusRoomImpl implements WumpusRoom {
     pitNearby(): boolean {
         for(let i = 0; i < this.neighbors.length; i++) {
             if(this.neighbors[i].hasPit()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    setBats(hasBat: boolean): void
+    {
+        this.hasBats_ = hasBat;
+    }
+
+    hasBats(): boolean
+    {
+        return this.hasBats_;
+    }
+
+    batsNearby(): boolean
+    {
+        for(let i = 0; i < this.neighbors.length; i++) {
+            if(this.neighbors[i].hasBats()) {
                 return true;
             }
         }

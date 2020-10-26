@@ -45,4 +45,24 @@ describe('CaveCreator.createCave tests', function() {
 
         expect(numPits).equals(options.numPits);
     });
-})
+
+    it('creates a cave with options.numBats number of bats', function() {
+        let rooms: WumpusRoom[] = CaveCreator.createCave(options);
+        let numBats: number = 0;
+
+        for(let i = 0; i < rooms.length; i++) {
+            if(rooms[i].hasBats()) { numBats++; }
+        }
+
+        expect(numBats).equals(options.numBats);
+    });
+
+    it('does not have bats and pits in the same room', function() {
+        let rooms: WumpusRoom[] = CaveCreator.createCave(options);
+
+        for(let i = 0; i < rooms.length; i++) {
+            const hasBoth = (rooms[i].hasBats() && rooms[i].hasPit());
+            expect(hasBoth).equals(false);
+        }
+    });
+});

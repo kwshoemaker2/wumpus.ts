@@ -1,4 +1,7 @@
 
+// FUTURE Consider nuking these and just having WumpusDisplay.getUserCommand return
+// the PlayerAction instead.
+
 /**
  * The command types supported by the game.
  */
