@@ -1,9 +1,27 @@
 import { expect } from 'chai';
 import { WumpusOptions } from './wumpusOptions'
-import { CaveCreator } from './caveCreator'
+import { CaveCreator, CaveBuilder } from './caveCreator'
 import { WumpusRoom } from './wumpusRoom'
 
-describe('CaveCreator.createCave tests', function() {
+describe('CaveBuilder', () => {
+    it('initializes the array of rooms ordered from 1..n', () => {
+        const numRooms = 5;
+        const builder = new CaveBuilder(5);
+        const rooms = builder.getRooms();
+
+        expect(rooms[0].getRoomNumber()).equals(1);
+        expect(rooms[1].getRoomNumber()).equals(2);
+        expect(rooms[2].getRoomNumber()).equals(3);
+        expect(rooms[3].getRoomNumber()).equals(4);
+        expect(rooms[4].getRoomNumber()).equals(5);
+    });
+
+    it('shuffles the rooms to different parts of the array', () => {
+
+    });
+});
+
+xdescribe('CaveCreator', () => {
     const options: WumpusOptions = new WumpusOptions();
 
     it('has the options.numRooms number of rooms', function() {

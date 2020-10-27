@@ -1,15 +1,25 @@
 
 import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom'
 import { WumpusOptions } from './wumpusOptions'
-import { getRandomIntBetween } from './wumpusUtils'
+import { getRandomIntBetween, RandomRangeFunction } from './wumpusUtils'
 const assert = require('assert').strict;
 
-class CaveBuilder {
+/**
+ * Builds a Wumpus cave with a configurable number of rooms, 
+ * tunnels, bats, pits, etc.
+ */
+export class CaveBuilder {
     private rooms: WumpusRoomImpl[];
+    private numberOfPits: number;
+    private numberOfBats: number;
+    private randRangeFunction: RandomRangeFunction = getRandomIntBetween;
 
     public constructor(numRooms: number)
     {
         this.rooms = [];
+        this.numberOfPits = 0;
+        this.numberOfBats = 0;
+
         this.initRooms(numRooms);
     }
 
@@ -20,6 +30,13 @@ class CaveBuilder {
             const roomNum = i + 1;
             this.rooms.push(new WumpusRoomImpl(roomNum));
         }
+    }
+
+    /**
+     * Override the default random range function.
+     */
+    public setRandomRangeFunction(randRangeFunction: RandomRangeFunction): void {
+        this.randRangeFunction = randRangeFunction;
     }
 
     /**
@@ -40,6 +57,8 @@ class CaveBuilder {
      * @param numDoors 
      */
     public buildDoors(numDoors: number) {
+        // TODO This is the generation algorithm from an older version.
+        // This should be updated to the newer one.
         this.makeConnectedNetwork(numDoors);
         this.fillInRestofNetwork(numDoors);
     }
@@ -105,14 +124,12 @@ class CaveBuilder {
      */
     public addPits(numPits: number): void {
         const rooms = this.rooms;
-        let numPitsAdded = 0;
-        assert(rooms.length >= numPits, `Not enough rooms (${rooms.length}) for number of pits (${numPits})`);
-        while(numPitsAdded < numPits) {
+        while(this.numberOfPits < numPits) {
             const pitLoc = getRandomIntBetween(0, rooms.length);
             const room = rooms[pitLoc];
             if(!room.hasPit() && !room.hasPit()) {
                 room.setPit(true);
-                numPitsAdded++;
+                this.numberOfPits++;
             }
         }
     }
@@ -122,14 +139,12 @@ class CaveBuilder {
      */
     public addBats(numBats: number): void {
         const rooms = this.rooms;
-        let numBatsAdded = 0;
-        assert(rooms.length >= numBats, `Not enough rooms (${rooms.length}) for number of bats (${numBats})`);
-        while(numBatsAdded < numBats) {
+        while(this.numberOfBats < numBats) {
             const batLoc = getRandomIntBetween(0, rooms.length);
             const room = rooms[batLoc];
             if(!room.hasBats() && !room.hasPit()) {
                 room.setBats(true);
-                numBatsAdded++;
+                this.numberOfBats++;
             }
         }
     }
