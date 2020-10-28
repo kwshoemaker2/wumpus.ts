@@ -4,18 +4,35 @@ import { WumpusOptions } from './wumpusOptions'
 import { getRandomIntBetween, RandomRangeFunction } from './wumpusUtils'
 const assert = require('assert').strict;
 
+export const MinRooms: number = 10;
+export const DefaultRooms: number = 20;
+export const MaxRooms: number = 250;
+
+export const MinDoors: number = 2;
+export const DefaultDoors: number = 3;
+export const MaxDoors: number = 25;
+
 /**
  * Builds a Wumpus cave with a configurable number of rooms, 
  * tunnels, bats, pits, etc.
+ * 
+ * For the purposes of this implementation, the generated graph has each room connected
+ * to the room after it. So 1 -> 2, 2 -> 3, ..., 10 -> 1. This is done to allow for a
+ * simpler and easier to verify implementation. Instead randomness is introduced by calling
+ * shuffleRooms some number of times before calling other operations like buildDoors,
+ * addPits, etc.
  */
 export class CaveBuilder {
     private rooms: WumpusRoomImpl[];
     private numberOfPits: number;
     private numberOfBats: number;
-    private randRangeFunction: RandomRangeFunction = getRandomIntBetween;
+    private randRange: RandomRangeFunction = getRandomIntBetween;
 
     public constructor(numRooms: number)
     {
+        assert(numRooms >= MinRooms);
+        assert(numRooms <= MaxRooms);
+
         this.rooms = [];
         this.numberOfPits = 0;
         this.numberOfBats = 0;
@@ -36,7 +53,7 @@ export class CaveBuilder {
      * Override the default random range function.
      */
     public setRandomRangeFunction(randRangeFunction: RandomRangeFunction): void {
-        this.randRangeFunction = randRangeFunction;
+        this.randRange = randRangeFunction;
     }
 
     /**
@@ -47,7 +64,7 @@ export class CaveBuilder {
         const rooms = this.rooms;
         const arrayLen: number = this.rooms.length;
         for(let fromIndex = 0; fromIndex < arrayLen - 1; fromIndex++) {
-            let toIndex: number = getRandomIntBetween(fromIndex, arrayLen);
+            let toIndex: number = this.randRange(fromIndex, arrayLen);
             [rooms[fromIndex], rooms[toIndex]] = [rooms[toIndex], rooms[fromIndex]];
         }
     }
@@ -57,10 +74,14 @@ export class CaveBuilder {
      * @param numDoors 
      */
     public buildDoors(numDoors: number) {
-        // TODO This is the generation algorithm from an older version.
-        // This should be updated to the newer one.
+        const numRooms = this.rooms.length;
+        const maxDoorsForThisCave = numRooms - Math.floor(numRooms / 4);
+        assert(numDoors <= maxDoorsForThisCave);
+        assert(numDoors >= MinDoors);
+        assert(numDoors <= MaxDoors);
+
         this.makeConnectedNetwork(numDoors);
-        this.fillInRestofNetwork(numDoors);
+        this.fillInRestOfNetwork(numDoors);
     }
 
     /**
@@ -68,45 +89,55 @@ export class CaveBuilder {
      */
     private makeConnectedNetwork(numDoors: number) {
         const rooms = this.rooms;
-        for(let i = 1; i < rooms.length; i++) {
-            let from: WumpusRoom = rooms[i];
-            let to: WumpusRoom = null;
-            do {
-                to = rooms[getRandomIntBetween(0, i)];
-            } while(from.hasNeighbor(to) || !this.roomHasNeighborsAvailable(numDoors, to));
+        const numRooms = rooms.length;
+        for(let roomNum = 0; roomNum < numRooms; roomNum++) {
+            let from: WumpusRoom = rooms[roomNum];
+            const nextRoomNum = (roomNum + 1) % numRooms;
+            let to: WumpusRoom = rooms[nextRoomNum];
+
+            // This should always be true when making the initial links.
+            assert(this.roomHasNeighborsAvailable(numDoors, to));
+            assert(this.roomHasNeighborsAvailable(numDoors, from));
+
             from.addNeighbor(to);
             to.addNeighbor(from);
         }
     }
 
     /**
-     * Fill in any extra rooms on the cave network.
+     * Create connections between rooms so each has a numDoors number of doors.
      */
-    private fillInRestofNetwork(numDoors: number) {
-        // TODO there's a bug in here where a duplicate room is placed occasionally.
+    private fillInRestOfNetwork(numDoors: number) {
         const rooms = this.rooms;
-        for(let fromIndex = 0; fromIndex < rooms.length; fromIndex++) {
-            let from: WumpusRoom = rooms[fromIndex];
-            while(this.roomHasNeighborsAvailable(numDoors, from)) {
-                let to: WumpusRoom = null;
-                for(let toIndex = fromIndex+1; toIndex < rooms.length; toIndex++) {
-                    to = rooms[toIndex];
-                    if(this.roomHasNeighborsAvailable(numDoors, to) && !to.hasNeighbor(from)) {
-                        break;
-                    } else {
-                        to = null;
-                    }
-                }
-
-                if(to != null) {
+        const numRooms = rooms.length;
+        for(let fromIndex = 0; fromIndex < numRooms; fromIndex++) {
+            const from = rooms[fromIndex];
+            let neighborsNeeded = numDoors - from.numNeighbors();
+            let toIndex = (fromIndex+1) % numRooms;
+            while(toIndex < numRooms && neighborsNeeded > 0) {
+                const to = rooms[toIndex];
+                if((to !== from) &&
+                   this.roomHasNeighborsAvailable(numDoors, to) &&
+                   !from.hasNeighbor(to))
+                {
                     from.addNeighbor(to);
                     to.addNeighbor(from);
-                } else {
-                    // The last room may end up with two free slots; make them one-way
-                    to = rooms[getRandomIntBetween(0, fromIndex)];
-                    from.addNeighbor(to);
+                    neighborsNeeded--;
                 }
+                toIndex++;
             }
+
+            // If we didn't fill all the neighbors, fill in the rest with one-way connections.
+            toIndex = 0;
+            while(toIndex < numRooms && neighborsNeeded > 0) {
+                const to = rooms[toIndex];
+                if(!from.hasNeighbor(to)) {
+                    from.addNeighbor(to);
+                    neighborsNeeded--;
+                }
+                toIndex++;
+            }
+            assert(neighborsNeeded === 0);
         }
     }
 
@@ -125,7 +156,7 @@ export class CaveBuilder {
     public addPits(numPits: number): void {
         const rooms = this.rooms;
         while(this.numberOfPits < numPits) {
-            const pitLoc = getRandomIntBetween(0, rooms.length);
+            const pitLoc = this.randRange(0, rooms.length);
             const room = rooms[pitLoc];
             if(!room.hasPit() && !room.hasPit()) {
                 room.setPit(true);
@@ -139,12 +170,13 @@ export class CaveBuilder {
      */
     public addBats(numBats: number): void {
         const rooms = this.rooms;
-        while(this.numberOfBats < numBats) {
-            const batLoc = getRandomIntBetween(0, rooms.length);
+        let totalBats: number = 0;
+        while(totalBats < numBats) {
+            const batLoc = this.randRange(0, rooms.length);
             const room = rooms[batLoc];
-            if(!room.hasBats() && !room.hasPit()) {
+            if(!room.hasBats()) {
                 room.setBats(true);
-                this.numberOfBats++;
+                totalBats++;
             }
         }
     }
@@ -179,7 +211,7 @@ export class CaveCreator {
 * Print the cave layout in a graphviz format.
 * @param rooms The rooms of the cave.
 */
-function printCave(rooms: WumpusRoom[]) {
+export function printCave(rooms: WumpusRoom[]) {
     let s: string = "digraph {\n";
     for(let i = 0; i < rooms.length; i++) {
         let room: WumpusRoom = rooms[i];
