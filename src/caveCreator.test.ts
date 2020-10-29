@@ -1,11 +1,9 @@
 import { expect } from 'chai';
-import { WumpusOptions } from './wumpusOptions'
-import { CaveCreator, CaveBuilder, MinRooms, printCave, MaxRooms, MaxDoors, DefaultRooms, DefaultDoors } from './caveCreator'
+import { StandardRoomsBuilder, MinRooms, MaxRooms, MaxDoors, DefaultRooms } from './caveCreator'
 import { WumpusRoom } from './wumpusRoom'
-import { RandomRangeFunction } from './wumpusUtils';
 import * as sinon from 'sinon';
 
-describe('CaveBuilder', () => {
+describe('StandardRoomsBuilder', () => {
 
     /**
      * Asserts that the rooms form a connected graph.
@@ -36,7 +34,7 @@ describe('CaveBuilder', () => {
 
     it('initializes the array of rooms ordered from 1..n', () => {
         const numRooms = MinRooms;
-        const builder = new CaveBuilder(numRooms);
+        const builder = new StandardRoomsBuilder(numRooms);
         const rooms = builder.getRooms();
 
         expect(rooms[0].getRoomNumber()).equals(1);
@@ -47,7 +45,7 @@ describe('CaveBuilder', () => {
         const numRooms = 10;
 
         const randInt = sinon.stub();
-        const builder = new CaveBuilder(numRooms);
+        const builder = new StandardRoomsBuilder(numRooms);
         builder.setRandomRangeFunction(randInt);
 
         const roomOrder = [1, 3, 5, 7, 9, 2, 4, 6, 8];
@@ -75,7 +73,7 @@ describe('CaveBuilder', () => {
         const numRooms = MinRooms;
         const numDoors = 3;
 
-        const builder = new CaveBuilder(numRooms);
+        const builder = new StandardRoomsBuilder(numRooms);
         builder.buildDoors(numDoors);
         const rooms = builder.getRooms();
         checkIfRoomsAreConnectedNetwork(rooms);
@@ -85,7 +83,7 @@ describe('CaveBuilder', () => {
         const numRooms = 11;
         const numDoors = 3;
 
-        const builder = new CaveBuilder(numRooms);
+        const builder = new StandardRoomsBuilder(numRooms);
         builder.buildDoors(numDoors);
         const rooms = builder.getRooms();
 
@@ -96,7 +94,7 @@ describe('CaveBuilder', () => {
         const numRooms = 11;
         const numDoors = 3;
 
-        const builder = new CaveBuilder(numRooms);
+        const builder = new StandardRoomsBuilder(numRooms);
         builder.buildDoors(numDoors);
         const rooms = builder.getRooms();
 
@@ -107,7 +105,7 @@ describe('CaveBuilder', () => {
         const numRooms = 11;
         const numDoors = 4;
 
-        const builder = new CaveBuilder(numRooms);
+        const builder = new StandardRoomsBuilder(numRooms);
         builder.buildDoors(numDoors);
         const rooms = builder.getRooms();
 
@@ -118,7 +116,7 @@ describe('CaveBuilder', () => {
         const numRooms = 10;
         const numDoors = 7;
 
-        const builder = new CaveBuilder(numRooms);
+        const builder = new StandardRoomsBuilder(numRooms);
         builder.buildDoors(numDoors);
         const rooms = builder.getRooms();
 
@@ -131,7 +129,7 @@ describe('CaveBuilder', () => {
         const numRooms = MaxRooms;
         const numDoors = MaxDoors;
 
-        const builder = new CaveBuilder(numRooms);
+        const builder = new StandardRoomsBuilder(numRooms);
         builder.buildDoors(numDoors);
         const rooms = builder.getRooms();
 
@@ -148,7 +146,7 @@ describe('CaveBuilder', () => {
         randInt.onCall(1).returns(3);
         randInt.onCall(2).returns(5);
 
-        const builder = new CaveBuilder(numRooms);
+        const builder = new StandardRoomsBuilder(numRooms);
         builder.setRandomRangeFunction(randInt);
 
         builder.addPits(3);
@@ -167,7 +165,7 @@ describe('CaveBuilder', () => {
         randInt.onCall(1).returns(1);
         randInt.onCall(2).returns(3);
 
-        const builder = new CaveBuilder(numRooms);
+        const builder = new StandardRoomsBuilder(numRooms);
         builder.setRandomRangeFunction(randInt);
 
         builder.addPits(2);
@@ -185,7 +183,7 @@ describe('CaveBuilder', () => {
         randInt.onCall(1).returns(1);
         randInt.onCall(2).returns(2);
 
-        const builder = new CaveBuilder(numRooms);
+        const builder = new StandardRoomsBuilder(numRooms);
         builder.setRandomRangeFunction(randInt);
 
         builder.addBats(1);
@@ -204,7 +202,7 @@ describe('CaveBuilder', () => {
         randInt.onCall(1).returns(3);
         randInt.onCall(2).returns(5);
 
-        const builder = new CaveBuilder(numRooms);
+        const builder = new StandardRoomsBuilder(numRooms);
         builder.setRandomRangeFunction(randInt);
 
         builder.addBats(3);
@@ -223,7 +221,7 @@ describe('CaveBuilder', () => {
         randInt.onCall(1).returns(1);
         randInt.onCall(2).returns(3);
 
-        const builder = new CaveBuilder(numRooms);
+        const builder = new StandardRoomsBuilder(numRooms);
         builder.setRandomRangeFunction(randInt);
 
         builder.addBats(2);
@@ -241,7 +239,7 @@ describe('CaveBuilder', () => {
         randInt.onCall(1).returns(1);
         randInt.onCall(2).returns(3);
 
-        const builder = new CaveBuilder(numRooms);
+        const builder = new StandardRoomsBuilder(numRooms);
         builder.setRandomRangeFunction(randInt);
 
         builder.addPits(1);

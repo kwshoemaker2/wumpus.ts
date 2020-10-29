@@ -2,6 +2,7 @@
 import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom'
 import { WumpusOptions } from './wumpusOptions'
 import { getRandomIntBetween, RandomRangeFunction } from './wumpusUtils'
+import { WumpusCave, WumpusCaveImpl } from './wumpusCave';
 const assert = require('assert').strict;
 
 export const MinRooms: number = 10;
@@ -13,8 +14,38 @@ export const DefaultDoors: number = 3;
 export const MaxDoors: number = 25;
 
 /**
- * Builds a Wumpus cave with a configurable number of rooms, 
- * tunnels, bats, pits, etc.
+ * Interface for building the rooms in a Wumpus cave.
+ */
+export interface RoomsBuilder {
+    /**
+     * Randomly shuffle the rooms in the cave.
+     */
+    shuffleRooms();
+
+    /**
+     * Build the doors between each room.
+     * @param numDoors 
+     */
+    buildDoors(numDoors: number);
+
+    /**
+     * Add pits to the cave.
+     */
+    addPits(numPits: number);
+
+    /**
+     * Add bats to the cave.
+     */
+    addBats(numBats: number);
+
+    /**
+     * Get the built rooms.
+     */
+    getRooms(): WumpusRoom[];
+}
+
+/**
+ * Builds the rooms in a Wumpus cave with a configurable number of tunnels, bats, pits, etc.
  * 
  * For the purposes of this implementation, the generated graph has each room connected
  * to the room after it. So 1 -> 2, 2 -> 3, ..., 10 -> 1. This is done to allow for a
@@ -22,7 +53,7 @@ export const MaxDoors: number = 25;
  * shuffleRooms some number of times before calling other operations like buildDoors,
  * addPits, etc.
  */
-export class CaveBuilder {
+export class StandardRoomsBuilder implements RoomsBuilder {
     private rooms: WumpusRoomImpl[];
     private randRange: RandomRangeFunction = getRandomIntBetween;
 
@@ -52,9 +83,6 @@ export class CaveBuilder {
         this.randRange = randRangeFunction;
     }
 
-    /**
-     * Randomly shuffle the rooms in the cave.
-     */
     public shuffleRooms() {
         // Implementation of the Fisher-Yates shuffle algorithm.
         const rooms = this.rooms;
@@ -65,10 +93,6 @@ export class CaveBuilder {
         }
     }
 
-    /**
-     * Build the doors between each room.
-     * @param numDoors 
-     */
     public buildDoors(numDoors: number) {
         const numRooms = this.rooms.length;
         const maxDoorsForThisCave = numRooms - Math.floor(numRooms / 4);
@@ -146,9 +170,6 @@ export class CaveBuilder {
         return room.numNeighbors() < maxNeighbors;
     }
 
-    /**
-     * Add pits to the cave.
-     */
     public addPits(numPits: number): void {
         const rooms = this.rooms;
         let totalPits: number = 0;
@@ -162,9 +183,6 @@ export class CaveBuilder {
         }
     }
 
-    /**
-     * Add bats to the cave.
-     */
     public addBats(numBats: number): void {
         const rooms = this.rooms;
         let totalBats: number = 0;
@@ -178,9 +196,6 @@ export class CaveBuilder {
         }
     }
 
-    /**
-     * Returns a boolean indicating if the room has a hazard.
-     */
     private roomHasHazard(room: WumpusRoom): boolean {
         return (room.hasPit() || room.hasBats());
     }
@@ -191,24 +206,20 @@ export class CaveBuilder {
 }
 
 /**
- * Static class that creates the cave for Hunt the Wumpus.
+ * Creates the Wumpus cave from the game options.
+ * @param options The game options.
+ * @param builder The builder used to created the cave.
  */
-export class CaveCreator {
-    /**
-     * Creates the Wumpus cave from the game options.
-     * @param options The game options.
-     */
-    public static createCave(options: WumpusOptions): WumpusRoom[] {
-        const builder = new CaveBuilder(options.numRooms);
-        builder.shuffleRooms();
-        builder.buildDoors(options.numDoors);
-        builder.addPits(options.numPits);
-        builder.addBats(options.numBats);
-        
-        const rooms = builder.getRooms();
-        //printCave(rooms);
-        return rooms;
-    }
+export function createCave(options: WumpusOptions, builder: RoomsBuilder): WumpusCave {
+    builder.shuffleRooms();
+    builder.buildDoors(options.numDoors);
+    builder.addPits(options.numPits);
+    builder.addBats(options.numBats);
+    
+    const rooms = builder.getRooms();
+    //printCave(rooms);
+
+    return new WumpusCaveImpl(rooms);
 }
 
 /**

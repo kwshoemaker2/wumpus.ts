@@ -3,7 +3,7 @@ import { createInterface } from 'readline';
 import { Game } from './game';
 import { WumpusOptions } from './wumpusOptions';
 import { WumpusCaveImpl } from './wumpusCave';
-import { CaveCreator } from './caveCreator';
+import { createCave, StandardRoomsBuilder } from './caveCreator';
 import { WumpusConsoleDisplay, ConsoleWrite, ConsolePrompt } from './wumpusConsoleDisplay';
 import { PlayerActionFactoryImpl } from './playerAction';
 
@@ -28,12 +28,13 @@ class App {
     }
 
     public static async start() {
-        let options: WumpusOptions = new WumpusOptions();
-        let cave: WumpusCaveImpl = new WumpusCaveImpl(CaveCreator.createCave(options));
-        let display: WumpusConsoleDisplay = new WumpusConsoleDisplay(App.consoleWrite, App.consolePrompt);
-        let playerActionFactory = new PlayerActionFactoryImpl();
+        const options: WumpusOptions = new WumpusOptions();
+        const roomsBuilder = new StandardRoomsBuilder(options.numRooms);
+        const cave = createCave(options, roomsBuilder);
+        const display: WumpusConsoleDisplay = new WumpusConsoleDisplay(App.consoleWrite, App.consolePrompt);
+        const playerActionFactory = new PlayerActionFactoryImpl();
 
-        let game: Game = new Game(cave, display, playerActionFactory);
+        const game: Game = new Game(cave, display, playerActionFactory);
 
         display.showIntroduction(options);
 
