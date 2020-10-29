@@ -37,6 +37,9 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
         if(room.pitNearby()) {
             this.writeConsole("*whoosh* (I feel a draft from some pits).");
         }
+        if(room.batsNearby()) {
+            this.writeConsole("*rustle* *rustle* (must be bats nearby).");
+        }
     }
 
     private printNeighbors(neighbors: WumpusRoom[])
@@ -54,7 +57,7 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
         this.writeConsole("Oof! (you hit the wall)\n")
     }
 
-    showPlayerFellInPit(): void
+    public showPlayerFellInPit(): void
     {
         this.writeConsole(`*AAAUUUUGGGGGHHHHHhhhhhhhhhh...*
 The whistling sound and updraft as you walked into this room of the
@@ -62,6 +65,11 @@ cave apparently wasn't enough to clue you in to the presence of the
 bottomless pit.  You have a lot of time to reflect on this error as
 you fall many miles to the core of the earth.  Look on the bright side;
 you can at least find out if Jules Verne was right...\n`);
+    }
+
+    public showPlayerMovedByBats(): void
+    {
+        this.writeConsole("*flap*  *flap*  *flap*  (humongous bats pick you up and move you!)\n");
     }
 
     public async getUserCommand(): Promise<WumpusCommand> {

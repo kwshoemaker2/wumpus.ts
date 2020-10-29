@@ -1,6 +1,7 @@
 import { WumpusCave } from './wumpusCave'
 import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusCommandType, WumpusCommand } from './wumpusCommand';
+import { RandomRangeFunction, getRandomIntBetween } from './wumpusUtils'
 
 /**
  * Abstraction for an action a player can perform.
@@ -33,9 +34,15 @@ export class QuitGame implements PlayerAction {
 export class MovePlayer implements PlayerAction {
 
     private roomNumber: number;
+    private randInt: RandomRangeFunction;
 
     constructor(roomNumber: number) {
         this.roomNumber = roomNumber;
+        this.randInt = getRandomIntBetween;
+    }
+
+    public setRandIntFunction(randInt: RandomRangeFunction) {
+        this.randInt = randInt;
     }
 
     perform(cave: WumpusCave, display: WumpusDisplay): boolean {
@@ -49,14 +56,26 @@ export class MovePlayer implements PlayerAction {
             cave.move(this.roomNumber);
             const currentRoom = cave.getCurrentRoom();
             if(currentRoom.hasPit()) {
-                display.showPlayerFellInPit();
-                playerSurvived = false;
+                playerSurvived = this.handlePit(display);
+            } else if(currentRoom.hasBats()) {
+                playerSurvived = this.handleBats(display, cave);
             }
         } else {
             display.showPlayerHitWall();
         }
 
         return playerSurvived
+    }
+
+    private handlePit(display: WumpusDisplay): boolean {
+        display.showPlayerFellInPit();
+        return false;
+    }
+
+    private handleBats(display: WumpusDisplay, cave: WumpusCave): boolean {
+        display.showPlayerMovedByBats();
+        cave.movePlayerToRandomRoom();
+        return true;
     }
 }
 

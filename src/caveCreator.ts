@@ -217,7 +217,7 @@ export function createCave(options: WumpusOptions, builder: RoomsBuilder): Wumpu
     builder.addBats(options.numBats);
     
     const rooms = builder.getRooms();
-    //printCave(rooms);
+    printCave(rooms);
 
     return new WumpusCaveImpl(rooms);
 }
