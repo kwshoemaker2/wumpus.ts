@@ -116,6 +116,62 @@ describe('CaveBuilder', () => {
         roomsHaveUniqueNeighbors(rooms);
     });
 
+    it('adds pits to random rooms in the cave', () => {
+        const numRooms = DefaultRooms;
+
+        const randInt = sinon.stub();
+        randInt.onCall(0).returns(1);
+        randInt.onCall(1).returns(3);
+        randInt.onCall(2).returns(5);
+
+        const builder = new CaveBuilder(numRooms);
+        builder.setRandomRangeFunction(randInt);
+
+        builder.addPits(3);
+        const rooms = builder.getRooms();
+
+        expect(rooms[1].hasPit(), "The room should have a pit").equals(true);
+        expect(rooms[3].hasPit(), "The room should have a pit").equals(true);
+        expect(rooms[5].hasPit(), "The room should have a pit").equals(true);
+    });
+
+    it('does not add pit if the room already has one', () => {
+        const numRooms = DefaultRooms;
+
+        const randInt = sinon.stub();
+        randInt.onCall(0).returns(1);
+        randInt.onCall(1).returns(1);
+        randInt.onCall(2).returns(3);
+
+        const builder = new CaveBuilder(numRooms);
+        builder.setRandomRangeFunction(randInt);
+
+        builder.addPits(2);
+        const rooms = builder.getRooms();
+
+        expect(rooms[1].hasPit(), "The room should have a pit").equals(true);
+        expect(rooms[3].hasPit(), "The room should have a pit").equals(true);
+    });
+
+    it('does not add a pit if the room has bats', () => {
+        const numRooms = DefaultRooms;
+
+        const randInt = sinon.stub();
+        randInt.onCall(0).returns(1);
+        randInt.onCall(1).returns(1);
+        randInt.onCall(2).returns(2);
+
+        const builder = new CaveBuilder(numRooms);
+        builder.setRandomRangeFunction(randInt);
+
+        builder.addBats(1);
+        builder.addPits(1);
+
+        const rooms = builder.getRooms();
+        expect(rooms[1].hasBats(), "The room should have bats").equals(true);
+        expect(rooms[1].hasPit(), "The room should not have a pit").equals(false);
+    });
+
     it('adds bats to random rooms in the cave', () => {
         const numRooms = DefaultRooms;
 
@@ -142,17 +198,34 @@ describe('CaveBuilder', () => {
         randInt.onCall(0).returns(1);
         randInt.onCall(1).returns(1);
         randInt.onCall(2).returns(3);
-        randInt.onCall(3).returns(5);
 
         const builder = new CaveBuilder(numRooms);
         builder.setRandomRangeFunction(randInt);
 
-        builder.addBats(3);
+        builder.addBats(2);
         const rooms = builder.getRooms();
 
         expect(rooms[1].hasBats(), "The room should have bats").equals(true);
         expect(rooms[3].hasBats(), "The room should have bats").equals(true);
-        expect(rooms[5].hasBats(), "The room should have bats").equals(true);
+    });
+
+    it('does not add bats if the room already has a pit', () => {
+        const numRooms = DefaultRooms;
+
+        const randInt = sinon.stub();
+        randInt.onCall(0).returns(1);
+        randInt.onCall(1).returns(1);
+        randInt.onCall(2).returns(3);
+
+        const builder = new CaveBuilder(numRooms);
+        builder.setRandomRangeFunction(randInt);
+
+        builder.addPits(1);
+        builder.addBats(1);
+        const rooms = builder.getRooms();
+
+        expect(rooms[1].hasPit(), "The room should have a pit").equals(true);
+        expect(rooms[1].hasBats(), "The room should not have bats").equals(false);
     });
 });
 

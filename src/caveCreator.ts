@@ -24,8 +24,6 @@ export const MaxDoors: number = 25;
  */
 export class CaveBuilder {
     private rooms: WumpusRoomImpl[];
-    private numberOfPits: number;
-    private numberOfBats: number;
     private randRange: RandomRangeFunction = getRandomIntBetween;
 
     public constructor(numRooms: number)
@@ -34,8 +32,6 @@ export class CaveBuilder {
         assert(numRooms <= MaxRooms);
 
         this.rooms = [];
-        this.numberOfPits = 0;
-        this.numberOfBats = 0;
 
         this.initRooms(numRooms);
     }
@@ -155,12 +151,13 @@ export class CaveBuilder {
      */
     public addPits(numPits: number): void {
         const rooms = this.rooms;
-        while(this.numberOfPits < numPits) {
+        let totalPits: number = 0;
+        while(totalPits < numPits) {
             const pitLoc = this.randRange(0, rooms.length);
             const room = rooms[pitLoc];
-            if(!room.hasPit() && !room.hasPit()) {
+            if(!this.roomHasHazard(room)) {
                 room.setPit(true);
-                this.numberOfPits++;
+                totalPits++;
             }
         }
     }
@@ -174,11 +171,18 @@ export class CaveBuilder {
         while(totalBats < numBats) {
             const batLoc = this.randRange(0, rooms.length);
             const room = rooms[batLoc];
-            if(!room.hasBats()) {
+            if(!this.roomHasHazard(room)) {
                 room.setBats(true);
                 totalBats++;
             }
         }
+    }
+
+    /**
+     * Returns a boolean indicating if the room has a hazard.
+     */
+    private roomHasHazard(room: WumpusRoom): boolean {
+        return (room.hasPit() || room.hasBats());
     }
 
     public getRooms(): WumpusRoom[] {
