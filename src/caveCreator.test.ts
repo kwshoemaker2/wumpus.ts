@@ -43,8 +43,32 @@ describe('CaveBuilder', () => {
         expect(rooms[numRooms - 1].getRoomNumber()).equals(numRooms);
     });
 
-    xit('shuffles the rooms to different parts of the array', () => {
-        // TODO
+    it('shuffles the rooms to different parts of the array', () => {
+        const numRooms = 10;
+
+        const randInt = sinon.stub();
+        const builder = new CaveBuilder(numRooms);
+        builder.setRandomRangeFunction(randInt);
+
+        const roomOrder = [1, 3, 5, 7, 9, 2, 4, 6, 8];
+        for(let callNum = 0; callNum < roomOrder.length; callNum++) {
+            const roomNum = roomOrder[callNum] - 1;
+            randInt.onCall(callNum).returns(roomNum);
+        }
+
+        builder.shuffleRooms();
+
+        const rooms = builder.getRooms();
+        expect(rooms[0].getRoomNumber()).equals(1);
+        expect(rooms[1].getRoomNumber()).equals(6);
+        expect(rooms[2].getRoomNumber()).equals(5);
+        expect(rooms[3].getRoomNumber()).equals(4);
+        expect(rooms[4].getRoomNumber()).equals(9);
+        expect(rooms[5].getRoomNumber()).equals(8);
+        expect(rooms[6].getRoomNumber()).equals(7);
+        expect(rooms[7].getRoomNumber()).equals(2);
+        expect(rooms[8].getRoomNumber()).equals(3);
+        expect(rooms[9].getRoomNumber()).equals(10);
     });
 
     it('builds a connected network out of the rooms', () => {
@@ -229,66 +253,3 @@ describe('CaveBuilder', () => {
     });
 });
 
-xdescribe('CaveCreator', () => {
-    const options: WumpusOptions = new WumpusOptions();
-
-    it('has the options.numRooms number of rooms', function() {
-        let rooms: WumpusRoom[] = CaveCreator.createCave(options);
-        expect(rooms.length).equal(options.numRooms);
-    });
-
-    it('has rooms that each have options.numDoors number of neighbors', function() {
-        let rooms: WumpusRoom[] = CaveCreator.createCave(options);
-        for(let i = 0; i < rooms.length; i++) {
-            let room: WumpusRoom = rooms[i];
-            expect(room.numNeighbors()).equals(options.numDoors);
-        }
-    });
-
-    // TODO this test sometimes fails.
-    // Need to not use the real random number generator, and figure out what conditions it fails under.
-    xit('has unique neighbors in each room', function() {
-        let rooms: WumpusRoom[] = CaveCreator.createCave(options);
-        for(let i = 0; i < rooms.length; i++) {
-            let neighbors: WumpusRoom[] = rooms[i].getNeighbors();
-            for(let j = 0; j < neighbors.length; j++) {
-                let thisNeighbor: WumpusRoom = neighbors[j];
-                for(let k = j+1; k < neighbors.length; k++) {
-                    let otherNeighbor: WumpusRoom = neighbors[k];
-                    expect(thisNeighbor).not.equals(otherNeighbor);
-                }
-            }
-        }
-    });
-
-    it('creates a cave with options.numPits number of pits', function() {
-        let rooms: WumpusRoom[] = CaveCreator.createCave(options);
-        let numPits: number = 0;
-
-        for(let i = 0; i < rooms.length; i++) {
-            if(rooms[i].hasPit()) { numPits++; }
-        }
-
-        expect(numPits).equals(options.numPits);
-    });
-
-    it('creates a cave with options.numBats number of bats', function() {
-        let rooms: WumpusRoom[] = CaveCreator.createCave(options);
-        let numBats: number = 0;
-
-        for(let i = 0; i < rooms.length; i++) {
-            if(rooms[i].hasBats()) { numBats++; }
-        }
-
-        expect(numBats).equals(options.numBats);
-    });
-
-    it('does not have bats and pits in the same room', function() {
-        let rooms: WumpusRoom[] = CaveCreator.createCave(options);
-
-        for(let i = 0; i < rooms.length; i++) {
-            const hasBoth = (rooms[i].hasBats() && rooms[i].hasPit());
-            expect(hasBoth).equals(false);
-        }
-    });
-});
