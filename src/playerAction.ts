@@ -178,22 +178,42 @@ export class MovePlayer implements PlayerAction {
     }
 
     perform(cave: WumpusCave, display: WumpusDisplay): boolean {
-        let playerSurvived: boolean;
-
         const gameEvent = this.movePlayerEx.movePlayer(cave);
+        this.displayGameEvent(gameEvent, display);
+        return this.isGameOver(gameEvent);
+    }
+
+    displayGameEvent(gameEvent: GameEvent, display: WumpusDisplay): void {
         switch(gameEvent.type) {
             case GameEventType.PlayerHitWall:
                 display.showPlayerHitWall();
-                playerSurvived = true;
                 break;
 
             case GameEventType.PlayerFellInPit:
                 display.showPlayerFellInPit();
-                playerSurvived = false;
                 break;
 
             case GameEventType.MovedByBats:
                 display.showPlayerMovedByBats();
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    isGameOver(gameEvent: GameEvent): boolean {
+        let playerSurvived: boolean;
+        switch(gameEvent.type) {
+            case GameEventType.PlayerHitWall:
+                playerSurvived = true;
+                break;
+
+            case GameEventType.PlayerFellInPit:
+                playerSurvived = false;
+                break;
+
+            case GameEventType.MovedByBats:
                 playerSurvived = true;
                 break;
 
@@ -201,7 +221,6 @@ export class MovePlayer implements PlayerAction {
                 playerSurvived = true;
                 break;
         }
-
         return playerSurvived;
     }
 }
