@@ -3,89 +3,13 @@ import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusCommandType, WumpusCommand } from './wumpusCommand'
 import { RandomRangeFunction, getRandomIntBetween } from './wumpusUtils'
-
-interface GameEvent {
-
-    /**
-     * Performs the event and returns the next one.
-     */
-    perform(cave: WumpusCave): GameEvent;
-}
-
-class GameOverEvent implements GameEvent {
-
-    public perform(cave: WumpusCave): GameEvent {
-        cave; // Unused
-        return this;
-    }
-}
-
-class PlayerHitWallEvent implements GameEvent {
-
-    public perform(cave: WumpusCave): GameEvent {
-        cave; // Unused
-        return new PlayerEnteredRoomEvent();
-    }
-}
-
-class PlayerFellInPitEvent implements GameEvent {
-
-    public perform(cave: WumpusCave): GameEvent {
-        cave; // Unused
-        return new GameOverEvent();
-    }
-}
-
-class MovedByBatsEvent implements GameEvent {
-
-    public perform(cave: WumpusCave): GameEvent {
-        cave.movePlayerToRandomRoom();
-        return new PlayerEnteredRoomEvent();
-    }
-}
-
-class PlayerEnteredRoomEvent implements GameEvent {
-
-    public perform(cave: WumpusCave): GameEvent {
-        cave; // Unused
-        return this;
-    }
-}
-
-class PlayerMovedToRoomEvent implements GameEvent {
-
-    private roomNumber: number;
-
-    constructor(roomNumber: number) {
-        this.roomNumber = roomNumber;
-    }
-
-    public perform(cave: WumpusCave): GameEvent {
-        let result: GameEvent;
-
-        if(cave.adjacentRoom(this.roomNumber)) {
-            cave.move(this.roomNumber);
-            result = this.handleMove(cave);
-        } else {
-            result = new PlayerHitWallEvent()
-        }
-
-        return result;
-    }
-
-    private handleMove(cave: WumpusCave): GameEvent {
-        let result: GameEvent;
-        const currentRoom = cave.getCurrentRoom();
-        if(currentRoom.hasPit()) {
-            result = new PlayerFellInPitEvent();
-        } else if(currentRoom.hasBats()) {   
-            result = new MovedByBatsEvent();
-        } else {
-            result = new PlayerEnteredRoomEvent();
-        }
-        return result;
-    }
-}
+import { GameEvent,
+         PlayerMovedToRoomEvent,
+         PlayerHitWallEvent,
+         PlayerEnteredRoomEvent,
+         MovedByBatsEvent,
+         PlayerFellInPitEvent,
+        } from './gameEvent'
 
 /**
  * Abstraction for an action a player can perform.
