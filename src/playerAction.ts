@@ -5,6 +5,78 @@ import { WumpusCommandType, WumpusCommand } from './wumpusCommand'
 import { RandomRangeFunction, getRandomIntBetween } from './wumpusUtils'
 import { assert } from 'console';
 
+enum GameEventType {
+    GameOver,
+    PlayerHitWall,
+    PlayerFellInPit,
+    MovedByBats,
+    PlayerEnteredRoom
+}
+
+abstract class GameEvent {
+    public type: GameEventType;
+
+    constructor(type: GameEventType) {
+        this.type = type;
+    }
+
+    /**
+     * Performs the event and returns the next one.
+     */
+    public abstract perform(cave: WumpusCave): GameEvent;
+}
+
+class GameOverEvent extends GameEvent {
+    constructor() {
+        super(GameEventType.GameOver);
+    }
+
+    public perform(cave: WumpusCave): GameEvent {
+        return this;
+    }
+}
+
+class PlayerHitWallEvent extends GameEvent {
+    constructor() {
+        super(GameEventType.PlayerHitWall);
+    }
+
+    public perform(cave: WumpusCave): GameEvent {
+        return null;
+    }
+}
+
+class PlayerFellInPitEvent extends GameEvent {
+    constructor() {
+        super(GameEventType.PlayerFellInPit);
+    }
+
+    public perform(cave: WumpusCave): GameEvent {
+        return null;
+    }
+}
+
+class MovedByBatsEvent extends GameEvent {
+    constructor() {
+        super(GameEventType.MovedByBats);
+    }
+
+    public perform(cave: WumpusCave): GameEvent {
+        return null;
+    }
+}
+
+class PlayerEnteredRoomEvent extends GameEvent {
+    constructor() {
+        super(GameEventType.PlayerEnteredRoom);
+    }
+
+    public perform(cave: WumpusCave): GameEvent {
+        return null;
+    }
+}
+
+
 /**
  * Abstraction for an action a player can perform.
  */
@@ -30,21 +102,6 @@ export class QuitGame implements PlayerAction {
     }
 }
 
-enum GameEventType {
-    PlayerHitWall,
-    PlayerFellInPit,
-    MovedByBats,
-    NA
-}
-
-class GameEvent {
-    public type: GameEventType;
-
-    constructor() {
-        this.type = GameEventType.NA;
-    }
-}
-
 class MovePlayerEx {
 
     private roomNumber: number;
@@ -60,47 +117,48 @@ class MovePlayerEx {
     }
 
     public movePlayer(cave: WumpusCave): GameEvent {
-        const result = new GameEvent();
+        let result: GameEvent;
 
         if(cave.adjacentRoom(this.roomNumber)) {
             cave.move(this.roomNumber);
-            result.type = this.handleMove(cave);
+            result = this.handleMove(cave);
         } else {
-            result.type = this.handleHittingWall(cave);
+            result = this.handleHittingWall(cave);
         }
 
         return result;
     }
 
-    private handleHittingWall(cave: WumpusCave): GameEventType {
+    private handleHittingWall(cave: WumpusCave): GameEvent {
         cave; // Unused for now
-        return GameEventType.PlayerHitWall;
+        return new PlayerHitWallEvent();
     }
 
-    private handleMove(cave: WumpusCave): GameEventType {
+    private handleMove(cave: WumpusCave): GameEvent {
         return this.handleHazards(cave);
     }
 
-    private handleHazards(cave: WumpusCave): GameEventType {
-        let result: GameEventType = GameEventType.NA;
+    private handleHazards(cave: WumpusCave): GameEvent {
+        let result: GameEvent;
         const currentRoom = cave.getCurrentRoom();
         if(currentRoom.hasPit()) {
             result = this.handlePit(cave);
-        } else if(currentRoom.hasBats()) {
-            
+        } else if(currentRoom.hasBats()) {   
             result = this.handleBats(cave);
+        } else {
+            result = new PlayerEnteredRoomEvent();
         }
         return result;
     }
 
-    private handlePit(cave: WumpusCave): GameEventType {
+    private handlePit(cave: WumpusCave): GameEvent {
         cave; // Unused for now
-        return GameEventType.PlayerFellInPit;
+        return new PlayerFellInPitEvent();
     }
 
-    private handleBats(cave: WumpusCave): GameEventType {
+    private handleBats(cave: WumpusCave): GameEvent {
         cave.movePlayerToRandomRoom();
-        return GameEventType.MovedByBats;
+        return new MovedByBatsEvent();
     }
 }
 
