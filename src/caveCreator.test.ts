@@ -3,7 +3,8 @@ import { StandardRoomsBuilder, MinRooms, MaxRooms, MaxDoors, DefaultRooms } from
 import { WumpusRoom } from './wumpusRoom'
 import * as sinon from 'sinon';
 
-describe('StandardRoomsBuilder', () => {
+// TODO These are disabled because they can take a while..
+xdescribe('StandardRoomsBuilder', () => {
 
     /**
      * Asserts that the rooms form a connected graph.
