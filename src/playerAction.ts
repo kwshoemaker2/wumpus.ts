@@ -5,20 +5,7 @@ import { WumpusCommandType, WumpusCommand } from './wumpusCommand'
 import { RandomRangeFunction, getRandomIntBetween } from './wumpusUtils'
 import { assert } from 'console';
 
-enum GameEventType {
-    GameOver,
-    PlayerHitWall,
-    PlayerFellInPit,
-    MovedByBats,
-    PlayerEnteredRoom
-}
-
 abstract class GameEvent {
-    public type: GameEventType;
-
-    constructor(type: GameEventType) {
-        this.type = type;
-    }
 
     /**
      * Performs the event and returns the next one.
@@ -28,7 +15,7 @@ abstract class GameEvent {
 
 class GameOverEvent extends GameEvent {
     constructor() {
-        super(GameEventType.GameOver);
+        super();
     }
 
     public perform(cave: WumpusCave): GameEvent {
@@ -38,7 +25,7 @@ class GameOverEvent extends GameEvent {
 
 class PlayerHitWallEvent extends GameEvent {
     constructor() {
-        super(GameEventType.PlayerHitWall);
+        super();
     }
 
     public perform(cave: WumpusCave): GameEvent {
@@ -48,7 +35,7 @@ class PlayerHitWallEvent extends GameEvent {
 
 class PlayerFellInPitEvent extends GameEvent {
     constructor() {
-        super(GameEventType.PlayerFellInPit);
+        super();
     }
 
     public perform(cave: WumpusCave): GameEvent {
@@ -58,7 +45,7 @@ class PlayerFellInPitEvent extends GameEvent {
 
 class MovedByBatsEvent extends GameEvent {
     constructor() {
-        super(GameEventType.MovedByBats);
+        super();
     }
 
     public perform(cave: WumpusCave): GameEvent {
@@ -68,7 +55,7 @@ class MovedByBatsEvent extends GameEvent {
 
 class PlayerEnteredRoomEvent extends GameEvent {
     constructor() {
-        super(GameEventType.PlayerEnteredRoom);
+        super();
     }
 
     public perform(cave: WumpusCave): GameEvent {
@@ -184,44 +171,21 @@ export class MovePlayer implements PlayerAction {
     }
 
     displayGameEvent(gameEvent: GameEvent, display: WumpusDisplay): void {
-        switch(gameEvent.type) {
-            case GameEventType.PlayerHitWall:
-                display.showPlayerHitWall();
-                break;
-
-            case GameEventType.PlayerFellInPit:
-                display.showPlayerFellInPit();
-                break;
-
-            case GameEventType.MovedByBats:
-                display.showPlayerMovedByBats();
-                break;
-
-            default:
-                break;
+        if(gameEvent instanceof PlayerHitWallEvent) {
+            display.showPlayerHitWall();
+        } else if(gameEvent instanceof PlayerFellInPitEvent) {
+            display.showPlayerFellInPit();
+        } else if(gameEvent instanceof MovedByBatsEvent) {
+            display.showPlayerMovedByBats();
         }
     }
 
     isGameOver(gameEvent: GameEvent): boolean {
-        let playerSurvived: boolean;
-        switch(gameEvent.type) {
-            case GameEventType.PlayerHitWall:
-                playerSurvived = true;
-                break;
-
-            case GameEventType.PlayerFellInPit:
-                playerSurvived = false;
-                break;
-
-            case GameEventType.MovedByBats:
-                playerSurvived = true;
-                break;
-
-            default:
-                playerSurvived = true;
-                break;
+        if(gameEvent instanceof PlayerFellInPitEvent) {
+            return false;
+        } else {
+            return true;
         }
-        return playerSurvived;
     }
 }
 
