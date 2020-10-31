@@ -6,7 +6,7 @@ import { RandomRangeFunction, getRandomIntBetween } from './wumpusUtils'
 import { GameEvent,
          PlayerMovedToRoomEvent,
          PlayerHitWallEvent,
-         PlayerEnteredRoomEvent,
+         PlayerIdleEvent,
          MovedByBatsEvent,
          PlayerFellInPitEvent,
         } from './gameEvent'
@@ -81,7 +81,7 @@ export class MovePlayer implements PlayerAction {
     }
 
     didPlayerMove(gameEvent: GameEvent) {
-        if(gameEvent instanceof PlayerEnteredRoomEvent) {
+        if(gameEvent instanceof PlayerIdleEvent) {
             return false;
         } else {
             return true;

@@ -20,7 +20,7 @@ export class PlayerHitWallEvent implements GameEvent {
 
     public perform(cave: WumpusCave): GameEvent {
         cave; // Unused
-        return new PlayerEnteredRoomEvent();
+        return new PlayerIdleEvent();
     }
 }
 
@@ -36,11 +36,11 @@ export class MovedByBatsEvent implements GameEvent {
 
     public perform(cave: WumpusCave): GameEvent {
         cave.movePlayerToRandomRoom();
-        return new PlayerEnteredRoomEvent();
+        return new PlayerIdleEvent();
     }
 }
 
-export class PlayerEnteredRoomEvent implements GameEvent {
+export class PlayerIdleEvent implements GameEvent {
 
     public perform(cave: WumpusCave): GameEvent {
         cave; // Unused
@@ -77,7 +77,7 @@ export class PlayerMovedToRoomEvent implements GameEvent {
         } else if(currentRoom.hasBats()) {   
             result = new MovedByBatsEvent();
         } else {
-            result = new PlayerEnteredRoomEvent();
+            result = new PlayerIdleEvent();
         }
         return result;
     }
