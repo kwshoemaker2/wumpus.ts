@@ -1,68 +1,91 @@
-import { WumpusCave, WumpusCaveImpl } from './wumpusCave'
+import { WumpusCave } from './wumpusCave'
 import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusCommandType, WumpusCommand } from './wumpusCommand'
 import { RandomRangeFunction, getRandomIntBetween } from './wumpusUtils'
-import { assert } from 'console';
 
-abstract class GameEvent {
+interface GameEvent {
 
     /**
      * Performs the event and returns the next one.
      */
-    public abstract perform(cave: WumpusCave): GameEvent;
+    perform(cave: WumpusCave): GameEvent;
 }
 
-class GameOverEvent extends GameEvent {
-    constructor() {
-        super();
-    }
+class GameOverEvent implements GameEvent {
 
     public perform(cave: WumpusCave): GameEvent {
+        cave; // Unused
         return this;
     }
 }
 
-class PlayerHitWallEvent extends GameEvent {
-    constructor() {
-        super();
-    }
+class PlayerHitWallEvent implements GameEvent {
 
     public perform(cave: WumpusCave): GameEvent {
-        return null;
+        cave; // Unused
+        return new PlayerEnteredRoomEvent();
     }
 }
 
-class PlayerFellInPitEvent extends GameEvent {
-    constructor() {
-        super();
-    }
+class PlayerFellInPitEvent implements GameEvent {
 
     public perform(cave: WumpusCave): GameEvent {
-        return null;
+        cave; // Unused
+        return new GameOverEvent();
     }
 }
 
-class MovedByBatsEvent extends GameEvent {
-    constructor() {
-        super();
-    }
+class MovedByBatsEvent implements GameEvent {
 
     public perform(cave: WumpusCave): GameEvent {
-        return null;
+        cave.movePlayerToRandomRoom();
+        return new PlayerEnteredRoomEvent();
     }
 }
 
-class PlayerEnteredRoomEvent extends GameEvent {
-    constructor() {
-        super();
-    }
+class PlayerEnteredRoomEvent implements GameEvent {
 
     public perform(cave: WumpusCave): GameEvent {
-        return null;
+        cave; // Unused
+        return this;
     }
 }
 
+class PlayerMovedToRoomEvent implements GameEvent {
+
+    private roomNumber: number;
+
+    constructor(roomNumber: number) {
+        this.roomNumber = roomNumber;
+    }
+
+    public perform(cave: WumpusCave): GameEvent {
+        let result: GameEvent;
+
+        if(cave.adjacentRoom(this.roomNumber)) {
+            cave.move(this.roomNumber);
+            result = this.handleMove(cave);
+        } else {
+            result = new PlayerHitWallEvent()
+        }
+
+        return result;
+    }
+
+    private handleMove(cave: WumpusCave): GameEvent {
+        let result: GameEvent;
+        const currentRoom = cave.getCurrentRoom();
+        if(currentRoom.hasPit()) {
+            result = new PlayerFellInPitEvent();
+        } else if(currentRoom.hasBats()) {   
+            result = new MovedByBatsEvent();
+        } else {
+            result = new PlayerEnteredRoomEvent();
+        }
+        return result;
+    }
+}
 
 /**
  * Abstraction for an action a player can perform.
@@ -89,85 +112,30 @@ export class QuitGame implements PlayerAction {
     }
 }
 
-class MovePlayerEx {
-
-    private roomNumber: number;
-    private randInt: RandomRangeFunction;
-
-    constructor(roomNumber: number) {
-        this.roomNumber = roomNumber;
-        this.randInt = getRandomIntBetween;
-    }
-
-    public setRandIntFunction(randInt: RandomRangeFunction) {
-        this.randInt = randInt;
-    }
-
-    public movePlayer(cave: WumpusCave): GameEvent {
-        let result: GameEvent;
-
-        if(cave.adjacentRoom(this.roomNumber)) {
-            cave.move(this.roomNumber);
-            result = this.handleMove(cave);
-        } else {
-            result = this.handleHittingWall(cave);
-        }
-
-        return result;
-    }
-
-    private handleHittingWall(cave: WumpusCave): GameEvent {
-        cave; // Unused for now
-        return new PlayerHitWallEvent();
-    }
-
-    private handleMove(cave: WumpusCave): GameEvent {
-        return this.handleHazards(cave);
-    }
-
-    private handleHazards(cave: WumpusCave): GameEvent {
-        let result: GameEvent;
-        const currentRoom = cave.getCurrentRoom();
-        if(currentRoom.hasPit()) {
-            result = this.handlePit(cave);
-        } else if(currentRoom.hasBats()) {   
-            result = this.handleBats(cave);
-        } else {
-            result = new PlayerEnteredRoomEvent();
-        }
-        return result;
-    }
-
-    private handlePit(cave: WumpusCave): GameEvent {
-        cave; // Unused for now
-        return new PlayerFellInPitEvent();
-    }
-
-    private handleBats(cave: WumpusCave): GameEvent {
-        cave.movePlayerToRandomRoom();
-        return new MovedByBatsEvent();
-    }
-}
-
 /**
  * Handles moving the player.
  */
 export class MovePlayer implements PlayerAction {
 
-    private movePlayerEx: MovePlayerEx;
+    private playerMovedToRoomEvent: PlayerMovedToRoomEvent;
 
     constructor(roomNumber: number) {
-        this.movePlayerEx = new MovePlayerEx(roomNumber);
-    }
-
-    public setRandIntFunction(randInt: RandomRangeFunction) {
-        this.movePlayerEx.setRandIntFunction(randInt);
+        this.playerMovedToRoomEvent = new PlayerMovedToRoomEvent(roomNumber);
     }
 
     perform(cave: WumpusCave, display: WumpusDisplay): boolean {
-        const gameEvent = this.movePlayerEx.movePlayer(cave);
-        this.displayGameEvent(gameEvent, display);
-        return this.isGameOver(gameEvent);
+        let playerMoved: boolean = false;
+        let gameOver: boolean = false;
+        let gameEvent: GameEvent = this.playerMovedToRoomEvent.perform(cave);
+        do {
+            this.displayGameEvent(gameEvent, display);
+            gameOver = this.isGameOver(gameEvent);
+            playerMoved = this.didPlayerMove(gameEvent);
+            gameEvent = gameEvent.perform(cave);
+        } while(!playerMoved && !gameOver);
+
+        
+        return gameOver;
     }
 
     displayGameEvent(gameEvent: GameEvent, display: WumpusDisplay): void {
@@ -182,6 +150,14 @@ export class MovePlayer implements PlayerAction {
 
     isGameOver(gameEvent: GameEvent): boolean {
         if(gameEvent instanceof PlayerFellInPitEvent) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    didPlayerMove(gameEvent: GameEvent) {
+        if(gameEvent instanceof PlayerEnteredRoomEvent) {
             return false;
         } else {
             return true;
