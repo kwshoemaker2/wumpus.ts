@@ -1,6 +1,7 @@
 import { WumpusCave, WumpusCaveImpl } from './wumpusCave'
+import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
-import { WumpusCommandType, WumpusCommand } from './wumpusCommand';
+import { WumpusCommandType, WumpusCommand } from './wumpusCommand'
 import { RandomRangeFunction, getRandomIntBetween } from './wumpusUtils'
 import { assert } from 'console';
 
@@ -59,22 +60,47 @@ class MovePlayerEx {
     }
 
     public movePlayer(cave: WumpusCave): GameEvent {
-        const event = new GameEvent();
+        const result = new GameEvent();
 
         if(cave.adjacentRoom(this.roomNumber)) {
             cave.move(this.roomNumber);
-            const currentRoom = cave.getCurrentRoom();
-            if(currentRoom.hasPit()) {
-                event.type = GameEventType.PlayerFellInPit;
-            } else if(currentRoom.hasBats()) {
-                cave.movePlayerToRandomRoom();
-                event.type = GameEventType.MovedByBats;
-            }
+            result.type = this.handleMove(cave);
         } else {
-            event.type = GameEventType.PlayerHitWall;
+            result.type = this.handleHittingWall(cave);
         }
 
-        return event;
+        return result;
+    }
+
+    private handleHittingWall(cave: WumpusCave): GameEventType {
+        cave; // Unused for now
+        return GameEventType.PlayerHitWall;
+    }
+
+    private handleMove(cave: WumpusCave): GameEventType {
+        return this.handleHazards(cave);
+    }
+
+    private handleHazards(cave: WumpusCave): GameEventType {
+        let result: GameEventType = GameEventType.NA;
+        const currentRoom = cave.getCurrentRoom();
+        if(currentRoom.hasPit()) {
+            result = this.handlePit(cave);
+        } else if(currentRoom.hasBats()) {
+            
+            result = this.handleBats(cave);
+        }
+        return result;
+    }
+
+    private handlePit(cave: WumpusCave): GameEventType {
+        cave; // Unused for now
+        return GameEventType.PlayerFellInPit;
+    }
+
+    private handleBats(cave: WumpusCave): GameEventType {
+        cave.movePlayerToRandomRoom();
+        return GameEventType.MovedByBats;
     }
 }
 
@@ -83,11 +109,9 @@ class MovePlayerEx {
  */
 export class MovePlayer implements PlayerAction {
 
-    private roomNumber: number;
     private movePlayerEx: MovePlayerEx;
 
     constructor(roomNumber: number) {
-        this.roomNumber = roomNumber;
         this.movePlayerEx = new MovePlayerEx(roomNumber);
     }
 
@@ -114,7 +138,7 @@ export class MovePlayer implements PlayerAction {
                 display.showPlayerMovedByBats();
                 playerSurvived = true;
                 break;
-            
+
             default:
                 playerSurvived = true;
                 break;
