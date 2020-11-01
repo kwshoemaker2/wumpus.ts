@@ -48,15 +48,15 @@ export class MovePlayer implements PlayerAction {
     }
 
     perform(cave: WumpusCave, display: WumpusDisplay): boolean {
-        let playerMoved: boolean = false;
+        let playerIdle: boolean = false;
         let gameOver: boolean = false;
         let gameEvent: GameEvent = this.playerMovedToRoomEvent.perform(cave);
         do {
             this.displayGameEvent(gameEvent, display);
             gameOver = this.isGameOver(gameEvent);
-            playerMoved = this.didPlayerMove(gameEvent);
+            playerIdle = this.isPlayerIdle(gameEvent);
             gameEvent = gameEvent.perform(cave);
-        } while(!playerMoved && !gameOver);
+        } while(!playerIdle && !gameOver);
 
         
         return gameOver;
@@ -80,7 +80,7 @@ export class MovePlayer implements PlayerAction {
         }
     }
 
-    didPlayerMove(gameEvent: GameEvent) {
+    isPlayerIdle(gameEvent: GameEvent) {
         if(gameEvent instanceof PlayerIdleEvent) {
             return false;
         } else {
