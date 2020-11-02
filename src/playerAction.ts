@@ -33,41 +33,24 @@ export class QuitGame implements PlayerAction {
     }
 }
 
-export interface GameEventIterator extends Iterator<GameEvent> {
+export interface GameEventGenerator {
+    getIterator(cave: WumpusCave): Iterator<GameEvent>;
 }
 
-export class GameEventIteratorImpl implements GameEventIterator {
+export class GameEventGeneratorImpl implements GameEventGenerator {
 
     private currentEvent: GameEvent;
-    // TODO figure out how (if possible) to add as a param to next
-    private cave: WumpusCave;
 
-    public constructor(initialEvent: GameEvent, cave: WumpusCave) {
+    public constructor(initialEvent: GameEvent) {
         this.currentEvent = initialEvent;
     }
 
-    public next(): IteratorResult<GameEvent> {
-        const resultEvent = this.currentEvent;
-        let playerIdle: boolean = false;
-        let gameRunning: boolean = false;
-        gameRunning = this.isGameRunning(resultEvent);
-        playerIdle = this.isPlayerIdle(resultEvent);
-        this.currentEvent = resultEvent.perform(this.cave);
-
-
-        return {
-            done: (playerIdle || !gameRunning),
-            value: resultEvent
+    public *getIterator(cave: WumpusCave): Iterator<GameEvent>
+    {
+        for(;;) {
+            yield this.currentEvent;
+            this.currentEvent = this.currentEvent.perform(cave);
         }
-    }
-
-    
-    private isGameRunning(gameEvent: GameEvent): boolean {
-        return !(gameEvent instanceof GameOverEvent);
-    }
-
-    private isPlayerIdle(gameEvent: GameEvent) {
-        return (gameEvent instanceof PlayerIdleEvent);
     }
 }
 
@@ -83,21 +66,29 @@ export class MovePlayer implements PlayerAction {
     }
 
     perform(cave: WumpusCave, display: WumpusDisplay): boolean {
-        const gameEventIterator = new GameEventIteratorImpl(this.playerMovedToRoomEvent, cave)
+        const GameEventGenerator = new GameEventGeneratorImpl(this.playerMovedToRoomEvent)
         const gameEventDisplay = new GameEventDisplayImpl(display);
 
-        let done: boolean = false;
-        let gameEvent: GameEvent;
+        let playerIdle: boolean = false;
+        let gameRunning: boolean = false;
+        const gameEventIterator = GameEventGenerator.getIterator(cave);
         do {
-            const gameEventIteratorResult = gameEventIterator.next();
-            gameEvent = gameEventIteratorResult.value;
-            done = gameEventIteratorResult.done;
+            const gameEvent = gameEventIterator.next().value;
             gameEventDisplay.displayGameEvent(gameEvent);
-        } while(!done);
+            gameRunning = this.isGameRunning(gameEvent);
+            playerIdle = this.isPlayerIdle(gameEvent);
+        } while(gameRunning && !playerIdle);
 
+        return gameRunning;
+    }
+
+    private isGameRunning(gameEvent: GameEvent): boolean {
         return !(gameEvent instanceof GameOverEvent);
     }
 
+    private isPlayerIdle(gameEvent: GameEvent) {
+        return (gameEvent instanceof PlayerIdleEvent);
+    }
 }
 
 /**
