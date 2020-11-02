@@ -6,49 +6,59 @@ import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusCommandType, WumpusCommand } from './wumpusCommand';
 import { MovePlayer, PlayerActionFactoryImpl, QuitGame } from './playerAction';
+import { GameEvent, GameOverEvent, MovedByBatsEvent, PlayerFellInPitEvent, PlayerHitWallEvent, PlayerIdleEvent } from './gameEvent'
 
 describe("MovePlayer", () => {
     let cave: tsSinon.StubbedInstance<WumpusCave> = null;
     let display: tsSinon.StubbedInstance<WumpusDisplay> = null;
+    let playerMovedToRoomEvent: tsSinon.StubbedInstance<GameEvent> = null;
+    let movePlayer: MovePlayer = null;
 
     beforeEach(() => {
         cave = tsSinon.stubInterface<WumpusCave>();
         display = tsSinon.stubInterface<WumpusDisplay>();
+        playerMovedToRoomEvent = getGameEventStub();
+        movePlayer = new MovePlayer(playerMovedToRoomEvent);
     });
 
-    function setNextRoom(nextRoom: WumpusRoom, roomNumber: number, callNum: number = 0): void {
-        cave.adjacentRoom.withArgs(roomNumber).returns(true);
-        cave.getCurrentRoom.onCall(callNum).returns(nextRoom);    
+    function getGameEventStub(): tsSinon.StubbedInstance<GameEvent> {
+        return tsSinon.stubInterface<GameEvent>();
     }
 
-    function setCurrentRoom(currentRoom: WumpusRoom, callNum: number = 0): void {
-        cave.getCurrentRoom.onCall(callNum).returns(currentRoom);
-    }
+    it("indicates game is running when the next event is that the player is idle", () => {
+        playerMovedToRoomEvent.perform.returns(new PlayerIdleEvent());
 
-    it("moves the player to the room when it's adjacent", () => {
-        const roomNumber = 10;
-
-        const nextRoom = tsSinon.stubInterface<WumpusRoom>();
-        nextRoom.hasPit.returns(false);
-
-        setNextRoom(nextRoom, roomNumber);    
-
-        const movePlayer = new MovePlayer(roomNumber);
         const gameRunning = movePlayer.perform(cave, display);
 
         expect(gameRunning).equals(true);
-        expect(cave.move.calledOnceWith(roomNumber)).equals(true);
+    });
+
+    it("indicates game is not running when the next event is that the game is over", () => {
+        playerMovedToRoomEvent.perform.returns(new GameOverEvent());
+
+        const gameRunning = movePlayer.perform(cave, display);
+
+        expect(gameRunning).equals(false);
+    });
+
+    it("keeps performing events that it receives until it's done", () => {
+        const gameEvent1 = getGameEventStub();
+        const gameEvent2 = getGameEventStub();
+        const gameEvent3 = new PlayerIdleEvent();
+
+        playerMovedToRoomEvent.perform.returns(gameEvent1);
+        gameEvent1.perform.returns(gameEvent2);
+        gameEvent2.perform.returns(gameEvent3);
+
+        const gameRunning = movePlayer.perform(cave, display);
+
+        expect(playerMovedToRoomEvent.perform.calledOnce).equals(true);
+        expect(gameEvent1.perform.calledOnce).equals(true);
+        expect(gameEvent2.perform.calledOnce).equals(true);
     });
 
     it("tells player they fell in a pit when they enter a room with a pit", () => {
-        const roomNumber = 10;
-
-        const nextRoom = tsSinon.stubInterface<WumpusRoom>();
-        nextRoom.hasPit.returns(true);
-
-        setNextRoom(nextRoom, roomNumber);  
-
-        const movePlayer = new MovePlayer(roomNumber);
+        playerMovedToRoomEvent.perform.returns(new PlayerFellInPitEvent());
         const gameRunning = movePlayer.perform(cave, display);
 
         expect(gameRunning).equals(false);
@@ -56,11 +66,7 @@ describe("MovePlayer", () => {
     });
 
     it("tells player they hit a wall when moving to a non-adjacent room", () => {
-        const roomNumber = 10;
-        const movePlayer = new MovePlayer(roomNumber);
-
-        cave.adjacentRoom.withArgs(roomNumber).returns(false);     
-
+        playerMovedToRoomEvent.perform.returns(new PlayerHitWallEvent());
         const gameRunning = movePlayer.perform(cave, display);
 
         expect(gameRunning).equals(true);
@@ -68,31 +74,11 @@ describe("MovePlayer", () => {
     });
 
     it("tells player they were moved by bats when they enter a room with bats", () => {
-        const roomNumber = 10;
-
-        const nextRoom = tsSinon.stubInterface<WumpusRoom>();
-        nextRoom.hasBats.returns(true);
-
-        setNextRoom(nextRoom, roomNumber);  
-
-        const movePlayer = new MovePlayer(roomNumber);
+        playerMovedToRoomEvent.perform.returns(new MovedByBatsEvent());
         const gameRunning = movePlayer.perform(cave, display);
 
         expect(gameRunning).equals(true);
         expect(display.showPlayerMovedByBats.calledOnce).equals(true);
-    });
-
-    it("moves player to a random room when they enter a room with bats", () => {
-        const roomNumber = 10;
-        const movePlayer = new MovePlayer(roomNumber);
-
-        const nextRoom = tsSinon.stubInterface<WumpusRoom>();
-        nextRoom.hasBats.returns(true);
-        setNextRoom(nextRoom, roomNumber);
-
-        movePlayer.perform(cave, display);
-
-        expect(cave.movePlayerToRandomRoom.calledOnce).equals(true);
     });
 });
 

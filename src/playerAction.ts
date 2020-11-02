@@ -9,6 +9,7 @@ import { GameEvent,
          PlayerIdleEvent,
          MovedByBatsEvent,
          PlayerFellInPitEvent,
+         GameOverEvent,
         } from './gameEvent'
 
 /**
@@ -41,25 +42,25 @@ export class QuitGame implements PlayerAction {
  */
 export class MovePlayer implements PlayerAction {
 
-    private playerMovedToRoomEvent: PlayerMovedToRoomEvent;
+    private playerMovedToRoomEvent: GameEvent;
 
-    constructor(roomNumber: number) {
-        this.playerMovedToRoomEvent = new PlayerMovedToRoomEvent(roomNumber);
+    constructor(playerMovedToRoomEvent: GameEvent) {
+        this.playerMovedToRoomEvent = playerMovedToRoomEvent;
     }
 
     perform(cave: WumpusCave, display: WumpusDisplay): boolean {
         let playerIdle: boolean = false;
-        let gameOver: boolean = false;
+        let gameRunning: boolean = false;
         let gameEvent: GameEvent = this.playerMovedToRoomEvent.perform(cave);
         do {
             this.displayGameEvent(gameEvent, display);
-            gameOver = this.isGameOver(gameEvent);
+            gameRunning = this.isGameRunning(gameEvent);
             playerIdle = this.isPlayerIdle(gameEvent);
             gameEvent = gameEvent.perform(cave);
-        } while(!playerIdle && !gameOver);
+        } while(!playerIdle && gameRunning);
 
         
-        return gameOver;
+        return gameRunning;
     }
 
     displayGameEvent(gameEvent: GameEvent, display: WumpusDisplay): void {
@@ -72,20 +73,12 @@ export class MovePlayer implements PlayerAction {
         }
     }
 
-    isGameOver(gameEvent: GameEvent): boolean {
-        if(gameEvent instanceof PlayerFellInPitEvent) {
-            return false;
-        } else {
-            return true;
-        }
+    isGameRunning(gameEvent: GameEvent): boolean {
+        return !(gameEvent instanceof GameOverEvent);
     }
 
     isPlayerIdle(gameEvent: GameEvent) {
-        if(gameEvent instanceof PlayerIdleEvent) {
-            return false;
-        } else {
-            return true;
-        }
+        return (gameEvent instanceof PlayerIdleEvent);
     }
 }
 
@@ -105,7 +98,7 @@ export class PlayerActionFactoryImpl implements PlayerActionFactory {
     createPlayerAction(command: WumpusCommand): PlayerAction {
         if(command.type === WumpusCommandType.Move) {
             const roomNumber = command.args[0];
-            return new MovePlayer(roomNumber);
+            return new MovePlayer(new PlayerMovedToRoomEvent(roomNumber));
         }
         else if(command.type === WumpusCommandType.Quit) {
             return new QuitGame();
