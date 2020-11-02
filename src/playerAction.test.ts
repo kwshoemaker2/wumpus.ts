@@ -3,8 +3,8 @@ import * as tsSinon from 'ts-sinon'
 import { WumpusCave } from './wumpusCave'
 import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusCommandType, WumpusCommand } from './wumpusCommand';
-import { MovePlayer, PlayerActionFactoryImpl, QuitGame, GameEventDisplay } from './playerAction';
-import { GameEvent, GameOverEvent, MovedByBatsEvent, PlayerFellInPitEvent, PlayerHitWallEvent, PlayerIdleEvent } from './gameEvent'
+import { MovePlayer, GameEventFactoryImpl, QuitGame, GameEventDisplay } from './playerAction';
+import { GameEvent, GameOverEvent, MovedByBatsEvent, PlayerFellInPitEvent, PlayerHitWallEvent, PlayerIdleEvent, PlayerMovedToRoomEvent } from './gameEvent'
 
 describe("GameEventDisplay", () => {
     let display: tsSinon.StubbedInstance<WumpusDisplay> = null;
@@ -84,18 +84,18 @@ describe("MovePlayer", () => {
     });
 });
 
-describe("PlayerActionFactoryImp", () => {
-    let factory: PlayerActionFactoryImpl = new PlayerActionFactoryImpl();
+describe("GameEventFactoryImpl", () => {
+    let factory: GameEventFactoryImpl = new GameEventFactoryImpl();
 
     it("returns a move player action when given a move command and room number", () => {
         const command = new WumpusCommand(WumpusCommandType.Move, [ 1 ]);
-        const action = factory.createPlayerAction(command);
-        expect(action.constructor.name).equals(MovePlayer.name);
+        const gameEvent = factory.createPlayerAction(command);
+        expect(gameEvent).instanceOf(PlayerMovedToRoomEvent);
     });
 
     it("returns a quit game action when given a quit command", () => {
         const command = new WumpusCommand(WumpusCommandType.Quit, []);
-        const action = factory.createPlayerAction(command);
-        expect(action.constructor.name).equals(QuitGame.name);
+        const gameEvent = factory.createPlayerAction(command);
+        expect(gameEvent).instanceOf(GameOverEvent);
     });
 });

@@ -117,3 +117,33 @@ export class PlayerActionFactoryImpl implements PlayerActionFactory {
     }
 }
 
+/**
+ * Factory class that makes GameEvent objects.
+ */
+export interface GameEventFactory {
+    /**
+     * Create the game event from the player command.
+     * @param command 
+     */
+    createPlayerAction(action: WumpusCommand): GameEvent;
+}
+
+/**
+ * Implements GameEventFactory
+ */
+export class GameEventFactoryImpl implements GameEventFactory {
+
+    createPlayerAction(command: WumpusCommand): GameEvent {
+        if(command.type === WumpusCommandType.Move) {
+            const roomNumber = command.args[0];
+            return new PlayerMovedToRoomEvent(roomNumber);
+        }
+        else if(command.type === WumpusCommandType.Quit) {
+            return new GameOverEvent();
+        }
+        else
+        {
+            return undefined;
+        }
+    }
+}
