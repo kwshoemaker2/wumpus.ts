@@ -6,7 +6,7 @@ import { GameEvent,
          PlayerIdleEvent,
          GameOverEvent,
         } from './gameEvent'
-import { GameEventDisplay } from './gameEventDisplay';
+import { GameEventDisplayImpl } from './gameEventDisplay';
 
 /**
  * Abstraction for an action a player can perform.
@@ -39,19 +39,18 @@ export class QuitGame implements PlayerAction {
 export class MovePlayer implements PlayerAction {
 
     private playerMovedToRoomEvent: GameEvent;
-    private gameEventDisplay: GameEventDisplay;
 
     constructor(playerMovedToRoomEvent: GameEvent) {
         this.playerMovedToRoomEvent = playerMovedToRoomEvent;
-        this.gameEventDisplay = new GameEventDisplay();
     }
 
     perform(cave: WumpusCave, display: WumpusDisplay): boolean {
         let playerIdle: boolean = false;
         let gameRunning: boolean = false;
         let gameEvent: GameEvent = this.playerMovedToRoomEvent.perform(cave);
+        const gameEventDisplay = new GameEventDisplayImpl(display);
         do {
-            this.gameEventDisplay.displayGameEvent(gameEvent, display);
+            gameEventDisplay.displayGameEvent(gameEvent, display);
             gameRunning = this.isGameRunning(gameEvent);
             playerIdle = this.isPlayerIdle(gameEvent);
             gameEvent = gameEvent.perform(cave);

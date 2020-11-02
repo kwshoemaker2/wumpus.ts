@@ -9,16 +9,27 @@ import {
 /**
  * Provides a display for each game event.
  */
+export interface GameEventDisplayImpl {
+    displayGameEvent(gameEvent: GameEvent, display: WumpusDisplay): void;
+}
 
-export class GameEventDisplay {
-    // TODO make display a constructor param (or replace it with this class).
-    public displayGameEvent(gameEvent: GameEvent, display: WumpusDisplay): void {
+/**
+ * Implementation of GameEventDisplay.
+ */
+export class GameEventDisplayImpl {
+    private display: WumpusDisplay;
+
+    constructor(display: WumpusDisplay) {
+        this.display = display;
+    }
+
+    public displayGameEvent(gameEvent: GameEvent): void {
         if (gameEvent instanceof PlayerHitWallEvent) {
-            display.showPlayerHitWall();
+            this.display.showPlayerHitWall();
         } else if (gameEvent instanceof PlayerFellInPitEvent) {
-            display.showPlayerFellInPit();
+            this.display.showPlayerFellInPit();
         } else if (gameEvent instanceof MovedByBatsEvent) {
-            display.showPlayerMovedByBats();
+            this.display.showPlayerMovedByBats();
         }
     }
 }
