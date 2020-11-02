@@ -1,8 +1,6 @@
-
 import { createInterface } from 'readline'
 import { Game } from './game'
 import { WumpusOptions } from './wumpusOptions'
-import { WumpusCaveImpl } from './wumpusCave'
 import { createCave, StandardRoomsBuilder } from './caveCreator'
 import { WumpusConsoleDisplay, ConsoleWrite, ConsolePrompt } from './wumpusConsoleDisplay'
 import { PlayerActionFactoryImpl } from './playerAction'

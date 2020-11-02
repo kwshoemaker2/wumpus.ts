@@ -61,13 +61,13 @@ describe("GameEventFactoryImpl", () => {
 
     it("returns a move player action when given a move command and room number", () => {
         const command = new WumpusCommand(WumpusCommandType.Move, [ 1 ]);
-        const gameEvent = factory.createPlayerAction(command);
+        const gameEvent = factory.createGameEventFromCommand(command);
         expect(gameEvent).instanceOf(PlayerMovedToRoomEvent);
     });
 
     it("returns a quit game action when given a quit command", () => {
         const command = new WumpusCommand(WumpusCommandType.Quit, []);
-        const gameEvent = factory.createPlayerAction(command);
+        const gameEvent = factory.createGameEventFromCommand(command);
         expect(gameEvent).instanceOf(GameOverEvent);
     });
 });

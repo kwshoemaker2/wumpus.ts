@@ -107,7 +107,7 @@ export interface GameEventFactory {
      * Create the game event from the player command.
      * @param command 
      */
-    createPlayerAction(action: WumpusCommand): GameEvent;
+    createGameEventFromCommand(action: WumpusCommand): GameEvent;
 }
 
 /**
@@ -115,7 +115,7 @@ export interface GameEventFactory {
  */
 export class GameEventFactoryImpl implements GameEventFactory {
 
-    createPlayerAction(command: WumpusCommand): GameEvent {
+    createGameEventFromCommand(command: WumpusCommand): GameEvent {
         if(command.type === WumpusCommandType.Move) {
             const roomNumber = command.args[0];
             return new PlayerMovedToRoomEvent(roomNumber);
