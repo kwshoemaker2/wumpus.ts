@@ -3,12 +3,10 @@ import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusCommandType, WumpusCommand } from './wumpusCommand'
 import { GameEvent,
          PlayerMovedToRoomEvent,
-         PlayerHitWallEvent,
          PlayerIdleEvent,
-         MovedByBatsEvent,
-         PlayerFellInPitEvent,
          GameOverEvent,
         } from './gameEvent'
+import { GameEventDisplay } from './gameEventDisplay';
 
 /**
  * Abstraction for an action a player can perform.
@@ -32,22 +30,6 @@ export class QuitGame implements PlayerAction {
         cave;
         display;
         return false;
-    }
-}
-
-/**
- * Provides a display for each game event.
- */
-export class GameEventDisplay {
-    // TODO make display a constructor param (or replace it with this class).
-    public displayGameEvent(gameEvent: GameEvent, display: WumpusDisplay): void {
-        if(gameEvent instanceof PlayerHitWallEvent) {
-            display.showPlayerHitWall();
-        } else if(gameEvent instanceof PlayerFellInPitEvent) {
-            display.showPlayerFellInPit();
-        } else if(gameEvent instanceof MovedByBatsEvent) {
-            display.showPlayerMovedByBats();
-        }
     }
 }
 
