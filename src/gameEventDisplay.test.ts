@@ -6,6 +6,8 @@ import {
     MovedByBatsEvent,
     PlayerFellInPitEvent
 } from './gameEvent';
+import { WumpusRoom } from './wumpusRoom'
+import { WumpusCave } from './wumpusCave'
 import {GameEventDisplayImpl } from './gameEventDisplay'
 
 describe("GameEventDisplay", () => {
@@ -15,6 +17,16 @@ describe("GameEventDisplay", () => {
     beforeEach(() => {
         display = tsSinon.stubInterface<WumpusDisplay>();
         gameEventDisplay = new GameEventDisplayImpl(display);
+    });
+
+    it("displays the current room from the WumpusCave object", async () => {
+        const cave = tsSinon.stubInterface<WumpusCave>();
+        const currentRoom = tsSinon.stubInterface<WumpusRoom>();
+        cave.getCurrentRoom.onFirstCall().returns(currentRoom);
+
+        gameEventDisplay.displayCurrentRoom(cave);
+
+        expect(display.showRoomEntry.calledOnceWith(currentRoom)).equals(true);
     });
 
     it("tells player they fell in a pit when they enter a room with a pit", () => {

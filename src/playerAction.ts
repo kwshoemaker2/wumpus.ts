@@ -50,7 +50,7 @@ export class MovePlayer implements PlayerAction {
         let gameEvent: GameEvent = this.playerMovedToRoomEvent.perform(cave);
         const gameEventDisplay = new GameEventDisplayImpl(display);
         do {
-            gameEventDisplay.displayGameEvent(gameEvent, display);
+            gameEventDisplay.displayGameEvent(gameEvent);
             gameRunning = this.isGameRunning(gameEvent);
             playerIdle = this.isPlayerIdle(gameEvent);
             gameEvent = gameEvent.perform(cave);
@@ -79,6 +79,9 @@ export interface PlayerActionFactory {
     createPlayerAction(action: WumpusCommand): PlayerAction;
 }
 
+/**
+ * Implements PlayerActionFactory.
+ */
 export class PlayerActionFactoryImpl implements PlayerActionFactory {
 
     createPlayerAction(command: WumpusCommand): PlayerAction {

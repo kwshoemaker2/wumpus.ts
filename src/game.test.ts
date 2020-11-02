@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import * as tsSinon from "ts-sinon"
 import { WumpusCave } from './wumpusCave'
-import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusCommandType, WumpusCommand } from './wumpusCommand';
 import { Game } from './game';
@@ -60,18 +59,5 @@ describe("Game", () => {
 
         expect(display.getUserCommand.calledThrice).equals(true);
         expect(playerActionFactory.createPlayerAction.calledThrice).equals(true);
-    });
-
-    it("displays the current room", async () => {
-        const playerAction = tsSinon.stubInterface<PlayerAction>();
-        playerAction.perform.returns(false);
-        setPlayerAction(playerAction);
-
-        const currentRoom = tsSinon.stubInterface<WumpusRoom>();
-        cave.getCurrentRoom.onFirstCall().returns(currentRoom);
-
-        await game.run();
-
-        expect(display.showRoomEntry.calledOnceWith(currentRoom)).equals(true);
     });
 });
