@@ -33,6 +33,44 @@ export class QuitGame implements PlayerAction {
     }
 }
 
+export interface GameEventIterator extends Iterator<GameEvent> {
+}
+
+export class GameEventIteratorImpl implements GameEventIterator {
+
+    private currentEvent: GameEvent;
+    // TODO figure out how (if possible) to add as a param to next
+    private cave: WumpusCave;
+
+    public constructor(initialEvent: GameEvent, cave: WumpusCave) {
+        this.currentEvent = initialEvent;
+    }
+
+    public next(): IteratorResult<GameEvent> {
+        const resultEvent = this.currentEvent;
+        let playerIdle: boolean = false;
+        let gameRunning: boolean = false;
+        gameRunning = this.isGameRunning(resultEvent);
+        playerIdle = this.isPlayerIdle(resultEvent);
+        this.currentEvent = resultEvent.perform(this.cave);
+
+
+        return {
+            done: (playerIdle || !gameRunning),
+            value: resultEvent
+        }
+    }
+
+    
+    private isGameRunning(gameEvent: GameEvent): boolean {
+        return !(gameEvent instanceof GameOverEvent);
+    }
+
+    private isPlayerIdle(gameEvent: GameEvent) {
+        return (gameEvent instanceof PlayerIdleEvent);
+    }
+}
+
 /**
  * Handles moving the player.
  */
@@ -45,27 +83,21 @@ export class MovePlayer implements PlayerAction {
     }
 
     perform(cave: WumpusCave, display: WumpusDisplay): boolean {
-        let playerIdle: boolean = false;
-        let gameRunning: boolean = false;
-        let gameEvent: GameEvent = this.playerMovedToRoomEvent.perform(cave);
+        const gameEventIterator = new GameEventIteratorImpl(this.playerMovedToRoomEvent, cave)
         const gameEventDisplay = new GameEventDisplayImpl(display);
+
+        let done: boolean = false;
+        let gameEvent: GameEvent;
         do {
+            const gameEventIteratorResult = gameEventIterator.next();
+            gameEvent = gameEventIteratorResult.value;
+            done = gameEventIteratorResult.done;
             gameEventDisplay.displayGameEvent(gameEvent);
-            gameRunning = this.isGameRunning(gameEvent);
-            playerIdle = this.isPlayerIdle(gameEvent);
-            gameEvent = gameEvent.perform(cave);
-        } while(!playerIdle && gameRunning);
+        } while(!done);
 
-        return gameRunning;
-    }
-
-    isGameRunning(gameEvent: GameEvent): boolean {
         return !(gameEvent instanceof GameOverEvent);
     }
 
-    isPlayerIdle(gameEvent: GameEvent) {
-        return (gameEvent instanceof PlayerIdleEvent);
-    }
 }
 
 /**
