@@ -38,32 +38,11 @@ export class QuitGame implements PlayerAction {
 }
 
 /**
- * Handles moving the player.
+ * Provides a display for each game event.
  */
-export class MovePlayer implements PlayerAction {
-
-    private playerMovedToRoomEvent: GameEvent;
-
-    constructor(playerMovedToRoomEvent: GameEvent) {
-        this.playerMovedToRoomEvent = playerMovedToRoomEvent;
-    }
-
-    perform(cave: WumpusCave, display: WumpusDisplay): boolean {
-        let playerIdle: boolean = false;
-        let gameRunning: boolean = false;
-        let gameEvent: GameEvent = this.playerMovedToRoomEvent.perform(cave);
-        do {
-            this.displayGameEvent(gameEvent, display);
-            gameRunning = this.isGameRunning(gameEvent);
-            playerIdle = this.isPlayerIdle(gameEvent);
-            gameEvent = gameEvent.perform(cave);
-        } while(!playerIdle && gameRunning);
-
-        
-        return gameRunning;
-    }
-
-    displayGameEvent(gameEvent: GameEvent, display: WumpusDisplay): void {
+export class GameEventDisplay {
+    // TODO make display a constructor param (or replace it with this class).
+    public displayGameEvent(gameEvent: GameEvent, display: WumpusDisplay): void {
         if(gameEvent instanceof PlayerHitWallEvent) {
             display.showPlayerHitWall();
         } else if(gameEvent instanceof PlayerFellInPitEvent) {
@@ -71,6 +50,34 @@ export class MovePlayer implements PlayerAction {
         } else if(gameEvent instanceof MovedByBatsEvent) {
             display.showPlayerMovedByBats();
         }
+    }
+}
+
+/**
+ * Handles moving the player.
+ */
+export class MovePlayer implements PlayerAction {
+
+    private playerMovedToRoomEvent: GameEvent;
+    private gameEventDisplay: GameEventDisplay;
+
+    constructor(playerMovedToRoomEvent: GameEvent) {
+        this.playerMovedToRoomEvent = playerMovedToRoomEvent;
+        this.gameEventDisplay = new GameEventDisplay();
+    }
+
+    perform(cave: WumpusCave, display: WumpusDisplay): boolean {
+        let playerIdle: boolean = false;
+        let gameRunning: boolean = false;
+        let gameEvent: GameEvent = this.playerMovedToRoomEvent.perform(cave);
+        do {
+            this.gameEventDisplay.displayGameEvent(gameEvent, display);
+            gameRunning = this.isGameRunning(gameEvent);
+            playerIdle = this.isPlayerIdle(gameEvent);
+            gameEvent = gameEvent.perform(cave);
+        } while(!playerIdle && gameRunning);
+
+        return gameRunning;
     }
 
     isGameRunning(gameEvent: GameEvent): boolean {
