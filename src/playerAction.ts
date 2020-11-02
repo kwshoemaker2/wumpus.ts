@@ -1,8 +1,6 @@
 import { WumpusCave } from './wumpusCave'
-import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusCommandType, WumpusCommand } from './wumpusCommand'
-import { RandomRangeFunction, getRandomIntBetween } from './wumpusUtils'
 import { GameEvent,
          PlayerMovedToRoomEvent,
          PlayerHitWallEvent,

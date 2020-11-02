@@ -24,13 +24,6 @@ export class Game {
      * Run the game.
      */
     public async run(): Promise<void> {
-        await this.gameLoop();
-    }
-
-    /**
-     * Run until the game finishes.
-     */
-    private async gameLoop(): Promise<void> {
         let running: boolean = true;
         while(running) {
             this.displayCurrentRoom();
