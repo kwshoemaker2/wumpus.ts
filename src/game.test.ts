@@ -1,23 +1,26 @@
-import { expect } from 'chai';
-import * as tsSinon from "ts-sinon"
+import { expect } from 'chai'
+import * as tsSinon from 'ts-sinon'
 import { WumpusCave } from './wumpusCave'
 import { WumpusDisplay } from './wumpusDisplay'
-import { WumpusCommandType, WumpusCommand } from './wumpusCommand';
-import { Game } from './game';
-import { PlayerAction, PlayerActionFactory } from './playerAction';
+import { WumpusCommandType, WumpusCommand } from './wumpusCommand'
+import { Game } from './game'
+import { PlayerAction, PlayerActionFactory } from './playerAction'
+import { GameEventDisplay } from './GameEventDisplay'
 
 
 describe("Game", () => {
     let cave: tsSinon.StubbedInstance<WumpusCave> = null;
     let display: tsSinon.StubbedInstance<WumpusDisplay> = null;
     let playerActionFactory: tsSinon.StubbedInstance<PlayerActionFactory> = null;
+    let gameEventDisplay: tsSinon.StubbedInstance<GameEventDisplay> = null;
     let game: Game = null;
 
     beforeEach(() => {
         cave = tsSinon.stubInterface<WumpusCave>();
         display = tsSinon.stubInterface<WumpusDisplay>();
         playerActionFactory = tsSinon.stubInterface<PlayerActionFactory>();
-        game = new Game(cave, display, playerActionFactory);
+        gameEventDisplay = tsSinon.stubInterface<GameEventDisplay>();
+        game = new Game(cave, display, playerActionFactory, gameEventDisplay);
     });
 
     function setUserCommand(promise: Promise<WumpusCommand>, callNumber: number = 0) {
@@ -32,6 +35,16 @@ describe("Game", () => {
         setUserCommand(promise, callNumber);
         playerActionFactory.createPlayerAction.onCall(callNumber).returns(playerAction);
     }
+
+    it("displays the current room at the start", async () => {
+        const playerAction = tsSinon.stubInterface<PlayerAction>();
+        playerAction.perform.returns(false);
+        setPlayerAction(playerAction);
+
+        await game.run();
+
+        expect(gameEventDisplay.displayCurrentRoom.calledOnceWith(cave)).equals(true)
+    });
 
     it("stops running after the first action returns false", async () => {
         const playerAction = tsSinon.stubInterface<PlayerAction>();

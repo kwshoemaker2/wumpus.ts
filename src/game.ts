@@ -3,6 +3,7 @@ import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusCommand } from './wumpusCommand';
 import { PlayerActionFactory } from './playerAction';
+import { GameEventDisplay } from './GameEventDisplay'
 
 /**
  * Hunt the Wumpus game.
@@ -11,13 +12,16 @@ export class Game {
     private cave: WumpusCave;
     private display: WumpusDisplay;
     private playerActionFactory: PlayerActionFactory;
+    private gameEventDisplay: GameEventDisplay;
 
     public constructor(cave: WumpusCave,
                        display: WumpusDisplay,
-                       playerActionFactory: PlayerActionFactory) {
+                       playerActionFactory: PlayerActionFactory,
+                       gameEventDisplay: GameEventDisplay) {
         this.cave = cave;
         this.display = display;
         this.playerActionFactory = playerActionFactory;
+        this.gameEventDisplay = gameEventDisplay;
     }
 
     /**
@@ -33,8 +37,7 @@ export class Game {
     }
 
     private displayCurrentRoom(): void {
-        let currentRoom: WumpusRoom = this.cave.getCurrentRoom();
-        this.display.showRoomEntry(currentRoom);
+        this.gameEventDisplay.displayCurrentRoom(this.cave);
     }
 
     private async getNextCommand(): Promise<WumpusCommand> {
