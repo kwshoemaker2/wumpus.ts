@@ -3,20 +3,20 @@ import * as tsSinon from 'ts-sinon'
 import { WumpusCave } from './wumpusCave'
 import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusCommandType, WumpusCommand } from './wumpusCommand';
-import { MovePlayer, GameEventFactoryImpl, QuitGame } from './playerAction';
+import { GameEventProcessor, GameEventFactoryImpl, QuitGame } from './playerAction';
 import { GameEvent, GameOverEvent, PlayerIdleEvent, PlayerMovedToRoomEvent } from './gameEvent'
 
-describe("MovePlayer", () => {
+describe("GameEventProcessor", () => {
     let cave: tsSinon.StubbedInstance<WumpusCave> = null;
     let display: tsSinon.StubbedInstance<WumpusDisplay> = null;
     let playerMovedToRoomEvent: tsSinon.StubbedInstance<GameEvent> = null;
-    let movePlayer: MovePlayer = null;
+    let gameEventProcessor: GameEventProcessor = null;
 
     beforeEach(() => {
         cave = tsSinon.stubInterface<WumpusCave>();
         display = tsSinon.stubInterface<WumpusDisplay>();
         playerMovedToRoomEvent = getGameEventStub();
-        movePlayer = new MovePlayer(playerMovedToRoomEvent);
+        gameEventProcessor = new GameEventProcessor(playerMovedToRoomEvent);
     });
 
     function getGameEventStub(): tsSinon.StubbedInstance<GameEvent> {
@@ -26,7 +26,7 @@ describe("MovePlayer", () => {
     it("indicates game is running when the next event is that the player is idle", () => {
         playerMovedToRoomEvent.perform.returns(new PlayerIdleEvent());
 
-        const gameRunning = movePlayer.perform(cave, display);
+        const gameRunning = gameEventProcessor.perform(cave, display);
 
         expect(gameRunning).equals(true);
     });
@@ -34,7 +34,7 @@ describe("MovePlayer", () => {
     it("indicates game is not running when the next event is that the game is over", () => {
         playerMovedToRoomEvent.perform.returns(new GameOverEvent());
 
-        const gameRunning = movePlayer.perform(cave, display);
+        const gameRunning = gameEventProcessor.perform(cave, display);
 
         expect(gameRunning).equals(false);
     });
@@ -48,7 +48,7 @@ describe("MovePlayer", () => {
         gameEvent1.perform.returns(gameEvent2);
         gameEvent2.perform.returns(gameEvent3);
 
-        movePlayer.perform(cave, display);
+        gameEventProcessor.perform(cave, display);
 
         expect(playerMovedToRoomEvent.perform.calledOnce).equals(true);
         expect(gameEvent1.perform.calledOnce).equals(true);

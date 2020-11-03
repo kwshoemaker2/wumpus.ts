@@ -50,10 +50,11 @@ class GameEventGenerator {
     }
 }
 
+
 /**
- * Handles moving the player.
+ * Processes a game event to completion.
  */
-export class MovePlayer implements PlayerAction {
+export class GameEventProcessor implements PlayerAction {
 
     private initialEvent: GameEvent;
 
@@ -64,7 +65,7 @@ export class MovePlayer implements PlayerAction {
     perform(cave: WumpusCave, display: WumpusDisplay): boolean {
         const gameEventGenerator = new GameEventGenerator(this.initialEvent);
 
-        // TODO make this a parameter to perform.
+        // TODO make this a parameter to this method.
         const gameEventDisplay = new GameEventDisplayImpl(display);
 
         let playerIdle: boolean = false;
@@ -108,7 +109,7 @@ export class PlayerActionFactoryImpl implements PlayerActionFactory {
     createPlayerAction(command: WumpusCommand): PlayerAction {
         if(command.type === WumpusCommandType.Move) {
             const roomNumber = command.args[0];
-            return new MovePlayer(new PlayerMovedToRoomEvent(roomNumber));
+            return new GameEventProcessor(new PlayerMovedToRoomEvent(roomNumber));
         }
         else if(command.type === WumpusCommandType.Quit) {
             return new QuitGame();
