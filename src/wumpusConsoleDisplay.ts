@@ -2,10 +2,7 @@
 import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusOptions } from './wumpusOptions'
-import { WumpusCommandType, WumpusCommand } from './wumpusCommand';
-
-export type ConsoleWrite = (message: string) => void;
-export type ConsolePrompt = (prompt: string) => Promise<string>;
+import { ConsoleWrite } from './consoleUtils';
 
 /**
  * WumpusDisplay implementation that outputs to the console.
@@ -13,11 +10,9 @@ export type ConsolePrompt = (prompt: string) => Promise<string>;
 export class WumpusConsoleDisplay implements WumpusDisplay {
 
     private writeConsole: ConsoleWrite;
-    private promptUser: ConsolePrompt;
 
-    public constructor(theConsole: ConsoleWrite, consolePrompt: ConsolePrompt) {
+    public constructor(theConsole: ConsoleWrite) {
         this.writeConsole = theConsole;
-        this.promptUser = consolePrompt;
     }
 
     public showIntroduction(options: WumpusOptions): void {
@@ -72,37 +67,5 @@ you can at least find out if Jules Verne was right...\n`);
         this.writeConsole("*flap*  *flap*  *flap*  (humongous bats pick you up and move you!)\n");
     }
 
-    public async getUserCommand(): Promise<WumpusCommand> {
-        let validAnswer: boolean = false;
-        let command: WumpusCommand = null;
-        while(!validAnswer) {
-            const answer = await this.promptUser("-> Move or shoot? [ms?q] ");
-            if(answer === "q") {
-                command = new WumpusCommand(WumpusCommandType.Quit, []);
-            } else if(answer.startsWith("m")) {
-                const rooms = this.parseRooms(answer);
-                if(rooms.length > 0) {
-                    command = new WumpusCommand(WumpusCommandType.Move, rooms);
-                } else {
-                    this.writeConsole("Move where? For example: 'm 1'");
-                }
-            } else {
-                this.writeConsole(" > I don't understand. Try '?' for help.\n");
-            }
-            validAnswer = (command !== null);
-        }
 
-        return new Promise<WumpusCommand>((resolve) => {
-            resolve(command);
-        });
-    }
-
-    private parseRooms(answer: string): number[] {
-        let rooms: number[] = [];
-        const strArgs = answer.split(" ").splice(1);
-        for(let i = 0; i < strArgs.length; i++) {
-            rooms.push(parseInt(strArgs[i]));
-        }
-        return rooms;
-    }
 }

@@ -2,7 +2,9 @@ import { createInterface } from 'readline'
 import { Game } from './game'
 import { WumpusOptions } from './wumpusOptions'
 import { createCave, StandardRoomsBuilder } from './caveCreator'
-import { WumpusConsoleDisplay, ConsoleWrite, ConsolePrompt } from './wumpusConsoleDisplay'
+import { WumpusConsoleDisplay } from './wumpusConsoleDisplay'
+import { ConsoleUserInteractor } from './consoleUserInteractor'
+import { ConsoleWrite, ConsolePrompt } from "./consoleUtils"
 import { PlayerActionFactoryImpl } from './playerAction'
 import { GameEventDisplayImpl } from './GameEventDisplay'
 
@@ -30,11 +32,12 @@ class App {
         const options: WumpusOptions = new WumpusOptions();
         const roomsBuilder = new StandardRoomsBuilder(options.numRooms);
         const cave = createCave(options, roomsBuilder);
-        const display: WumpusConsoleDisplay = new WumpusConsoleDisplay(App.consoleWrite, App.consolePrompt);
+        const display: WumpusConsoleDisplay = new WumpusConsoleDisplay(App.consoleWrite);
+        const userInteractor = new ConsoleUserInteractor(App.consoleWrite, App.consolePrompt);
         const gameEventDisplay = new GameEventDisplayImpl(display);
         const playerActionFactory = new PlayerActionFactoryImpl();
 
-        const game: Game = new Game(cave, display, playerActionFactory, gameEventDisplay);
+        const game: Game = new Game(cave, display, userInteractor, playerActionFactory, gameEventDisplay);
 
         display.showIntroduction(options);
 

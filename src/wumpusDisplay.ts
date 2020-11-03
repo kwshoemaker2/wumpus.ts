@@ -1,7 +1,6 @@
 
 import { WumpusRoom } from './wumpusRoom'
 import { WumpusOptions } from './wumpusOptions'
-import { WumpusCommand } from './wumpusCommand'
 
 export interface WumpusDisplay {
     showIntroduction(options: WumpusOptions): void;
@@ -13,6 +12,4 @@ export interface WumpusDisplay {
     showPlayerFellInPit(): void;
 
     showPlayerMovedByBats(): void;
-
-    getUserCommand(): Promise<WumpusCommand>;
 }

@@ -1,11 +1,12 @@
 
 import * as sinon from 'sinon';
 import { expect } from 'chai';
-import { WumpusConsoleDisplay, ConsoleWrite, ConsolePrompt } from './wumpusConsoleDisplay';
+import { WumpusConsoleDisplay } from './wumpusConsoleDisplay';
+import { ConsoleWrite } from "./consoleUtils";
 import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom';
 import { WumpusOptions } from './wumpusOptions';
-import { WumpusCommandType, WumpusCommand } from './wumpusCommand';
 
+// TODO Nuke this class and use SinonStub
 class ConsoleWriteFake {
     private consoleOutput: string = "";
 
@@ -26,8 +27,7 @@ describe('WumpusConsoleDisplay', () => {
     beforeEach(() => {
         consoleWriteFake = new ConsoleWriteFake();
         consolePromptFake = sinon.stub();
-        display = new WumpusConsoleDisplay(consoleWriteFake.getConsoleWriteFunction(),
-                                           consolePromptFake);
+        display = new WumpusConsoleDisplay(consoleWriteFake.getConsoleWriteFunction());
         options = new WumpusOptions();
     });
 
@@ -101,62 +101,4 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
             expect(consoleWriteFake.getConsoleOutput()).equals(expected);
         });
     });
-
-    describe('getUserAction', () => {
-
-        const promptText = "-> Move or shoot? [ms?q] ";
-
-        function makeConsolePromptAnswer(answer: string): Promise<string>
-        {
-            return new Promise<string>((resolve) => { resolve(answer); } );
-        }
-
-        function validateMoveCommand(command: WumpusCommand, expectedRoom: number): void
-        {
-            expect(command.type).equals(WumpusCommandType.Move);
-            expect(command.args.length).equals(1);
-            const roomArg = command.args[0];
-            expect(roomArg).equals(expectedRoom);
-        }
-
-        it('Responds to "q" by exiting', () => {
-            consolePromptFake.withArgs(promptText)
-                .returns(makeConsolePromptAnswer("q"));
-            const command = display.getUserCommand();
-            return command.then(result => expect(result.type).equals(WumpusCommandType.Quit));
-        });
-
-        it('Parses "m 1" into the right action', () => {
-            consolePromptFake.withArgs(promptText)
-                .returns(makeConsolePromptAnswer("m 1"));
-            const command = display.getUserCommand();
-            return command.then((result) => {
-                validateMoveCommand(result, 1);
-            });
-        });
-
-        it('Prompts again when user enters "m"', () => {
-            consolePromptFake.onFirstCall().returns(makeConsolePromptAnswer("m"));
-            consolePromptFake.onSecondCall().returns(makeConsolePromptAnswer("m 1"));
-            const command = display.getUserCommand();
-            return command.then((result) => {
-                validateMoveCommand(result, 1);
-                expect(consoleWriteFake.getConsoleOutput()).equals("Move where? For example: 'm 1'\n");
-            });
-        });
-
-        it('Responds to invalid command by prompting again', () => {
-            consolePromptFake.onFirstCall().returns(makeConsolePromptAnswer("asdf"));
-            consolePromptFake.onSecondCall().returns(makeConsolePromptAnswer("q"));
-
-            const command = display.getUserCommand();
-            return command.then((result) => {
-                expect(result.type).equals(WumpusCommandType.Quit);
-                expect(consolePromptFake.firstCall.lastArg).equals(promptText);
-                expect(consolePromptFake.secondCall.lastArg).equals(promptText);
-                expect(consoleWriteFake.getConsoleOutput()).equals(" > I don't understand. Try '?' for help.\n\n");
-            });
-        });
-    });
-
 });

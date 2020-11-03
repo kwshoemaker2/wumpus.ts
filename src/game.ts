@@ -1,6 +1,6 @@
 import { WumpusCave } from './wumpusCave'
-import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
+import { UserInteractor } from './userInteractor'
 import { WumpusCommand } from './wumpusCommand';
 import { PlayerActionFactory } from './playerAction';
 import { GameEventDisplay } from './GameEventDisplay'
@@ -11,15 +11,18 @@ import { GameEventDisplay } from './GameEventDisplay'
 export class Game {
     private cave: WumpusCave;
     private display: WumpusDisplay;
+    private userInteractor: UserInteractor;
     private playerActionFactory: PlayerActionFactory;
     private gameEventDisplay: GameEventDisplay;
 
     public constructor(cave: WumpusCave,
                        display: WumpusDisplay,
+                       userInteractor: UserInteractor,
                        playerActionFactory: PlayerActionFactory,
                        gameEventDisplay: GameEventDisplay) {
         this.cave = cave;
         this.display = display;
+        this.userInteractor = userInteractor;
         this.playerActionFactory = playerActionFactory;
         this.gameEventDisplay = gameEventDisplay;
     }
@@ -41,7 +44,7 @@ export class Game {
     }
 
     private async getNextCommand(): Promise<WumpusCommand> {
-        return await this.display.getUserCommand();
+        return this.userInteractor.getUserCommand();
     }
 
     private doAction(command: WumpusCommand): boolean {
