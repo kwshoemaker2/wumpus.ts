@@ -2,8 +2,7 @@ import { expect } from 'chai';
 import * as tsSinon from 'ts-sinon'
 import { WumpusCave } from './wumpusCave'
 import { WumpusDisplay } from './wumpusDisplay'
-import { WumpusCommandType, WumpusCommand } from './wumpusCommand';
-import { GameEventProcessor, GameEventFactoryImpl, QuitGame } from './playerAction';
+import { GameEventProcessor } from './playerAction';
 import { GameEvent, GameOverEvent, PlayerIdleEvent, PlayerMovedToRoomEvent } from './gameEvent'
 
 describe("GameEventProcessor", () => {
@@ -53,21 +52,5 @@ describe("GameEventProcessor", () => {
         expect(playerMovedToRoomEvent.perform.calledOnce).equals(true);
         expect(gameEvent1.perform.calledOnce).equals(true);
         expect(gameEvent2.perform.calledOnce).equals(true);
-    });
-});
-
-describe("GameEventFactoryImpl", () => {
-    let factory: GameEventFactoryImpl = new GameEventFactoryImpl();
-
-    it("returns a move player action when given a move command and room number", () => {
-        const command = new WumpusCommand(WumpusCommandType.Move, [ 1 ]);
-        const gameEvent = factory.createGameEventFromCommand(command);
-        expect(gameEvent).instanceOf(PlayerMovedToRoomEvent);
-    });
-
-    it("returns a quit game action when given a quit command", () => {
-        const command = new WumpusCommand(WumpusCommandType.Quit, []);
-        const gameEvent = factory.createGameEventFromCommand(command);
-        expect(gameEvent).instanceOf(GameOverEvent);
     });
 });

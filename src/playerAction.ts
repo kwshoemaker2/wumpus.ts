@@ -21,18 +21,6 @@ export interface PlayerAction {
     perform(cave: WumpusCave, display: WumpusDisplay): boolean;
 }
 
-/**
- * Handles quitting the game.
- */
-export class QuitGame implements PlayerAction {
-    perform(cave: WumpusCave, display: WumpusDisplay): boolean {
-        // FUTURE Prompt the user if they want to quit.
-        cave;
-        display;
-        return false;
-    }
-}
-
 class GameEventGenerator {
 
     private currentEvent: GameEvent;
@@ -110,38 +98,7 @@ export class PlayerActionFactoryImpl implements PlayerActionFactory {
             return new GameEventProcessor(new PlayerMovedToRoomEvent(roomNumber));
         }
         else if(command.type === WumpusCommandType.Quit) {
-            return new QuitGame();
-        }
-        else
-        {
-            return undefined;
-        }
-    }
-}
-
-/**
- * Factory class that makes GameEvent objects.
- */
-export interface GameEventFactory {
-    /**
-     * Create the game event from the player command.
-     * @param command 
-     */
-    createGameEventFromCommand(action: WumpusCommand): GameEvent;
-}
-
-/**
- * Implements GameEventFactory
- */
-export class GameEventFactoryImpl implements GameEventFactory {
-
-    createGameEventFromCommand(command: WumpusCommand): GameEvent {
-        if(command.type === WumpusCommandType.Move) {
-            const roomNumber = command.args[0];
-            return new PlayerMovedToRoomEvent(roomNumber);
-        }
-        else if(command.type === WumpusCommandType.Quit) {
-            return new GameOverEvent();
+            return new GameEventProcessor(new GameOverEvent());
         }
         else
         {
