@@ -59,14 +59,14 @@ export class GameEventGeneratorImpl implements GameEventGenerator {
  */
 export class MovePlayer implements PlayerAction {
 
-    private playerMovedToRoomEvent: GameEvent;
+    private initialEvent: GameEvent;
 
-    constructor(playerMovedToRoomEvent: GameEvent) {
-        this.playerMovedToRoomEvent = playerMovedToRoomEvent;
+    constructor(initialEvent: GameEvent) {
+        this.initialEvent = initialEvent;
     }
 
     perform(cave: WumpusCave, display: WumpusDisplay): boolean {
-        const GameEventGenerator = new GameEventGeneratorImpl(this.playerMovedToRoomEvent)
+        const GameEventGenerator = new GameEventGeneratorImpl(this.initialEvent)
         const gameEventDisplay = new GameEventDisplayImpl(display);
 
         let playerIdle: boolean = false;
