@@ -1,7 +1,6 @@
 import { expect } from 'chai'
 import * as tsSinon from 'ts-sinon'
 import { WumpusCave } from './wumpusCave'
-import { WumpusCommandType, WumpusCommand } from './wumpusCommand'
 import { Game } from './game'
 import { PlayerAction } from './playerAction'
 import { GameEventDisplay } from './GameEventDisplay'

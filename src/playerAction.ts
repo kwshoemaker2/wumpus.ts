@@ -1,7 +1,5 @@
 import { WumpusCave } from './wumpusCave'
-import { WumpusCommandType, WumpusCommand } from './wumpusCommand'
 import { GameEvent,
-         PlayerMovedToRoomEvent,
          PlayerIdleEvent,
          GameOverEvent,
         } from './gameEvent'
