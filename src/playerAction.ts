@@ -1,12 +1,11 @@
 import { WumpusCave } from './wumpusCave'
-import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusCommandType, WumpusCommand } from './wumpusCommand'
 import { GameEvent,
          PlayerMovedToRoomEvent,
          PlayerIdleEvent,
          GameOverEvent,
         } from './gameEvent'
-import { GameEventDisplayImpl } from './gameEventDisplay';
+import { GameEventDisplay } from './gameEventDisplay';
 
 /**
  * Abstraction for an action a player can perform.
@@ -18,7 +17,7 @@ export interface PlayerAction {
      * 
      * Returns true if the game is still running.
      */
-    perform(cave: WumpusCave, display: WumpusDisplay): boolean;
+    perform(cave: WumpusCave, gameEventDisplay: GameEventDisplay): boolean;
 }
 
 class GameEventGenerator {
@@ -50,10 +49,7 @@ export class PlayerActionImpl implements PlayerAction {
         this.gameEventGenerator = new GameEventGenerator(initialEvent);
     }
 
-    perform(cave: WumpusCave, display: WumpusDisplay): boolean {
-        // TODO make this a parameter to this method.
-        const gameEventDisplay = new GameEventDisplayImpl(display);
-
+    perform(cave: WumpusCave, gameEventDisplay: GameEventDisplay): boolean {
         let playerIdle: boolean = false;
         let gameRunning: boolean = false;
         const gameEventIterator = this.gameEventGenerator.getIterator(cave);

@@ -1,7 +1,6 @@
 import { expect } from 'chai'
 import * as tsSinon from 'ts-sinon'
 import { WumpusCave } from './wumpusCave'
-import { WumpusDisplay } from './wumpusDisplay'
 import { UserInteractor } from './userInteractor'
 import { WumpusCommandType, WumpusCommand } from './wumpusCommand'
 import { Game } from './game'
@@ -11,7 +10,6 @@ import { GameEventDisplay } from './GameEventDisplay'
 
 describe("Game", () => {
     let cave: tsSinon.StubbedInstance<WumpusCave> = null;
-    let display: tsSinon.StubbedInstance<WumpusDisplay> = null;
     let userInteractor: tsSinon.StubbedInstance<UserInteractor> = null;
     let playerActionFactory: tsSinon.StubbedInstance<PlayerActionFactory> = null;
     let gameEventDisplay: tsSinon.StubbedInstance<GameEventDisplay> = null;
@@ -19,11 +17,10 @@ describe("Game", () => {
 
     beforeEach(() => {
         cave = tsSinon.stubInterface<WumpusCave>();
-        display = tsSinon.stubInterface<WumpusDisplay>();
         userInteractor = tsSinon.stubInterface<UserInteractor>();
         playerActionFactory = tsSinon.stubInterface<PlayerActionFactory>();
         gameEventDisplay = tsSinon.stubInterface<GameEventDisplay>();
-        game = new Game(cave, display, userInteractor, playerActionFactory, gameEventDisplay);
+        game = new Game(cave, userInteractor, playerActionFactory, gameEventDisplay);
     });
 
     function setUserCommand(promise: Promise<WumpusCommand>, callNumber: number = 0) {

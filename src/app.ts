@@ -37,7 +37,7 @@ class App {
         const gameEventDisplay = new GameEventDisplayImpl(display);
         const playerActionFactory = new PlayerActionFactoryImpl();
 
-        const game: Game = new Game(cave, display, userInteractor, playerActionFactory, gameEventDisplay);
+        const game: Game = new Game(cave, userInteractor, playerActionFactory, gameEventDisplay);
 
         display.showIntroduction(options);
 
