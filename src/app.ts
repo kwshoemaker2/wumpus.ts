@@ -5,8 +5,8 @@ import { createCave, StandardRoomsBuilder } from './caveCreator'
 import { WumpusConsoleDisplay } from './wumpusConsoleDisplay'
 import { ConsoleUserInteractor } from './consoleUserInteractor'
 import { ConsoleWrite, ConsolePrompt } from "./consoleUtils"
-import { PlayerActionFactoryImpl } from './playerAction'
 import { GameEventDisplayImpl } from './GameEventDisplay'
+import { PlayerActionTranslatorImpl } from './playerActionTranslator'
 
 /**
  * App entry point.
@@ -33,11 +33,10 @@ class App {
         const roomsBuilder = new StandardRoomsBuilder(options.numRooms);
         const cave = createCave(options, roomsBuilder);
         const display: WumpusConsoleDisplay = new WumpusConsoleDisplay(App.consoleWrite);
-        const userInteractor = new ConsoleUserInteractor(App.consoleWrite, App.consolePrompt);
         const gameEventDisplay = new GameEventDisplayImpl(display);
-        const playerActionFactory = new PlayerActionFactoryImpl();
+        const playerActionTranslator = new PlayerActionTranslatorImpl(new ConsoleUserInteractor(App.consoleWrite, App.consolePrompt));
 
-        const game: Game = new Game(cave, userInteractor, playerActionFactory, gameEventDisplay);
+        const game: Game = new Game(cave, playerActionTranslator, gameEventDisplay);
 
         display.showIntroduction(options);
 

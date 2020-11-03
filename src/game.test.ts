@@ -1,39 +1,32 @@
 import { expect } from 'chai'
 import * as tsSinon from 'ts-sinon'
 import { WumpusCave } from './wumpusCave'
-import { UserInteractor } from './userInteractor'
 import { WumpusCommandType, WumpusCommand } from './wumpusCommand'
 import { Game } from './game'
-import { PlayerAction, PlayerActionFactory } from './playerAction'
+import { PlayerAction } from './playerAction'
 import { GameEventDisplay } from './GameEventDisplay'
+import { PlayerActionTranslator } from './playerActionTranslator'
 
 
 describe("Game", () => {
     let cave: tsSinon.StubbedInstance<WumpusCave> = null;
-    let userInteractor: tsSinon.StubbedInstance<UserInteractor> = null;
-    let playerActionFactory: tsSinon.StubbedInstance<PlayerActionFactory> = null;
+    let playerActionTranslator: tsSinon.StubbedInstance<PlayerActionTranslator> = null;
     let gameEventDisplay: tsSinon.StubbedInstance<GameEventDisplay> = null;
     let game: Game = null;
 
     beforeEach(() => {
         cave = tsSinon.stubInterface<WumpusCave>();
-        userInteractor = tsSinon.stubInterface<UserInteractor>();
-        playerActionFactory = tsSinon.stubInterface<PlayerActionFactory>();
+        playerActionTranslator = tsSinon.stubInterface<PlayerActionTranslator>();
         gameEventDisplay = tsSinon.stubInterface<GameEventDisplay>();
-        game = new Game(cave, userInteractor, playerActionFactory, gameEventDisplay);
+        game = new Game(cave, playerActionTranslator, gameEventDisplay);
     });
 
-    function setUserCommand(promise: Promise<WumpusCommand>, callNumber: number = 0) {
-        userInteractor.getUserCommand.onCall(callNumber).returns(promise);
-    }
-
     function setPlayerAction(playerAction: PlayerAction, callNumber: number = 0): void {
-        const promise = new Promise<WumpusCommand>(resolve => { 
-            resolve(new WumpusCommand(WumpusCommandType.Quit, []))
+        const promise = new Promise<PlayerAction>(resolve => { 
+            resolve(playerAction)
         });
 
-        setUserCommand(promise, callNumber);
-        playerActionFactory.createPlayerAction.onCall(callNumber).returns(playerAction);
+        playerActionTranslator.getPlayerAction.onCall(callNumber).returns(promise)
     }
 
     it("displays the current room at the start", async () => {
@@ -53,8 +46,7 @@ describe("Game", () => {
 
         await game.run();
 
-        expect(userInteractor.getUserCommand.calledOnce).equals(true);
-        expect(playerActionFactory.createPlayerAction.calledOnce).equals(true);
+        expect(playerActionTranslator.getPlayerAction.calledOnce).equals(true);
     });
 
     it("stops running after the third action returns false", async () => {
@@ -70,7 +62,6 @@ describe("Game", () => {
 
         await game.run();
 
-        expect(userInteractor.getUserCommand.calledThrice).equals(true);
-        expect(playerActionFactory.createPlayerAction.calledThrice).equals(true);
+        expect(playerActionTranslator.getPlayerAction.calledThrice).equals(true);
     });
 });
