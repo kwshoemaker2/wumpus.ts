@@ -42,7 +42,7 @@ class GameEventGenerator {
 /**
  * Processes a game event to completion.
  */
-export class GameEventProcessor implements PlayerAction {
+export class PlayerActionImpl implements PlayerAction {
 
     private gameEventGenerator: GameEventGenerator;
 
@@ -95,10 +95,10 @@ export class PlayerActionFactoryImpl implements PlayerActionFactory {
     createPlayerAction(command: WumpusCommand): PlayerAction {
         if(command.type === WumpusCommandType.Move) {
             const roomNumber = command.args[0];
-            return new GameEventProcessor(new PlayerMovedToRoomEvent(roomNumber));
+            return new PlayerActionImpl(new PlayerMovedToRoomEvent(roomNumber));
         }
         else if(command.type === WumpusCommandType.Quit) {
-            return new GameEventProcessor(new GameOverEvent());
+            return new PlayerActionImpl(new GameOverEvent());
         }
         else
         {

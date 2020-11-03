@@ -2,20 +2,20 @@ import { expect } from 'chai';
 import * as tsSinon from 'ts-sinon'
 import { WumpusCave } from './wumpusCave'
 import { WumpusDisplay } from './wumpusDisplay'
-import { GameEventProcessor } from './playerAction';
+import { PlayerActionImpl } from './playerAction';
 import { GameEvent, GameOverEvent, PlayerIdleEvent } from './gameEvent'
 
-describe("GameEventProcessor", () => {
+describe("PlayerActionImpl", () => {
     let cave: tsSinon.StubbedInstance<WumpusCave> = null;
     let display: tsSinon.StubbedInstance<WumpusDisplay> = null;
     let initialEvent: tsSinon.StubbedInstance<GameEvent> = null;
-    let gameEventProcessor: GameEventProcessor = null;
+    let gameEventProcessor: PlayerActionImpl = null;
 
     beforeEach(() => {
         cave = tsSinon.stubInterface<WumpusCave>();
         display = tsSinon.stubInterface<WumpusDisplay>();
         initialEvent = getGameEventStub();
-        gameEventProcessor = new GameEventProcessor(initialEvent);
+        gameEventProcessor = new PlayerActionImpl(initialEvent);
     });
 
     function getGameEventStub(): tsSinon.StubbedInstance<GameEvent> {
