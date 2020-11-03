@@ -33,11 +33,7 @@ export class QuitGame implements PlayerAction {
     }
 }
 
-export interface GameEventGenerator {
-    getIterator(cave: WumpusCave): Iterator<GameEvent>;
-}
-
-export class GameEventGeneratorImpl implements GameEventGenerator {
+class GameEventGenerator {
 
     private currentEvent: GameEvent;
 
@@ -66,12 +62,14 @@ export class MovePlayer implements PlayerAction {
     }
 
     perform(cave: WumpusCave, display: WumpusDisplay): boolean {
-        const GameEventGenerator = new GameEventGeneratorImpl(this.initialEvent)
+        const gameEventGenerator = new GameEventGenerator(this.initialEvent);
+
+        // TODO make this a parameter to perform.
         const gameEventDisplay = new GameEventDisplayImpl(display);
 
         let playerIdle: boolean = false;
         let gameRunning: boolean = false;
-        const gameEventIterator = GameEventGenerator.getIterator(cave);
+        const gameEventIterator = gameEventGenerator.getIterator(cave);
         do {
             const gameEvent = gameEventIterator.next().value;
             gameEventDisplay.displayGameEvent(gameEvent);
