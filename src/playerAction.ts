@@ -56,21 +56,19 @@ class GameEventGenerator {
  */
 export class GameEventProcessor implements PlayerAction {
 
-    private initialEvent: GameEvent;
+    private gameEventGenerator: GameEventGenerator;
 
     constructor(initialEvent: GameEvent) {
-        this.initialEvent = initialEvent;
+        this.gameEventGenerator = new GameEventGenerator(initialEvent);
     }
 
     perform(cave: WumpusCave, display: WumpusDisplay): boolean {
-        const gameEventGenerator = new GameEventGenerator(this.initialEvent);
-
         // TODO make this a parameter to this method.
         const gameEventDisplay = new GameEventDisplayImpl(display);
 
         let playerIdle: boolean = false;
         let gameRunning: boolean = false;
-        const gameEventIterator = gameEventGenerator.getIterator(cave);
+        const gameEventIterator = this.gameEventGenerator.getIterator(cave);
         do {
             const gameEvent = gameEventIterator.next().value;
             gameEventDisplay.displayGameEvent(gameEvent);
