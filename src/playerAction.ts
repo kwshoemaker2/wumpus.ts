@@ -60,6 +60,9 @@ export class PlayerActionImpl implements PlayerAction {
         do {
             const gameEvent = gameEventIterator.next().value;
             gameEventDisplay.displayGameEvent(gameEvent);
+
+            // TODO Move the logic about deciding when we've reached a "leaf" event
+            // into the iterator instead.
             gameRunning = this.isGameRunning(gameEvent);
             playerIdle = this.isPlayerIdle(gameEvent);
         } while(gameRunning && !playerIdle);
