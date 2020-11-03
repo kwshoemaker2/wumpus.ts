@@ -12,7 +12,7 @@ export class GameOverEvent implements GameEvent {
 
     public perform(cave: WumpusCave): GameEvent {
         cave; // Unused
-        return this;
+        return undefined;
     }
 }
 
@@ -44,7 +44,7 @@ export class PlayerIdleEvent implements GameEvent {
 
     public perform(cave: WumpusCave): GameEvent {
         cave; // Unused
-        return this;
+        return undefined;
     }
 }
 
