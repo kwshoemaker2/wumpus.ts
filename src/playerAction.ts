@@ -28,7 +28,7 @@ class GameEventGenerator {
 
     public *getIterator(cave: WumpusCave): Iterator<GameEvent>
     {
-        for(;;) {
+        while(this.currentEvent !== undefined) {
             yield this.currentEvent;
             this.currentEvent = this.currentEvent.perform(cave);
         }
@@ -43,32 +43,27 @@ export class PlayerActionImpl implements PlayerAction {
 
     private gameEventGenerator: GameEventGenerator;
 
-    constructor(initialEvent: GameEvent) {
+    public constructor(initialEvent: GameEvent) {
         this.gameEventGenerator = new GameEventGenerator(initialEvent);
     }
 
-    perform(cave: WumpusCave, gameEventDisplay: GameEventDisplay): boolean {
-        let playerIdle: boolean = false;
-        let gameRunning: boolean = false;
+    public perform(cave: WumpusCave, gameEventDisplay: GameEventDisplay): boolean {
+        let gameRunning: boolean = true;
         const gameEventIterator = this.gameEventGenerator.getIterator(cave);
-        do {
-            const gameEvent = gameEventIterator.next().value;
+        let iteratorResult = gameEventIterator.next();
+        while(!iteratorResult.done) {
+            const gameEvent = iteratorResult.value;
             gameEventDisplay.displayGameEvent(gameEvent);
-
-            // TODO Move the logic about deciding when we've reached a "leaf" event
-            // into the iterator instead.
-            gameRunning = this.isGameRunning(gameEvent);
-            playerIdle = this.isPlayerIdle(gameEvent);
-        } while(gameRunning && !playerIdle);
+            if(!this.isGameRunning(gameEvent)) {
+                gameRunning = false;
+            }
+            iteratorResult = gameEventIterator.next();
+        }
 
         return gameRunning;
     }
 
     private isGameRunning(gameEvent: GameEvent): boolean {
         return !(gameEvent instanceof GameOverEvent);
-    }
-
-    private isPlayerIdle(gameEvent: GameEvent) {
-        return (gameEvent instanceof PlayerIdleEvent);
     }
 }
