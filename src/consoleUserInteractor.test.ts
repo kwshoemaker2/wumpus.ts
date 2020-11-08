@@ -4,29 +4,17 @@ import { ConsoleWrite } from "./consoleUtils";
 import { WumpusCommandType, WumpusCommand } from './wumpusCommand';
 import { ConsoleUserInteractor } from './consoleUserInteractor'
 
-// TODO Nuke this class and use SinonStub
-class ConsoleWriteFake {
-    private consoleOutput: string = "";
-
-    public getConsoleOutput(): string { return this.consoleOutput; }
-
-    public getConsoleWriteFunction(): ConsoleWrite {
-        return (s: string) => { this.consoleOutput += s + '\n'; };
-    }
-}
-
 describe('ConsoleUserInteractor', () => {
 
-    let consoleWriteFake: ConsoleWriteFake;
+    let consoleWriteFake: sinon.SinonStub;
     let consolePromptFake: sinon.SinonStub;
     let userInteractor: ConsoleUserInteractor;
     const promptText = "-> Move or shoot? [ms?q] ";
 
     beforeEach(() => {
-        consoleWriteFake = new ConsoleWriteFake();
+        consoleWriteFake = sinon.stub();
         consolePromptFake = sinon.stub();
-        userInteractor = new ConsoleUserInteractor(consoleWriteFake.getConsoleWriteFunction(),
-                                                   consolePromptFake);
+        userInteractor = new ConsoleUserInteractor(consoleWriteFake, consolePromptFake);
     });
 
     function makeConsolePromptAnswer(answer: string): Promise<string>
@@ -64,7 +52,10 @@ describe('ConsoleUserInteractor', () => {
         const command = userInteractor.getUserCommand();
         return command.then((result) => {
             validateMoveCommand(result, 1);
-            expect(consoleWriteFake.getConsoleOutput()).equals("Move where? For example: 'm 1'\n");
+
+            expect(consoleWriteFake.calledOnce).equals(true);
+            const message = consoleWriteFake.getCall(0).args[0];
+            expect(message).equals("Move where? For example: 'm 1'");
         });
     });
 
@@ -77,7 +68,10 @@ describe('ConsoleUserInteractor', () => {
             expect(result.type).equals(WumpusCommandType.Quit);
             expect(consolePromptFake.firstCall.lastArg).equals(promptText);
             expect(consolePromptFake.secondCall.lastArg).equals(promptText);
-            expect(consoleWriteFake.getConsoleOutput()).equals(" > I don't understand. Try '?' for help.\n\n");
+
+            expect(consoleWriteFake.calledOnce).equals(true);
+            const message = consoleWriteFake.getCall(0).args[0];
+            expect(message).equals(" > I don't understand. Try '?' for help.\n");
         });
     });
 

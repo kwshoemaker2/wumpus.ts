@@ -6,28 +6,15 @@ import { ConsoleWrite } from "./consoleUtils";
 import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom';
 import { WumpusOptions } from './wumpusOptions';
 
-// TODO Nuke this class and use SinonStub
-class ConsoleWriteFake {
-    private consoleOutput: string = "";
-
-    public getConsoleOutput(): string { return this.consoleOutput; }
-
-    public getConsoleWriteFunction(): ConsoleWrite {
-        return (s: string) => { this.consoleOutput += s + '\n'; };
-    }
-}
-
 describe('WumpusConsoleDisplay', () => {
 
-    let consoleWriteFake: ConsoleWriteFake;
-    let consolePromptFake: sinon.SinonStub;
+    let consoleWriteFake: sinon.SinonStub;
     let display: WumpusConsoleDisplay;
     let options: WumpusOptions;
 
     beforeEach(() => {
-        consoleWriteFake = new ConsoleWriteFake();
-        consolePromptFake = sinon.stub();
-        display = new WumpusConsoleDisplay(consoleWriteFake.getConsoleWriteFunction());
+        consoleWriteFake = sinon.stub();
+        display = new WumpusConsoleDisplay(consoleWriteFake);
         options = new WumpusOptions();
     });
 
@@ -39,9 +26,10 @@ describe('WumpusConsoleDisplay', () => {
 
 You're in a cave with ${options.numRooms} rooms and ${options.numDoors} tunnels leading from each room.
 There are ${options.numBats} bats and ${options.numPits} pits scattered throughout the cave, and your
-quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luck.\n\n`;
-
-            expect(consoleWriteFake.getConsoleOutput()).equals(expected);
+quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luck.\n`;
+            expect(consoleWriteFake.calledOnce).equals(true);
+            const message = consoleWriteFake.getCall(0).args[0];
+            expect(message).equals(expected);
         });
     });
 
@@ -55,8 +43,10 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
         it('displays just the room if the room is empty', () => {
             display.showRoomEntry(room);
 
-            const expected: string = 'You are in room 10 of the cave\n';
-            expect(consoleWriteFake.getConsoleOutput()).equals(expected);
+            const expected: string = 'You are in room 10 of the cave';
+            expect(consoleWriteFake.calledOnce).equals(true);
+            const message = consoleWriteFake.getCall(0).args[0];
+            expect(message).equals(expected);
         });
 
         it('displays a message if a pit is nearby', () => {
@@ -68,10 +58,13 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
 
             display.showRoomEntry(room);
 
-            const expected: string = 'You are in room 10 of the cave\n' +
-                                     'There are tunnels leading to rooms 12, 13, 14\n' +
-                                     '*whoosh* (I feel a draft from some pits).\n';
-            expect(consoleWriteFake.getConsoleOutput()).equals(expected);
+            expect(consoleWriteFake.calledThrice).equals(true);
+            const line1 = consoleWriteFake.getCall(0).args[0];
+            expect(line1).equals('You are in room 10 of the cave');
+            const line2 = consoleWriteFake.getCall(1).args[0];
+            expect(line2).equals('There are tunnels leading to rooms 12, 13, 14');
+            const line3 = consoleWriteFake.getCall(2).args[0];
+            expect(line3).equals('*whoosh* (I feel a draft from some pits).');
         });
 
         it('displays a message if bats are nearby', () => {
@@ -83,10 +76,13 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
 
             display.showRoomEntry(room);
 
-            const expected: string = 'You are in room 10 of the cave\n' +
-                                     'There are tunnels leading to rooms 12, 13, 14\n' +
-                                     '*rustle* *rustle* (must be bats nearby).\n';
-            expect(consoleWriteFake.getConsoleOutput()).equals(expected);
+            expect(consoleWriteFake.calledThrice).equals(true);
+            const line1 = consoleWriteFake.getCall(0).args[0];
+            expect(line1).equals('You are in room 10 of the cave');
+            const line2 = consoleWriteFake.getCall(1).args[0];
+            expect(line2).equals('There are tunnels leading to rooms 12, 13, 14');
+            const line3 = consoleWriteFake.getCall(2).args[0];
+            expect(line3).equals('*rustle* *rustle* (must be bats nearby).');
         });
 
         it('displays the room and the neighbors', () => {
@@ -98,7 +94,12 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
 
             const expected: string = 'You are in room 10 of the cave\n' +
                                      'There are tunnels leading to rooms 1, 2, 3\n';
-            expect(consoleWriteFake.getConsoleOutput()).equals(expected);
+
+            expect(consoleWriteFake.calledTwice).equals(true);
+            const line1 = consoleWriteFake.getCall(0).args[0];
+            expect(line1).equals('You are in room 10 of the cave');
+            const line2 = consoleWriteFake.getCall(1).args[0];
+            expect(line2).equals('There are tunnels leading to rooms 1, 2, 3');
         });
     });
 });
