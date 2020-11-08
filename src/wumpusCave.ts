@@ -1,6 +1,6 @@
 
 import { WumpusRoom } from './wumpusRoom'
-import { RandomRangeFunction, getRandomIntBetween } from './wumpusUtils'
+import { RandomRangeFunction, getRandomIntBetween } from './wumpusRandom'
 
 /**
  * Allows traversing the Wumpus cave.

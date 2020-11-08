@@ -1,7 +1,7 @@
 
 import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom'
 import { WumpusOptions } from './wumpusOptions'
-import { getRandomIntBetween, RandomRangeFunction } from './wumpusUtils'
+import { getRandomIntBetween, RandomRangeFunction } from './wumpusRandom'
 import { WumpusCave, WumpusCaveImpl } from './wumpusCave';
 const assert = require('assert').strict;
 
