@@ -1,11 +1,19 @@
 import { expect } from 'chai';
 import { StandardRoomsBuilder, MinRooms, MaxRooms, MaxDoors, DefaultRooms } from './caveCreator'
-import { setRandomRangeFunction } from './wumpusRandom'
+import { RandomRangeFunction, setRandomRangeFunction } from './wumpusRandom'
 import { WumpusRoom } from './wumpusRoom'
 import * as sinon from 'sinon';
+import Sinon = require('sinon');
 
 // TODO These are disabled because they can take a while..
 describe('StandardRoomsBuilder', () => {
+
+    let randInt: sinon.SinonStub;
+
+    beforeEach(() => {
+        randInt = sinon.stub();
+        setRandomRangeFunction(randInt);
+    })
 
     /**
      * Asserts that the rooms form a connected graph.
@@ -46,9 +54,7 @@ describe('StandardRoomsBuilder', () => {
     it('shuffles the rooms to different parts of the array', () => {
         const numRooms = 10;
 
-        const randInt = sinon.stub();
         const builder = new StandardRoomsBuilder(numRooms);
-        setRandomRangeFunction(randInt);
 
         const roomOrder = [1, 3, 5, 7, 9, 2, 4, 6, 8];
         for(let callNum = 0; callNum < roomOrder.length; callNum++) {
@@ -143,13 +149,11 @@ describe('StandardRoomsBuilder', () => {
     it('adds pits to random rooms in the cave', () => {
         const numRooms = DefaultRooms;
 
-        const randInt = sinon.stub();
         randInt.onCall(0).returns(1);
         randInt.onCall(1).returns(3);
         randInt.onCall(2).returns(5);
 
         const builder = new StandardRoomsBuilder(numRooms);
-        setRandomRangeFunction(randInt);
 
         builder.addPits(3);
         const rooms = builder.getRooms();
@@ -162,13 +166,11 @@ describe('StandardRoomsBuilder', () => {
     it('does not add pit if the room already has one', () => {
         const numRooms = DefaultRooms;
 
-        const randInt = sinon.stub();
         randInt.onCall(0).returns(1);
         randInt.onCall(1).returns(1);
         randInt.onCall(2).returns(3);
 
         const builder = new StandardRoomsBuilder(numRooms);
-        setRandomRangeFunction(randInt);
 
         builder.addPits(2);
         const rooms = builder.getRooms();
@@ -180,13 +182,11 @@ describe('StandardRoomsBuilder', () => {
     it('does not add a pit if the room has bats', () => {
         const numRooms = DefaultRooms;
 
-        const randInt = sinon.stub();
         randInt.onCall(0).returns(1);
         randInt.onCall(1).returns(1);
         randInt.onCall(2).returns(2);
 
         const builder = new StandardRoomsBuilder(numRooms);
-        setRandomRangeFunction(randInt);
 
         builder.addBats(1);
         builder.addPits(1);
@@ -199,13 +199,11 @@ describe('StandardRoomsBuilder', () => {
     it('adds bats to random rooms in the cave', () => {
         const numRooms = DefaultRooms;
 
-        const randInt = sinon.stub();
         randInt.onCall(0).returns(1);
         randInt.onCall(1).returns(3);
         randInt.onCall(2).returns(5);
 
         const builder = new StandardRoomsBuilder(numRooms);
-        setRandomRangeFunction(randInt);
 
         builder.addBats(3);
         const rooms = builder.getRooms();
@@ -218,13 +216,11 @@ describe('StandardRoomsBuilder', () => {
     it('does not add bats if the room already has one', () => {
         const numRooms = DefaultRooms;
 
-        const randInt = sinon.stub();
         randInt.onCall(0).returns(1);
         randInt.onCall(1).returns(1);
         randInt.onCall(2).returns(3);
 
         const builder = new StandardRoomsBuilder(numRooms);
-        setRandomRangeFunction(randInt);
 
         builder.addBats(2);
         const rooms = builder.getRooms();
@@ -236,13 +232,11 @@ describe('StandardRoomsBuilder', () => {
     it('does not add bats if the room already has a pit', () => {
         const numRooms = DefaultRooms;
 
-        const randInt = sinon.stub();
         randInt.onCall(0).returns(1);
         randInt.onCall(1).returns(1);
         randInt.onCall(2).returns(3);
 
         const builder = new StandardRoomsBuilder(numRooms);
-        setRandomRangeFunction(randInt);
 
         builder.addPits(1);
         builder.addBats(1);
