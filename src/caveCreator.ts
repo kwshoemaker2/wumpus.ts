@@ -1,7 +1,7 @@
 
 import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom'
 import { WumpusOptions } from './wumpusOptions'
-import { getRandomIntBetween, RandomRangeFunction } from './wumpusRandom'
+import { getRandomIntBetween } from './wumpusRandom'
 import { WumpusCave, WumpusCaveImpl } from './wumpusCave';
 const assert = require('assert').strict;
 
@@ -55,7 +55,6 @@ export interface RoomsBuilder {
  */
 export class StandardRoomsBuilder implements RoomsBuilder {
     private rooms: WumpusRoomImpl[];
-    private randRange: RandomRangeFunction = getRandomIntBetween;
 
     public constructor(numRooms: number)
     {
@@ -76,19 +75,12 @@ export class StandardRoomsBuilder implements RoomsBuilder {
         }
     }
 
-    /**
-     * Override the default random range function.
-     */
-    public setRandomRangeFunction(randRangeFunction: RandomRangeFunction): void {
-        this.randRange = randRangeFunction;
-    }
-
     public shuffleRooms() {
         // Implementation of the Fisher-Yates shuffle algorithm.
         const rooms = this.rooms;
         const arrayLen: number = this.rooms.length;
         for(let fromIndex = 0; fromIndex < arrayLen - 1; fromIndex++) {
-            let toIndex: number = this.randRange(fromIndex, arrayLen);
+            let toIndex: number = getRandomIntBetween(fromIndex, arrayLen);
             [rooms[fromIndex], rooms[toIndex]] = [rooms[toIndex], rooms[fromIndex]];
         }
     }
@@ -174,7 +166,7 @@ export class StandardRoomsBuilder implements RoomsBuilder {
         const rooms = this.rooms;
         let totalPits: number = 0;
         while(totalPits < numPits) {
-            const pitLoc = this.randRange(0, rooms.length);
+            const pitLoc = getRandomIntBetween(0, rooms.length);
             const room = rooms[pitLoc];
             if(!this.roomHasHazard(room)) {
                 room.setPit(true);
@@ -187,7 +179,7 @@ export class StandardRoomsBuilder implements RoomsBuilder {
         const rooms = this.rooms;
         let totalBats: number = 0;
         while(totalBats < numBats) {
-            const batLoc = this.randRange(0, rooms.length);
+            const batLoc = getRandomIntBetween(0, rooms.length);
             const room = rooms[batLoc];
             if(!this.roomHasHazard(room)) {
                 room.setBats(true);

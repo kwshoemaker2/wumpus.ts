@@ -1,6 +1,5 @@
-
 import { WumpusRoom } from './wumpusRoom'
-import { RandomRangeFunction, getRandomIntBetween } from './wumpusRandom'
+import { getRandomIntBetween } from './wumpusRandom'
 
 /**
  * Allows traversing the Wumpus cave.
@@ -30,12 +29,10 @@ export interface WumpusCave {
 export class WumpusCaveImpl implements WumpusCave {
     private readonly rooms: WumpusRoom[];
     private currentRoom: WumpusRoom;
-    private randInt: RandomRangeFunction;
 
     constructor(rooms: WumpusRoom[]) {
         this.rooms = rooms;
         this.currentRoom = this.rooms[0];
-        this.randInt = getRandomIntBetween;
     }
 
     getCurrentRoom(): WumpusRoom { return this.currentRoom; }
@@ -52,7 +49,7 @@ export class WumpusCaveImpl implements WumpusCave {
 
     movePlayerToRandomRoom(): void
     {
-        const newRoomNumber = this.randInt(1, this.rooms.length+1);
+        const newRoomNumber = getRandomIntBetween(1, this.rooms.length+1);
         this.move(newRoomNumber);
     }
 

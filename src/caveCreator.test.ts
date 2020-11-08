@@ -1,10 +1,11 @@
 import { expect } from 'chai';
 import { StandardRoomsBuilder, MinRooms, MaxRooms, MaxDoors, DefaultRooms } from './caveCreator'
+import { setRandomRangeFunction } from './wumpusRandom'
 import { WumpusRoom } from './wumpusRoom'
 import * as sinon from 'sinon';
 
 // TODO These are disabled because they can take a while..
-xdescribe('StandardRoomsBuilder', () => {
+describe('StandardRoomsBuilder', () => {
 
     /**
      * Asserts that the rooms form a connected graph.
@@ -47,7 +48,7 @@ xdescribe('StandardRoomsBuilder', () => {
 
         const randInt = sinon.stub();
         const builder = new StandardRoomsBuilder(numRooms);
-        builder.setRandomRangeFunction(randInt);
+        setRandomRangeFunction(randInt);
 
         const roomOrder = [1, 3, 5, 7, 9, 2, 4, 6, 8];
         for(let callNum = 0; callNum < roomOrder.length; callNum++) {
@@ -148,7 +149,7 @@ xdescribe('StandardRoomsBuilder', () => {
         randInt.onCall(2).returns(5);
 
         const builder = new StandardRoomsBuilder(numRooms);
-        builder.setRandomRangeFunction(randInt);
+        setRandomRangeFunction(randInt);
 
         builder.addPits(3);
         const rooms = builder.getRooms();
@@ -167,7 +168,7 @@ xdescribe('StandardRoomsBuilder', () => {
         randInt.onCall(2).returns(3);
 
         const builder = new StandardRoomsBuilder(numRooms);
-        builder.setRandomRangeFunction(randInt);
+        setRandomRangeFunction(randInt);
 
         builder.addPits(2);
         const rooms = builder.getRooms();
@@ -185,7 +186,7 @@ xdescribe('StandardRoomsBuilder', () => {
         randInt.onCall(2).returns(2);
 
         const builder = new StandardRoomsBuilder(numRooms);
-        builder.setRandomRangeFunction(randInt);
+        setRandomRangeFunction(randInt);
 
         builder.addBats(1);
         builder.addPits(1);
@@ -204,7 +205,7 @@ xdescribe('StandardRoomsBuilder', () => {
         randInt.onCall(2).returns(5);
 
         const builder = new StandardRoomsBuilder(numRooms);
-        builder.setRandomRangeFunction(randInt);
+        setRandomRangeFunction(randInt);
 
         builder.addBats(3);
         const rooms = builder.getRooms();
@@ -223,7 +224,7 @@ xdescribe('StandardRoomsBuilder', () => {
         randInt.onCall(2).returns(3);
 
         const builder = new StandardRoomsBuilder(numRooms);
-        builder.setRandomRangeFunction(randInt);
+        setRandomRangeFunction(randInt);
 
         builder.addBats(2);
         const rooms = builder.getRooms();
@@ -241,7 +242,7 @@ xdescribe('StandardRoomsBuilder', () => {
         randInt.onCall(2).returns(3);
 
         const builder = new StandardRoomsBuilder(numRooms);
-        builder.setRandomRangeFunction(randInt);
+        setRandomRangeFunction(randInt);
 
         builder.addPits(1);
         builder.addBats(1);
