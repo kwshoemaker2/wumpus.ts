@@ -9,6 +9,8 @@ export interface WumpusDisplay {
 
     showPlayerHitWall(): void;
 
+    showPlayerSurvivedPit(): void;
+
     showPlayerFellInPit(): void;
 
     showPlayerMovedByBats(): void;

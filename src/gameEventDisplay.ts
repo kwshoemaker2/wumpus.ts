@@ -3,7 +3,8 @@ import {
     GameEvent,
     PlayerHitWallEvent,
     MovedByBatsEvent,
-    PlayerFellInPitEvent
+    PlayerFellInPitEvent,
+    PlayerSurvivedPitEvent
 } from './gameEvent';
 import { WumpusCave } from './wumpusCave';
 
@@ -42,6 +43,8 @@ export class GameEventDisplayImpl implements GameEventDisplay {
     public displayGameEvent(gameEvent: GameEvent): void {
         if (gameEvent instanceof PlayerHitWallEvent) {
             this.display.showPlayerHitWall();
+        } else if(gameEvent instanceof PlayerSurvivedPitEvent) {
+            this.display.showPlayerSurvivedPit();
         } else if (gameEvent instanceof PlayerFellInPitEvent) {
             this.display.showPlayerFellInPit();
         } else if (gameEvent instanceof MovedByBatsEvent) {

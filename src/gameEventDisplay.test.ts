@@ -1,11 +1,7 @@
 import { expect } from 'chai';
 import * as tsSinon from 'ts-sinon'
 import { WumpusDisplay } from './wumpusDisplay'
-import {
-    PlayerHitWallEvent,
-    MovedByBatsEvent,
-    PlayerFellInPitEvent
-} from './gameEvent';
+import * as GameEvent from './gameEvent'
 import { WumpusRoom } from './wumpusRoom'
 import { WumpusCave } from './wumpusCave'
 import {GameEventDisplayImpl } from './gameEventDisplay'
@@ -29,20 +25,26 @@ describe("GameEventDisplay", () => {
         expect(display.showRoomEntry.calledOnceWith(currentRoom)).equals(true);
     });
 
-    it("tells player they fell in a pit when they enter a room with a pit", () => {
-        gameEventDisplay.displayGameEvent(new PlayerFellInPitEvent());
+    it("tells player they survived a pit", () => {
+        gameEventDisplay.displayGameEvent(new GameEvent.PlayerSurvivedPitEvent());
+
+        expect(display.showPlayerSurvivedPit.calledOnce).equals(true);
+    });
+
+    it("tells player they fell in a pit", () => {
+        gameEventDisplay.displayGameEvent(new GameEvent.PlayerFellInPitEvent());
 
         expect(display.showPlayerFellInPit.calledOnce).equals(true);
     });
 
     it("tells player they hit a wall when moving to a non-adjacent room", () => {
-        gameEventDisplay.displayGameEvent(new PlayerHitWallEvent());
+        gameEventDisplay.displayGameEvent(new GameEvent.PlayerHitWallEvent());
 
         expect(display.showPlayerHitWall.calledOnce).equals(true);
     });
 
     it("tells player they were moved by bats when they enter a room with bats", () => {
-        gameEventDisplay.displayGameEvent(new MovedByBatsEvent());
+        gameEventDisplay.displayGameEvent(new GameEvent.MovedByBatsEvent());
 
         expect(display.showPlayerMovedByBats.calledOnce).equals(true);
     });

@@ -1,4 +1,5 @@
 import { WumpusCave } from './wumpusCave'
+import { getRandomIntBetween } from './wumpusRandom';
 
 export interface GameEvent {
 
@@ -17,6 +18,26 @@ export class GameOverEvent implements GameEvent {
 }
 
 export class PlayerHitWallEvent implements GameEvent {
+
+    public perform(cave: WumpusCave): GameEvent {
+        cave; // Unused
+        return new PlayerIdleEvent();
+    }
+}
+
+export class PlayerEnteredPitRoomEvent implements GameEvent {
+    public perform(cave: WumpusCave): GameEvent {
+        cave; // Unused
+
+        if(getRandomIntBetween(0, 5) % 6 === 0) {
+            return new PlayerSurvivedPitEvent();
+        } else {
+            return new PlayerFellInPitEvent();
+        }
+    }
+}
+
+export class PlayerSurvivedPitEvent implements GameEvent {
 
     public perform(cave: WumpusCave): GameEvent {
         cave; // Unused
@@ -73,7 +94,7 @@ export class PlayerMovedToRoomEvent implements GameEvent {
         let result: GameEvent;
         const currentRoom = cave.getCurrentRoom();
         if(currentRoom.hasPit()) {
-            result = new PlayerFellInPitEvent();
+            result = new PlayerEnteredPitRoomEvent();
         } else if(currentRoom.hasBats()) {   
             result = new MovedByBatsEvent();
         } else {
