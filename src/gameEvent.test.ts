@@ -7,7 +7,6 @@ import * as GameEvent from './gameEvent'
 import { setRandomRangeFunction } from './wumpusRandom';
 
 describe("GameEvent", () => {
-    const roomNumber = 10;
     let cave: tsSinon.StubbedInstance<WumpusCave> = null;
     let randInt: sinon.SinonStub = null;
 
@@ -17,12 +16,9 @@ describe("GameEvent", () => {
         setRandomRangeFunction(randInt);
     });
 
-    function setNextRoom(nextRoom: WumpusRoom, roomNumber: number, callNum: number = 0): void {
-        cave.adjacentRoom.withArgs(roomNumber).returns(true);
-        cave.getCurrentRoom.onCall(callNum).returns(nextRoom);    
-    }
-
     describe("PlayerMovedToRoomEvents", () => {
+        const roomNumber = 10;
+
         it("returns a hit wall event when the player tries to enter a non-adjacent room", () => {
             cave.adjacentRoom.withArgs(roomNumber).returns(false);     
     
@@ -74,17 +70,16 @@ describe("GameEvent", () => {
     
             const playerEnters = new GameEvent.PlayerEnteredRoomEvent();
             const nextEvent = playerEnters.perform(cave);
-    
+
             expect(nextEvent).instanceOf(GameEvent.MovedByBatsEvent);
         });
     });
     
     describe("MovedByBatsEvent", () => {
         it("moves the player to a random room in the cave when they enter a room with bats", () => {
-            const roomNumber = 10;
             const nextRoom = tsSinon.stubInterface<WumpusRoom>();
             nextRoom.hasBats.returns(true);
-            setNextRoom(nextRoom, roomNumber);
+            cave.getCurrentRoom.returns(nextRoom);
     
             const movedByBats = new GameEvent.MovedByBatsEvent();
             const nextEvent = movedByBats.perform(cave);
@@ -92,8 +87,6 @@ describe("GameEvent", () => {
             expect(nextEvent).instanceOf(GameEvent.PlayerEnteredRoomEvent);
             expect(cave.movePlayerToRandomRoom.calledOnce).equals(true);
         });
-
-        // TODO Need to test and verify that this chains correctly with PlayerMovedToRoomEvent
     });
 
     describe("PlayerEnteredPitRoomEvent", () => {
