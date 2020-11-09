@@ -51,15 +51,15 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
             room = new WumpusRoomImpl(roomNumber);
         });
 
+        function expectRoomEntryWrites(writes: string[]) {
+            writes.push("");
+            expectConsoleWrites(writes);
+        }
+
         it('displays just the room if the room is empty', () => {
             display.showRoomEntry(room);
 
-            const expected: string = 'You are in room 10 of the cave';
-            expect(consoleWriteFake.calledOnce, "Expected console written to once").equals(true);
-            const message = consoleWriteFake.getCall(0).args[0];
-            expect(message).equals(expected);
-
-            expectConsoleWrite('You are in room 10 of the cave');
+            expectRoomEntryWrites(['You are in room 10 of the cave']);
         });
 
         it('displays a message if a pit is nearby', () => {
@@ -71,9 +71,9 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
 
             display.showRoomEntry(room);
 
-            expectConsoleWrites(['You are in room 10 of the cave',
-                                 'There are tunnels leading to rooms 12, 13, 14',
-                                 '*whoosh* (I feel a draft from some pits).']);
+            expectRoomEntryWrites(['You are in room 10 of the cave',
+                                   'There are tunnels leading to rooms 12, 13, 14',
+                                   '*whoosh* (I feel a draft from some pits).']);
         });
 
         it('displays a message if bats are nearby', () => {
@@ -85,9 +85,9 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
 
             display.showRoomEntry(room);
 
-            expectConsoleWrites(['You are in room 10 of the cave',
-                                 'There are tunnels leading to rooms 12, 13, 14',
-                                 '*rustle* *rustle* (must be bats nearby).']);
+            expectRoomEntryWrites(['You are in room 10 of the cave',
+                                   'There are tunnels leading to rooms 12, 13, 14',
+                                   '*rustle* *rustle* (must be bats nearby).']);
         });
 
         it('displays the room and the neighbors', () => {
@@ -97,8 +97,8 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
 
             display.showRoomEntry(room);
 
-            expectConsoleWrites(['You are in room 10 of the cave',
-                                 'There are tunnels leading to rooms 1, 2, 3']);
+            expectRoomEntryWrites(['You are in room 10 of the cave',
+                                   'There are tunnels leading to rooms 1, 2, 3']);
 
         });
     });

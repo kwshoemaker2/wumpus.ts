@@ -35,6 +35,9 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
         if(room.batsNearby()) {
             this.writeConsole("*rustle* *rustle* (must be bats nearby).");
         }
+
+        // Write a blank line
+        this.writeConsole("");
     }
 
     private printNeighbors(neighbors: WumpusRoom[]) {
