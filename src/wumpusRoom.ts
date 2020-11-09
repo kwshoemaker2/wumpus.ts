@@ -77,7 +77,22 @@ export class WumpusRoomImpl implements WumpusRoom {
     numNeighbors(): number { return this.neighbors.length; }
 
     addNeighbor(neighbor: WumpusRoom): void {
-        this.neighbors.push(neighbor);
+        let inserted: boolean = false;
+        let i: number = 0;
+
+        while(!inserted && i < this.numNeighbors()) {
+            const neighborRoomNum = neighbor.getRoomNumber();
+            const otherRoomNum = this.neighbors[i].getRoomNumber();
+            if(neighborRoomNum <= otherRoomNum) {
+                this.neighbors.splice(i, 0, neighbor);
+                inserted = true;
+            }
+            i++;
+        }
+
+        if(!inserted) {
+            this.neighbors.push(neighbor);
+        }
     }
 
     hasNeighbor(room: WumpusRoom): boolean {
