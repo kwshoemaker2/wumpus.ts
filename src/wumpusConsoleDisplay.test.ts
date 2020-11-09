@@ -1,10 +1,8 @@
-
-import * as sinon from 'sinon';
-import { expect } from 'chai';
-import { WumpusConsoleDisplay } from './wumpusConsoleDisplay';
-import { ConsoleWrite } from "./consoleUtils";
-import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom';
-import { WumpusOptions } from './wumpusOptions';
+import * as sinon from 'sinon'
+import { expect } from 'chai'
+import { WumpusConsoleDisplay } from './wumpusConsoleDisplay'
+import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom'
+import { WumpusOptions } from './wumpusOptions'
 
 describe('WumpusConsoleDisplay', () => {
 
@@ -18,18 +16,31 @@ describe('WumpusConsoleDisplay', () => {
         options = new WumpusOptions();
     });
 
+    function expectConsoleWrites(writes: string[]) {
+        const calls = consoleWriteFake.getCalls();
+        expect(calls.length, `Console written to ${calls.length} times but expected ${writes.length} times`)
+            .equals(writes.length);
+
+        for(let callNum = 0; callNum < calls.length; callNum++) {
+            const args = calls[callNum].args;
+            expect(args.length, "consoleWrite only takes one argument").equals(1);
+            expect(args[0], `Unexpected console write for call ${callNum}`).equals(writes[callNum]);
+        }
+    }
+
+    function expectConsoleWrite(write: string) {
+        expectConsoleWrites([write]);
+    }
+
     describe('showIntroduction', () => {
         it('displays the game options in the introduction', () => {
             display.showIntroduction(options);
 
-            const expected: string = `Hunt the Wumpus!
+            expectConsoleWrite(`Hunt the Wumpus!
 
 You're in a cave with ${options.numRooms} rooms and ${options.numDoors} tunnels leading from each room.
 There are ${options.numBats} bats and ${options.numPits} pits scattered throughout the cave, and your
-quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luck.\n`;
-            expect(consoleWriteFake.calledOnce).equals(true);
-            const message = consoleWriteFake.getCall(0).args[0];
-            expect(message).equals(expected);
+quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luck.\n`);
         });
     });
 
@@ -44,9 +55,11 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
             display.showRoomEntry(room);
 
             const expected: string = 'You are in room 10 of the cave';
-            expect(consoleWriteFake.calledOnce).equals(true);
+            expect(consoleWriteFake.calledOnce, "Expected console written to once").equals(true);
             const message = consoleWriteFake.getCall(0).args[0];
             expect(message).equals(expected);
+
+            expectConsoleWrite('You are in room 10 of the cave');
         });
 
         it('displays a message if a pit is nearby', () => {
@@ -58,13 +71,9 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
 
             display.showRoomEntry(room);
 
-            expect(consoleWriteFake.calledThrice).equals(true);
-            const line1 = consoleWriteFake.getCall(0).args[0];
-            expect(line1).equals('You are in room 10 of the cave');
-            const line2 = consoleWriteFake.getCall(1).args[0];
-            expect(line2).equals('There are tunnels leading to rooms 12, 13, 14');
-            const line3 = consoleWriteFake.getCall(2).args[0];
-            expect(line3).equals('*whoosh* (I feel a draft from some pits).');
+            expectConsoleWrites(['You are in room 10 of the cave',
+                                 'There are tunnels leading to rooms 12, 13, 14',
+                                 '*whoosh* (I feel a draft from some pits).']);
         });
 
         it('displays a message if bats are nearby', () => {
@@ -76,13 +85,9 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
 
             display.showRoomEntry(room);
 
-            expect(consoleWriteFake.calledThrice).equals(true);
-            const line1 = consoleWriteFake.getCall(0).args[0];
-            expect(line1).equals('You are in room 10 of the cave');
-            const line2 = consoleWriteFake.getCall(1).args[0];
-            expect(line2).equals('There are tunnels leading to rooms 12, 13, 14');
-            const line3 = consoleWriteFake.getCall(2).args[0];
-            expect(line3).equals('*rustle* *rustle* (must be bats nearby).');
+            expectConsoleWrites(['You are in room 10 of the cave',
+                                 'There are tunnels leading to rooms 12, 13, 14',
+                                 '*rustle* *rustle* (must be bats nearby).']);
         });
 
         it('displays the room and the neighbors', () => {
@@ -92,14 +97,41 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
 
             display.showRoomEntry(room);
 
-            const expected: string = 'You are in room 10 of the cave\n' +
-                                     'There are tunnels leading to rooms 1, 2, 3\n';
+            expectConsoleWrites(['You are in room 10 of the cave',
+                                 'There are tunnels leading to rooms 1, 2, 3']);
 
-            expect(consoleWriteFake.calledTwice).equals(true);
-            const line1 = consoleWriteFake.getCall(0).args[0];
-            expect(line1).equals('You are in room 10 of the cave');
-            const line2 = consoleWriteFake.getCall(1).args[0];
-            expect(line2).equals('There are tunnels leading to rooms 1, 2, 3');
         });
     });
+
+    it('displays on the console when the player hits a wall', () => {
+        display.showPlayerHitWall();
+
+        expectConsoleWrite('Oof! (you hit the wall)\n');
+    });
+
+    it('displays on the console when the player survives a pit', () => {
+        display.showPlayerSurvivedPit();
+
+        expectConsoleWrite(`Without conscious thought you grab for the side of the cave and manage\n\
+to grasp onto a rocky outcrop.  Beneath your feet stretches the limitless\n\
+depths of a bottomless pit!  Rock crumbles beneath your feet!\n`);
+    });
+
+    it('displays on the console when the player falls in a pit', () => {
+        display.showPlayerFellInPit();
+
+        expectConsoleWrite(`*AAAUUUUGGGGGHHHHHhhhhhhhhhh...*
+The whistling sound and updraft as you walked into this room of the
+cave apparently wasn't enough to clue you in to the presence of the
+bottomless pit.  You have a lot of time to reflect on this error as
+you fall many miles to the core of the earth.  Look on the bright side;
+you can at least find out if Jules Verne was right...\n`);
+    });
+
+    it('displays on the console when the player is moved by bats', () => {
+        display.showPlayerMovedByBats();
+
+        expectConsoleWrite('*flap*  *flap*  *flap*  (humongous bats pick you up and move you!)\n');
+    });
+
 });
