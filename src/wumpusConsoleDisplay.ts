@@ -70,5 +70,9 @@ you can at least find out if Jules Verne was right...\n`);
         this.writeConsole("*flap*  *flap*  *flap*  (humongous bats pick you up and move you!)\n");
     }
 
+    public showPlayerMovedByBatsAgain(): void {
+        this.writeConsole("*flap*  *flap*  *flap*  (humongous bats pick you up and move you again!)\n");
+    }
+
 
 }

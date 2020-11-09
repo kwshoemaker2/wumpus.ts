@@ -4,7 +4,8 @@ import {
     PlayerHitWallEvent,
     MovedByBatsEvent,
     PlayerFellInPitEvent,
-    PlayerSurvivedPitEvent
+    PlayerSurvivedPitEvent,
+    PlayerIdleEvent
 } from './gameEvent';
 import { WumpusCave } from './wumpusCave';
 
@@ -31,9 +32,11 @@ export interface GameEventDisplay {
  */
 export class GameEventDisplayImpl implements GameEventDisplay {
     private display: WumpusDisplay;
+    private movedByBats: boolean;
 
     constructor(display: WumpusDisplay) {
         this.display = display;
+        this.movedByBats = false;
     }
 
     public displayCurrentRoom(cave: WumpusCave): void {
@@ -48,7 +51,14 @@ export class GameEventDisplayImpl implements GameEventDisplay {
         } else if (gameEvent instanceof PlayerFellInPitEvent) {
             this.display.showPlayerFellInPit();
         } else if (gameEvent instanceof MovedByBatsEvent) {
-            this.display.showPlayerMovedByBats();
+            if(this.movedByBats) {
+                this.display.showPlayerMovedByBatsAgain();
+            } else {
+                this.movedByBats = true;
+                this.display.showPlayerMovedByBats();
+            }
+        } else if (gameEvent instanceof PlayerIdleEvent) {
+            this.movedByBats = false;
         }
     }
 }

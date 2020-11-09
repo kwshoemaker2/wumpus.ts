@@ -57,7 +57,7 @@ export class MovedByBatsEvent implements GameEvent {
 
     public perform(cave: WumpusCave): GameEvent {
         cave.movePlayerToRandomRoom();
-        return new PlayerIdleEvent();
+        return new PlayerEnteredRoomEvent();
     }
 }
 
@@ -82,15 +82,17 @@ export class PlayerMovedToRoomEvent implements GameEvent {
 
         if(cave.adjacentRoom(this.roomNumber)) {
             cave.move(this.roomNumber);
-            result = this.handleMove(cave);
+            return new PlayerEnteredRoomEvent();
         } else {
             result = new PlayerHitWallEvent();
         }
 
         return result;
     }
+}
 
-    private handleMove(cave: WumpusCave): GameEvent {
+export class PlayerEnteredRoomEvent implements GameEvent {
+    public perform(cave: WumpusCave): GameEvent {
         let result: GameEvent;
         const currentRoom = cave.getCurrentRoom();
         if(currentRoom.hasPit()) {

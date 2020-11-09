@@ -47,5 +47,23 @@ describe("GameEventDisplay", () => {
         gameEventDisplay.displayGameEvent(new GameEvent.MovedByBatsEvent());
 
         expect(display.showPlayerMovedByBats.calledOnce).equals(true);
+        expect(display.showPlayerMovedByBatsAgain.notCalled).equals(true);
+    });
+
+    it("tells player they were moved by bats again when bats move them to a room with bats", () => {
+        gameEventDisplay.displayGameEvent(new GameEvent.MovedByBatsEvent());
+        gameEventDisplay.displayGameEvent(new GameEvent.MovedByBatsEvent());
+
+        expect(display.showPlayerMovedByBats.calledOnce).equals(true);
+        expect(display.showPlayerMovedByBatsAgain.calledOnce).equals(true);
+    });
+
+    it("does not tell a player they were moved by bats if the player is idle between moves", () => {
+        gameEventDisplay.displayGameEvent(new GameEvent.MovedByBatsEvent());
+        gameEventDisplay.displayGameEvent(new GameEvent.PlayerIdleEvent());
+        gameEventDisplay.displayGameEvent(new GameEvent.MovedByBatsEvent());
+
+        expect(display.showPlayerMovedByBats.calledTwice).equals(true);
+        expect(display.showPlayerMovedByBatsAgain.notCalled).equals(true);
     });
 });

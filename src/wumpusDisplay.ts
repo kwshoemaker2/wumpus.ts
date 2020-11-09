@@ -14,4 +14,6 @@ export interface WumpusDisplay {
     showPlayerFellInPit(): void;
 
     showPlayerMovedByBats(): void;
+
+    showPlayerMovedByBatsAgain(): void;
 }

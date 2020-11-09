@@ -134,4 +134,10 @@ you can at least find out if Jules Verne was right...\n`);
         expectConsoleWrite('*flap*  *flap*  *flap*  (humongous bats pick you up and move you!)\n');
     });
 
+    it('displays on the console when the player is moved by bats again', () => {
+        display.showPlayerMovedByBatsAgain();
+
+        expectConsoleWrite('*flap*  *flap*  *flap*  (humongous bats pick you up and move you again!)\n');
+    });
+
 });

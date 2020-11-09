@@ -23,31 +23,6 @@ describe("GameEvent", () => {
     }
 
     describe("PlayerMovedToRoomEvents", () => {
-        it("moves the player to the room when it's adjacent", () => {
-            const nextRoom = tsSinon.stubInterface<WumpusRoom>();
-            nextRoom.hasPit.returns(false);
-    
-            setNextRoom(nextRoom, roomNumber);    
-    
-            const movePlayer = new GameEvent.PlayerMovedToRoomEvent(roomNumber);
-            const nextEvent = movePlayer.perform(cave);
-    
-            expect(nextEvent).instanceOf(GameEvent.PlayerIdleEvent);
-            expect(cave.move.calledOnceWith(roomNumber)).equals(true);
-        });
-    
-        it("returns an entered pit room event when the player enters a room with a pit", () => {
-            const nextRoom = tsSinon.stubInterface<WumpusRoom>();
-            nextRoom.hasPit.returns(true);
-    
-            setNextRoom(nextRoom, roomNumber);  
-    
-            const movePlayer = new GameEvent.PlayerMovedToRoomEvent(roomNumber);
-            const nextEvent = movePlayer.perform(cave);
-    
-            expect(nextEvent).instanceOf(GameEvent.PlayerEnteredPitRoomEvent);
-        });
-    
         it("returns a hit wall event when the player tries to enter a non-adjacent room", () => {
             cave.adjacentRoom.withArgs(roomNumber).returns(false);     
     
@@ -56,14 +31,49 @@ describe("GameEvent", () => {
     
             expect(nextEvent).instanceOf(GameEvent.PlayerHitWallEvent);
         });
-    
-        it("returns a moved by bats when they enter a room with bats", () => {
-            const nextRoom = tsSinon.stubInterface<WumpusRoom>();
-            nextRoom.hasBats.returns(true);
-            setNextRoom(nextRoom, roomNumber);  
+
+        it("moves the player to the room when it's adjacent", () => {
+            cave.adjacentRoom.withArgs(roomNumber).returns(true);     
     
             const movePlayer = new GameEvent.PlayerMovedToRoomEvent(roomNumber);
             const nextEvent = movePlayer.perform(cave);
+    
+            expect(cave.move.calledOnceWith(roomNumber)).equals(true);
+            expect(nextEvent).instanceOf(GameEvent.PlayerEnteredRoomEvent);
+        });
+    });
+
+    describe("PlayerEnteredRoomEvent", () => {
+        it("returns a player idle event when the entered room has no bats or pits", () => {
+            const currentRoom = tsSinon.stubInterface<WumpusRoom>();
+            currentRoom.hasPit.returns(false);
+            currentRoom.hasBats.returns(false);
+            cave.getCurrentRoom.returns(currentRoom);
+    
+            const playerEnters = new GameEvent.PlayerEnteredRoomEvent();
+            const nextEvent = playerEnters.perform(cave);
+    
+            expect(nextEvent).instanceOf(GameEvent.PlayerIdleEvent);
+        });
+    
+        it("returns an entered pit room event when the player enters a room with a pit", () => {
+            const currentRoom = tsSinon.stubInterface<WumpusRoom>();
+            currentRoom.hasPit.returns(true);
+            cave.getCurrentRoom.returns(currentRoom);
+    
+            const playerEnters = new GameEvent.PlayerEnteredRoomEvent();
+            const nextEvent = playerEnters.perform(cave);
+    
+            expect(nextEvent).instanceOf(GameEvent.PlayerEnteredPitRoomEvent);
+        });
+    
+        it("returns a moved by bats event when they enter a room with bats", () => {
+            const currentRoom = tsSinon.stubInterface<WumpusRoom>();
+            currentRoom.hasBats.returns(true);
+            cave.getCurrentRoom.returns(currentRoom);
+    
+            const playerEnters = new GameEvent.PlayerEnteredRoomEvent();
+            const nextEvent = playerEnters.perform(cave);
     
             expect(nextEvent).instanceOf(GameEvent.MovedByBatsEvent);
         });
@@ -78,10 +88,12 @@ describe("GameEvent", () => {
     
             const movedByBats = new GameEvent.MovedByBatsEvent();
             const nextEvent = movedByBats.perform(cave);
-    
-            expect(nextEvent).instanceOf(GameEvent.PlayerIdleEvent);
+
+            expect(nextEvent).instanceOf(GameEvent.PlayerEnteredRoomEvent);
             expect(cave.movePlayerToRandomRoom.calledOnce).equals(true);
         });
+
+        // TODO Need to test and verify that this chains correctly with PlayerMovedToRoomEvent
     });
 
     describe("PlayerEnteredPitRoomEvent", () => {
