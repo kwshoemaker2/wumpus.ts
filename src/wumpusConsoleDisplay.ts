@@ -35,6 +35,9 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
         if(room.batsNearby()) {
             this.writeConsole("*rustle* *rustle* (must be bats nearby).");
         }
+        if(room.wumpusNearby()) {
+            this.writeConsole("*sniff* (I can smell the evil Wumpus nearby!)");
+        }
 
         // Write a blank line
         this.writeConsole("");
@@ -75,6 +78,15 @@ you can at least find out if Jules Verne was right...\n`);
 
     public showPlayerMovedByBatsAgain(): void {
         this.writeConsole("*flap*  *flap*  *flap*  (humongous bats pick you up and move you again!)\n");
+    }
+
+    public showPlayerEatenByWumpus(): void {
+        this.writeConsole(`*ROAR* *chomp* *snurfle* *chomp*!\n\
+Much to the delight of the Wumpus, you walked right into his mouth,\n\
+making you one of the easiest dinners he's ever had!  For you, however,\n\
+it's a rather unpleasant death.  The only good thing is that it's been\n\
+so long since the evil Wumpus cleaned his teeth that you immediately\n\
+passed out from the stench`);
     }
 
 

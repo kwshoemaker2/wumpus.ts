@@ -90,6 +90,20 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
                                    '*rustle* *rustle* (must be bats nearby).']);
         });
 
+        it('displays a message if a wumpus is nearby', () => {
+            let batRoom: WumpusRoomImpl = new WumpusRoomImpl(12);
+            batRoom.setWumpus(true);
+            room.addNeighbor(batRoom);
+            room.addNeighbor(new WumpusRoomImpl(13));
+            room.addNeighbor(new WumpusRoomImpl(14));
+
+            display.showRoomEntry(room);
+
+            expectRoomEntryWrites(['You are in room 10 of the cave',
+                                   'There are tunnels leading to rooms 12, 13, 14',
+                                   '*sniff* (I can smell the evil Wumpus nearby!)']);
+        });
+
         it('displays the room and the neighbors', () => {
             room.addNeighbor(new WumpusRoomImpl(1));
             room.addNeighbor(new WumpusRoomImpl(2));
@@ -138,6 +152,17 @@ you can at least find out if Jules Verne was right...\n`);
         display.showPlayerMovedByBatsAgain();
 
         expectConsoleWrite('*flap*  *flap*  *flap*  (humongous bats pick you up and move you again!)\n');
+    });
+
+    it('displays on the console when the player is eaten by a wumpus', () => {
+        display.showPlayerEatenByWumpus();
+
+        expectConsoleWrite(`*ROAR* *chomp* *snurfle* *chomp*!\n\
+Much to the delight of the Wumpus, you walked right into his mouth,\n\
+making you one of the easiest dinners he's ever had!  For you, however,\n\
+it's a rather unpleasant death.  The only good thing is that it's been\n\
+so long since the evil Wumpus cleaned his teeth that you immediately\n\
+passed out from the stench`);
     });
 
 });

@@ -66,4 +66,10 @@ describe("GameEventDisplay", () => {
         expect(display.showPlayerMovedByBats.calledTwice).equals(true);
         expect(display.showPlayerMovedByBatsAgain.notCalled).equals(true);
     });
+
+    it("tells player they werwe eaten by a wumpus", () => {
+        gameEventDisplay.displayGameEvent(new GameEvent.PlayerEatenByWumpus());
+
+        expect(display.showPlayerEatenByWumpus.calledOnce).equals(true);
+    });
 });

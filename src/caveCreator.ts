@@ -39,6 +39,11 @@ export interface RoomsBuilder {
     addBats(numBats: number);
 
     /**
+     * Adds a Wumpus to the cave.
+     */
+    addWumpus(): void;
+
+    /**
      * Get the built rooms.
      */
     getRooms(): WumpusRoom[];
@@ -188,8 +193,21 @@ export class StandardRoomsBuilder implements RoomsBuilder {
         }
     }
 
+    public addWumpus(): void {
+        const rooms = this.rooms;
+        let wumpusAdded: boolean = false;
+        while(!wumpusAdded) {
+            const wumpusLoc  = getRandomIntBetween(1, rooms.length);
+            const wumpusRoom = rooms[wumpusLoc];
+            if(!this.roomHasHazard(wumpusRoom)) {
+                wumpusRoom.setWumpus(true);
+                wumpusAdded = true;
+            }
+        }
+    }
+
     private roomHasHazard(room: WumpusRoom): boolean {
-        return (room.hasPit() || room.hasBats());
+        return (room.hasPit() || room.hasBats() || room.hasWumpus());
     }
 
     public getRooms(): WumpusRoom[] {
@@ -207,6 +225,7 @@ export function createCave(options: WumpusOptions, builder: RoomsBuilder): Wumpu
     builder.buildDoors(options.numDoors);
     builder.addPits(options.numPits);
     builder.addBats(options.numBats);
+    builder.addWumpus();
     
     const rooms = builder.getRooms();
     printCave(rooms);
@@ -226,7 +245,11 @@ export function printCave(rooms: WumpusRoom[]) {
         s += `${roomNumber}`
 
         if(room.hasPit()) {
-            s += '[fillColor="black" fontColor="white"]'
+            s += '[style="filled" fillColor="black" fontColor="white"]';
+        } else if(room.hasBats()) {
+            s += '[style="filled" fillColor="blue"]';
+        } else if(room.hasWumpus()) {
+            s += '[style="filled" fillColor="red"]';
         }
 
         s += ";\n";

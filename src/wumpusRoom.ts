@@ -55,6 +55,21 @@ export interface WumpusRoom {
      * Returns true if bats are in a neighboring room.
      */
     batsNearby(): boolean;
+
+    /**
+     * Put a Wumpus in the room.
+     */
+    setWumpus(hasWumpus: boolean): void;
+
+    /**
+     * Returns true if a Wumpus is in the room.
+     */
+    hasWumpus(): boolean;
+
+    /**
+     * Returns true if a Wumpus is in a neighboring room.
+     */
+    wumpusNearby(): boolean;
 }
 
 export class WumpusRoomImpl implements WumpusRoom {
@@ -62,12 +77,14 @@ export class WumpusRoomImpl implements WumpusRoom {
     private neighbors: WumpusRoom[];
     private hasPit_: boolean;
     private hasBats_: boolean;
+    private hasWumpus_: boolean;
 
     constructor(roomNumber: number) {
         this.roomNumber = roomNumber;
         this.neighbors = [];
         this.hasPit_ = false;
         this.hasBats_ = false;
+        this.hasWumpus_ = false;
     }
 
     getRoomNumber(): number { return this.roomNumber; }
@@ -131,6 +148,26 @@ export class WumpusRoomImpl implements WumpusRoom {
     {
         for(let i = 0; i < this.neighbors.length; i++) {
             if(this.neighbors[i].hasBats()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    setWumpus(hasWumpus: boolean): void
+    {
+        this.hasWumpus_ = hasWumpus;
+    }
+
+    hasWumpus(): boolean
+    {
+        return this.hasWumpus_;
+    }
+
+    wumpusNearby(): boolean
+    {
+        for(let i = 0; i < this.neighbors.length; i++) {
+            if(this.neighbors[i].hasWumpus()) {
                 return true;
             }
         }

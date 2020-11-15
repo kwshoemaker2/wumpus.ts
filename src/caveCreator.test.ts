@@ -213,6 +213,19 @@ describe('StandardRoomsBuilder', () => {
         expect(rooms[5].hasBats(), "The room should have bats").equals(true);
     });
 
+    it('adds a wumpus to a random room in the cave', () => {
+        const numRooms = DefaultRooms;
+
+        randInt.returns(5);
+
+        const builder = new StandardRoomsBuilder(numRooms);
+
+        builder.addWumpus();
+        const rooms = builder.getRooms();
+
+        expect(rooms[5].hasWumpus(), "The room should have a Wumpus").equals(true);
+    });
+
     it('does not add bats if the room already has one', () => {
         const numRooms = DefaultRooms;
 
@@ -244,6 +257,57 @@ describe('StandardRoomsBuilder', () => {
 
         expect(rooms[1].hasPit(), "The room should have a pit").equals(true);
         expect(rooms[1].hasBats(), "The room should not have bats").equals(false);
+    });
+
+    it('does not add a wumpus if the room already has a pit', () => {
+        const numRooms = DefaultRooms;
+
+        randInt.onCall(0).returns(1);
+        randInt.onCall(1).returns(1);
+        randInt.onCall(2).returns(3);
+
+        const builder = new StandardRoomsBuilder(numRooms);
+
+        builder.addPits(1);
+        builder.addWumpus();
+        const rooms = builder.getRooms();
+
+        expect(rooms[1].hasPit(), "The room should have a pit").equals(true);
+        expect(rooms[1].hasWumpus(), "The room should not have a Wumpus").equals(false);
+    });
+
+    it('does not add a wumpus if the room already has bats', () => {
+        const numRooms = DefaultRooms;
+
+        randInt.onCall(0).returns(1);
+        randInt.onCall(1).returns(1);
+        randInt.onCall(2).returns(3);
+
+        const builder = new StandardRoomsBuilder(numRooms);
+
+        builder.addBats(1);
+        builder.addWumpus();
+        const rooms = builder.getRooms();
+
+        expect(rooms[1].hasBats(), "The room should have bats").equals(true);
+        expect(rooms[1].hasWumpus(), "The room should not have a Wumpus").equals(false);
+    });
+
+    it('does not add a wumpus if the room already has a wumpus', () => {
+        const numRooms = DefaultRooms;
+
+        randInt.onCall(0).returns(1);
+        randInt.onCall(1).returns(1);
+        randInt.onCall(2).returns(3);
+
+        const builder = new StandardRoomsBuilder(numRooms);
+
+        builder.addWumpus();
+        builder.addWumpus();
+        const rooms = builder.getRooms();
+
+        expect(rooms[1].hasWumpus(), "The room should have a Wumpus").equals(true);
+        expect(rooms[3].hasWumpus(), "The room should have a Wumpus").equals(true);
     });
 });
 

@@ -99,9 +99,17 @@ export class PlayerEnteredRoomEvent implements GameEvent {
             result = new PlayerEnteredPitRoomEvent();
         } else if(currentRoom.hasBats()) {   
             result = new MovedByBatsEvent();
+        } else if(currentRoom.hasWumpus()) {
+            result = new PlayerEatenByWumpus();
         } else {
             result = new PlayerIdleEvent();
         }
         return result;
+    }
+}
+
+export class PlayerEatenByWumpus implements GameEvent {
+    public perform(cave: WumpusCave): GameEvent {
+        return new GameOverEvent();
     }
 }

@@ -40,6 +40,13 @@ describe("WumpusRoomImpl", () => {
         expect(room.hasBats()).equals(true);
     });
 
+    it("correctly indicates whether it has a Wumpus", () => {
+        room.setWumpus(false);
+        expect(room.hasWumpus()).equals(false);
+        room.setWumpus(true);
+        expect(room.hasWumpus()).equals(true);
+    });
+
     it("has no neighbors by default", () => {
         expect(room.numNeighbors()).equals(0);
         expect(room.getNeighbors().length).equals(0);
@@ -87,7 +94,7 @@ describe("WumpusRoomImpl", () => {
         expect(room.pitNearby()).equals(false);
     });
 
-    it("says bats are nearby when a neighbor contains a pit", () => {
+    it("says bats are nearby when a neighbor contains bats", () => {
         const neighbor1 = makeStubRoom();
         neighbor1.hasBats.returns(false);
         room.addNeighbor(neighbor1);
@@ -99,7 +106,7 @@ describe("WumpusRoomImpl", () => {
         expect(room.batsNearby()).equals(true);
     });
 
-    it("says bats are not nearby when no neighbors contain a pit", () => {
+    it("says bats are not nearby when no neighbors contain bats", () => {
         const neighbor1 = makeStubRoom();
         neighbor1.hasBats.returns(false);
         room.addNeighbor(neighbor1);
@@ -109,6 +116,30 @@ describe("WumpusRoomImpl", () => {
         room.addNeighbor(neighbor2);
 
         expect(room.batsNearby()).equals(false);
+    });
+
+    it("says a wumpus is nearby when a neighbor contains a wumpus", () => {
+        const neighbor1 = makeStubRoom();
+        neighbor1.hasWumpus.returns(false);
+        room.addNeighbor(neighbor1);
+
+        const neighbor2 = makeStubRoom();
+        neighbor2.hasWumpus.returns(true);        
+        room.addNeighbor(neighbor2);
+
+        expect(room.wumpusNearby()).equals(true);
+    });
+
+    it("says a wumpus is not nearby when no neighbors contain a wumpus", () => {
+        const neighbor1 = makeStubRoom();
+        neighbor1.hasWumpus.returns(false);
+        room.addNeighbor(neighbor1);
+
+        const neighbor2 = makeStubRoom();
+        neighbor2.hasWumpus.returns(false);        
+        room.addNeighbor(neighbor2);
+
+        expect(room.hasWumpus()).equals(false);
     });
 
     it("indicates the correct number of neighbors", () => {

@@ -73,6 +73,17 @@ describe("GameEvent", () => {
 
             expect(nextEvent).instanceOf(GameEvent.MovedByBatsEvent);
         });
+
+        it("returns an eaten by wumpus event when they enter a room with a wumpus", () => {
+            const currentRoom = tsSinon.stubInterface<WumpusRoom>();
+            currentRoom.hasWumpus.returns(true);
+            cave.getCurrentRoom.returns(currentRoom);
+    
+            const playerEnters = new GameEvent.PlayerEnteredRoomEvent();
+            const nextEvent = playerEnters.perform(cave);
+
+            expect(nextEvent).instanceOf(GameEvent.PlayerEatenByWumpus);
+        });
     });
     
     describe("MovedByBatsEvent", () => {
@@ -136,6 +147,16 @@ describe("GameEvent", () => {
             const playerFellInPit = new GameEvent.PlayerFellInPitEvent();
 
             const nextEvent = playerFellInPit.perform(cave);
+
+            expect(nextEvent).instanceOf(GameEvent.GameOverEvent);
+        });
+    });
+
+    describe("PlayerEatenByWumpus", () => {
+        it("returns a game over event", () => {
+            const PlayerEatenByWumpus = new GameEvent.PlayerEatenByWumpus();
+
+            const nextEvent = PlayerEatenByWumpus.perform(cave);
 
             expect(nextEvent).instanceOf(GameEvent.GameOverEvent);
         });
