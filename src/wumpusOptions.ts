@@ -1,10 +1,10 @@
 
-const maxShotPath = 6;
-const defaultNumRooms = 20;
-const defaultNumDoors = 3;
-const defaultNumArrows = 3;
-const defaultNumPits = 3;
-const defaultNumBats = 3;
+export const maxShotPath = 6;
+export const defaultNumRooms = 20;
+export const defaultNumDoors = 3;
+export const defaultNumArrows = 5;
+export const defaultNumPits = 3;
+export const defaultNumBats = 3;
 
 /**
  * Options for a game of Hunt the Wumpus

@@ -33,7 +33,7 @@ class App {
         const options: WumpusOptions = new WumpusOptions();
         const roomsBuilder = new StandardRoomsBuilder(options.numRooms);
         const cave = createCave(options, roomsBuilder);
-        const gameState = new GameState(cave);
+        const gameState = new GameState(cave, options.numArrows);
         const display: WumpusConsoleDisplay = new WumpusConsoleDisplay(App.consoleWrite);
         const gameEventDisplay = new GameEventDisplayImpl(display);
         const playerActionTranslator = new PlayerActionTranslatorImpl(new ConsoleUserInteractor(App.consoleWrite, App.consolePrompt));
