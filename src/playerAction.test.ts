@@ -1,18 +1,21 @@
-import { expect } from 'chai';
+import { expect } from 'chai'
 import * as tsSinon from 'ts-sinon'
 import { WumpusCave } from './wumpusCave'
-import { PlayerActionImpl } from './playerAction';
+import { PlayerActionImpl } from './playerAction'
 import { GameEvent, GameOverEvent, PlayerIdleEvent } from './gameEvent'
-import { GameEventDisplay } from './GameEventDisplay';
+import { GameEventDisplay } from './GameEventDisplay'
+import { GameState } from './gameState'
 
 describe("PlayerActionImpl", () => {
     let cave: tsSinon.StubbedInstance<WumpusCave> = null;
+    let gameState: GameState = null;
     let gameEventDisplay: tsSinon.StubbedInstance<GameEventDisplay> = null;
     let initialEvent: tsSinon.StubbedInstance<GameEvent> = null;
     let gameEventProcessor: PlayerActionImpl = null;
 
     beforeEach(() => {
         cave = tsSinon.stubInterface<WumpusCave>();
+        gameState = new GameState(cave);
         gameEventDisplay = tsSinon.stubInterface<GameEventDisplay>();
         initialEvent = getGameEventStub();
         gameEventProcessor = new PlayerActionImpl(initialEvent);
@@ -25,7 +28,7 @@ describe("PlayerActionImpl", () => {
     it("indicates game is running when the next event is that the player is idle", () => {
         initialEvent.perform.returns(new PlayerIdleEvent());
 
-        const gameRunning = gameEventProcessor.perform(cave, gameEventDisplay);
+        const gameRunning = gameEventProcessor.perform(gameState, gameEventDisplay);
 
         expect(gameRunning).equals(true);
     });
@@ -33,7 +36,7 @@ describe("PlayerActionImpl", () => {
     it("indicates game is not running when the next event is that the game is over", () => {
         initialEvent.perform.returns(new GameOverEvent());
 
-        const gameRunning = gameEventProcessor.perform(cave, gameEventDisplay);
+        const gameRunning = gameEventProcessor.perform(gameState, gameEventDisplay);
 
         expect(gameRunning).equals(false);
     });
@@ -47,7 +50,7 @@ describe("PlayerActionImpl", () => {
         gameEvent1.perform.returns(gameEvent2);
         gameEvent2.perform.returns(gameEvent3);
 
-        gameEventProcessor.perform(cave, gameEventDisplay);
+        gameEventProcessor.perform(gameState, gameEventDisplay);
 
         expect(initialEvent.perform.calledOnce).equals(true);
         expect(gameEvent1.perform.calledOnce).equals(true);

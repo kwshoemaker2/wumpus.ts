@@ -5,19 +5,22 @@ import { Game } from './game'
 import { PlayerAction } from './playerAction'
 import { GameEventDisplay } from './GameEventDisplay'
 import { PlayerActionTranslator } from './playerActionTranslator'
+import { GameState } from './gameState'
 
 
 describe("Game", () => {
     let cave: tsSinon.StubbedInstance<WumpusCave> = null;
+    let gameState: GameState = null;
     let playerActionTranslator: tsSinon.StubbedInstance<PlayerActionTranslator> = null;
     let gameEventDisplay: tsSinon.StubbedInstance<GameEventDisplay> = null;
     let game: Game = null;
 
     beforeEach(() => {
         cave = tsSinon.stubInterface<WumpusCave>();
+        gameState = new GameState(cave);
         playerActionTranslator = tsSinon.stubInterface<PlayerActionTranslator>();
         gameEventDisplay = tsSinon.stubInterface<GameEventDisplay>();
-        game = new Game(cave, playerActionTranslator, gameEventDisplay);
+        game = new Game(gameState, playerActionTranslator, gameEventDisplay);
     });
 
     function setPlayerAction(playerAction: PlayerAction, callNumber: number = 0): void {

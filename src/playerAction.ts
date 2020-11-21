@@ -1,9 +1,9 @@
 import { WumpusCave } from './wumpusCave'
 import { GameEvent,
-         PlayerIdleEvent,
          GameOverEvent,
         } from './gameEvent'
 import { GameEventDisplay } from './gameEventDisplay';
+import { GameState } from './gameState'
 
 /**
  * Abstraction for an action a player can perform.
@@ -15,7 +15,7 @@ export interface PlayerAction {
      * 
      * Returns true if the game is still running.
      */
-    perform(cave: WumpusCave, gameEventDisplay: GameEventDisplay): boolean;
+    perform(gameState: GameState, gameEventDisplay: GameEventDisplay): boolean;
 }
 
 class GameEventGenerator {
@@ -26,11 +26,11 @@ class GameEventGenerator {
         this.currentEvent = initialEvent;
     }
 
-    public *getIterator(cave: WumpusCave): Iterator<GameEvent>
+    public *getIterator(gameState: GameState): Iterator<GameEvent>
     {
         while(this.currentEvent !== undefined) {
             yield this.currentEvent;
-            this.currentEvent = this.currentEvent.perform(cave);
+            this.currentEvent = this.currentEvent.perform(gameState);
         }
     }
 }
@@ -47,9 +47,9 @@ export class PlayerActionImpl implements PlayerAction {
         this.gameEventGenerator = new GameEventGenerator(initialEvent);
     }
 
-    public perform(cave: WumpusCave, gameEventDisplay: GameEventDisplay): boolean {
+    public perform(gameState: GameState, gameEventDisplay: GameEventDisplay): boolean {
         let gameRunning: boolean = true;
-        const gameEventIterator = this.gameEventGenerator.getIterator(cave);
+        const gameEventIterator = this.gameEventGenerator.getIterator(gameState);
         let iteratorResult = gameEventIterator.next();
         while(!iteratorResult.done) {
             const gameEvent = iteratorResult.value;

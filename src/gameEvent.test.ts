@@ -1,17 +1,20 @@
-import { expect } from 'chai';
+import { expect } from 'chai'
 import * as sinon from 'sinon'
 import * as tsSinon from 'ts-sinon'
 import { WumpusCave } from './wumpusCave'
 import { WumpusRoom } from './wumpusRoom'
 import * as GameEvent from './gameEvent'
-import { setRandomRangeFunction } from './wumpusRandom';
+import { setRandomRangeFunction } from './wumpusRandom'
+import { GameState } from './gameState'
 
 describe("GameEvent", () => {
     let cave: tsSinon.StubbedInstance<WumpusCave> = null;
+    let gameState: GameState = null;
     let randInt: sinon.SinonStub = null;
 
     beforeEach(() => {
         cave = tsSinon.stubInterface<WumpusCave>();
+        gameState = new GameState(cave);
         randInt = sinon.stub();
         setRandomRangeFunction(randInt);
     });
@@ -23,7 +26,7 @@ describe("GameEvent", () => {
             cave.adjacentRoom.withArgs(roomNumber).returns(false);     
     
             const movePlayer = new GameEvent.PlayerMovedToRoomEvent(roomNumber);
-            const nextEvent = movePlayer.perform(cave);
+            const nextEvent = movePlayer.perform(gameState);
     
             expect(nextEvent).instanceOf(GameEvent.PlayerHitWallEvent);
         });
@@ -32,7 +35,7 @@ describe("GameEvent", () => {
             cave.adjacentRoom.withArgs(roomNumber).returns(true);     
     
             const movePlayer = new GameEvent.PlayerMovedToRoomEvent(roomNumber);
-            const nextEvent = movePlayer.perform(cave);
+            const nextEvent = movePlayer.perform(gameState);
     
             expect(cave.move.calledOnceWith(roomNumber)).equals(true);
             expect(nextEvent).instanceOf(GameEvent.PlayerEnteredRoomEvent);
@@ -47,7 +50,7 @@ describe("GameEvent", () => {
             cave.getCurrentRoom.returns(currentRoom);
     
             const playerEnters = new GameEvent.PlayerEnteredRoomEvent();
-            const nextEvent = playerEnters.perform(cave);
+            const nextEvent = playerEnters.perform(gameState);
     
             expect(nextEvent).instanceOf(GameEvent.PlayerIdleEvent);
         });
@@ -58,7 +61,7 @@ describe("GameEvent", () => {
             cave.getCurrentRoom.returns(currentRoom);
     
             const playerEnters = new GameEvent.PlayerEnteredRoomEvent();
-            const nextEvent = playerEnters.perform(cave);
+            const nextEvent = playerEnters.perform(gameState);
     
             expect(nextEvent).instanceOf(GameEvent.PlayerEnteredPitRoomEvent);
         });
@@ -69,7 +72,7 @@ describe("GameEvent", () => {
             cave.getCurrentRoom.returns(currentRoom);
     
             const playerEnters = new GameEvent.PlayerEnteredRoomEvent();
-            const nextEvent = playerEnters.perform(cave);
+            const nextEvent = playerEnters.perform(gameState);
 
             expect(nextEvent).instanceOf(GameEvent.MovedByBatsEvent);
         });
@@ -80,7 +83,7 @@ describe("GameEvent", () => {
             cave.getCurrentRoom.returns(currentRoom);
     
             const playerEnters = new GameEvent.PlayerEnteredRoomEvent();
-            const nextEvent = playerEnters.perform(cave);
+            const nextEvent = playerEnters.perform(gameState);
 
             expect(nextEvent).instanceOf(GameEvent.PlayerEatenByWumpus);
         });
@@ -93,7 +96,7 @@ describe("GameEvent", () => {
             cave.getCurrentRoom.returns(nextRoom);
     
             const movedByBats = new GameEvent.MovedByBatsEvent();
-            const nextEvent = movedByBats.perform(cave);
+            const nextEvent = movedByBats.perform(gameState);
 
             expect(nextEvent).instanceOf(GameEvent.PlayerEnteredRoomEvent);
             expect(cave.movePlayerToRandomRoom.calledOnce).equals(true);
@@ -104,7 +107,7 @@ describe("GameEvent", () => {
         it("makes expect call to getRandomIntBetween", () => {
             const playerEnteredPitRoomEvent = new GameEvent.PlayerEnteredPitRoomEvent();
 
-            playerEnteredPitRoomEvent.perform(cave);
+            playerEnteredPitRoomEvent.perform(gameState);
 
             expect(randInt.calledOnceWith(0, 5)).equals(true);
         });
@@ -113,7 +116,7 @@ describe("GameEvent", () => {
             const playerEnteredPitRoomEvent = new GameEvent.PlayerEnteredPitRoomEvent();
 
             randInt.returns(0);
-            let nextEvent = playerEnteredPitRoomEvent.perform(cave);
+            let nextEvent = playerEnteredPitRoomEvent.perform(gameState);
             expect(nextEvent).instanceOf(GameEvent.PlayerSurvivedPitEvent);
         });
 
@@ -121,23 +124,23 @@ describe("GameEvent", () => {
             const playerEnteredPitRoomEvent = new GameEvent.PlayerEnteredPitRoomEvent();
 
             randInt.returns(1);
-            let nextEvent = playerEnteredPitRoomEvent.perform(cave);
+            let nextEvent = playerEnteredPitRoomEvent.perform(gameState);
             expect(nextEvent).instanceOf(GameEvent.PlayerFellInPitEvent);
 
             randInt.returns(2);
-            nextEvent = playerEnteredPitRoomEvent.perform(cave);
+            nextEvent = playerEnteredPitRoomEvent.perform(gameState);
             expect(nextEvent).instanceOf(GameEvent.PlayerFellInPitEvent);
 
             randInt.returns(3);
-            nextEvent = playerEnteredPitRoomEvent.perform(cave);
+            nextEvent = playerEnteredPitRoomEvent.perform(gameState);
             expect(nextEvent).instanceOf(GameEvent.PlayerFellInPitEvent);
 
             randInt.returns(4);
-            nextEvent = playerEnteredPitRoomEvent.perform(cave);
+            nextEvent = playerEnteredPitRoomEvent.perform(gameState);
             expect(nextEvent).instanceOf(GameEvent.PlayerFellInPitEvent);
 
             randInt.returns(5);
-            nextEvent = playerEnteredPitRoomEvent.perform(cave);
+            nextEvent = playerEnteredPitRoomEvent.perform(gameState);
             expect(nextEvent).instanceOf(GameEvent.PlayerFellInPitEvent);
         });
     });
@@ -146,7 +149,7 @@ describe("GameEvent", () => {
         it("returns a game over event", () => {
             const playerFellInPit = new GameEvent.PlayerFellInPitEvent();
 
-            const nextEvent = playerFellInPit.perform(cave);
+            const nextEvent = playerFellInPit.perform(gameState);
 
             expect(nextEvent).instanceOf(GameEvent.GameOverEvent);
         });
@@ -156,7 +159,7 @@ describe("GameEvent", () => {
         it("returns a game over event", () => {
             const PlayerEatenByWumpus = new GameEvent.PlayerEatenByWumpus();
 
-            const nextEvent = PlayerEatenByWumpus.perform(cave);
+            const nextEvent = PlayerEatenByWumpus.perform(gameState);
 
             expect(nextEvent).instanceOf(GameEvent.GameOverEvent);
         });
