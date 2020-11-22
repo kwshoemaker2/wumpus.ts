@@ -165,4 +165,15 @@ so long since the evil Wumpus cleaned his teeth that you immediately\n\
 passed out from the stench`);
     });
 
+    it('displays on the console when the player shoots the wumpus', () => {
+        display.showPlayerShotWumpus();
+
+        expectConsoleWrite(`*thwock!* *groan* *crash*\n\n\
+A horrible roar fills the cave, and you realize, with a smile, that you\n\
+have slain the evil Wumpus and won the game!  You don't want to tarry for\n\
+long, however, because not only is the Wumpus famous, but the stench of\n\
+dead Wumpus is also quite well known, a stench plenty enough to slay the\n\
+mightiest adventurer at a single whiff!!\n`);
+    });
+
 });

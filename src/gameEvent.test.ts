@@ -42,6 +42,66 @@ describe("GameEvent", () => {
         });
     });
 
+    describe("PlayerShotArrowEvent", () => {
+        it("decrements the number of arrows value", () => {
+            gameState.numArrows = 10;
+
+            const playerShotArrow = new GameEvent.PlayerShotArrowEvent([1]);
+            playerShotArrow.perform(gameState);
+
+            expect(gameState.numArrows, "Expected the arrow count to decrement").equals(9);
+        });
+
+        it("returns an arrow entered room event if the room is adjacent", () => {
+            const shootRoom = 1;
+
+            cave.adjacentRoom.withArgs(shootRoom).returns(true);
+
+            const playerShotArrow = new GameEvent.PlayerShotArrowEvent([1]);
+            const nextEvent = playerShotArrow.perform(gameState);
+
+            expect(nextEvent).instanceOf(GameEvent.ArrowEnteredRoomEvent);
+        });
+
+        it("returns an arrow entered random room event if the room is not adjacent", () => {
+            const shootRoom = 1;
+
+            cave.adjacentRoom.withArgs(shootRoom).returns(false);
+
+            const playerShotArrow = new GameEvent.PlayerShotArrowEvent([1]);
+            const nextEvent = playerShotArrow.perform(gameState);
+
+            expect(nextEvent).instanceOf(GameEvent.ArrowEnteredRandomRoomEvent);
+        });
+
+
+    });
+
+    describe("ArrowEnteredRoomEvent", () => {
+        it("returns a player shot wumpus event when the arrow enters the wumpus room", () => {
+            const shootRoom = 1;
+
+            const wumpusRoom = tsSinon.stubInterface<WumpusRoom>();
+            wumpusRoom.hasWumpus.returns(true);
+            cave.getRoom.withArgs(shootRoom).returns(wumpusRoom);
+
+            const arrowEnteredRoom = new GameEvent.ArrowEnteredRoomEvent(shootRoom, []);
+            const nextEvent = arrowEnteredRoom.perform(gameState);
+
+            expect(nextEvent).instanceOf(GameEvent.PlayerShotWumpusEvent);
+        });
+    });
+
+    describe("PlayerShotWumpusEvent", () => {
+        it("returns a game over event", () => {
+            const playerShotWumpus = new GameEvent.PlayerShotWumpusEvent();
+
+            const nextEvent = playerShotWumpus.perform(gameState);
+
+            expect(nextEvent).instanceOf(GameEvent.GameOverEvent);
+        });
+    });
+
     describe("PlayerEnteredRoomEvent", () => {
         it("returns a player idle event when the entered room has no bats or pits", () => {
             const currentRoom = tsSinon.stubInterface<WumpusRoom>();

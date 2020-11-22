@@ -24,6 +24,11 @@ export interface WumpusCave {
      * Determines if a room with the room number is adjacent to the one we're in.
      */
     adjacentRoom(roomNumber: number): boolean;
+
+    /**
+     * Get the room from the room number.
+     */
+    getRoom(roomNumber: number): WumpusRoom;
 }
 
 export class WumpusCaveImpl implements WumpusCave {
@@ -62,6 +67,15 @@ export class WumpusCaveImpl implements WumpusCave {
             }
         }
         return false;
+    }
+
+    getRoom(roomNumber: number): WumpusRoom {
+        for(let i = 0; i < this.rooms.length; i++) {
+            const room = this.rooms[i];
+            if(room.getRoomNumber() === roomNumber) {
+                return room;
+            }
+        }
     }
 
 }

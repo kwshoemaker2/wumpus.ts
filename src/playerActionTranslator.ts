@@ -1,6 +1,6 @@
 import { PlayerAction, PlayerActionImpl } from './playerAction'
 import { WumpusCommand, WumpusCommandType } from './wumpusCommand'
-import { PlayerMovedToRoomEvent, GameOverEvent, PlayerShotIntoRoomsEvent } from './gameEvent'
+import { PlayerMovedToRoomEvent, GameOverEvent, PlayerShotArrowEvent } from './gameEvent'
 import { UserInteractor } from './userInteractor'
 import { assert } from 'console';
 
@@ -24,7 +24,7 @@ class PlayerActionFactory {
         if(command.type === WumpusCommandType.Move) {
             return new PlayerActionImpl(new PlayerMovedToRoomEvent(command.args[0]));
         } else if(command.type === WumpusCommandType.Shoot) {
-            return new PlayerActionImpl(new PlayerShotIntoRoomsEvent(command.args));
+            return new PlayerActionImpl(new PlayerShotArrowEvent(command.args));
         } else if(command.type === WumpusCommandType.Quit) {
             return new PlayerActionImpl(new GameOverEvent());
         } else {

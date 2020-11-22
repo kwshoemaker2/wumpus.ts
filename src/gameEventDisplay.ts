@@ -6,7 +6,8 @@ import {
     PlayerFellInPitEvent,
     PlayerSurvivedPitEvent,
     PlayerIdleEvent,
-    PlayerEatenByWumpus
+    PlayerEatenByWumpus,
+    PlayerShotWumpusEvent
 } from './gameEvent';
 import { WumpusCave } from './wumpusCave';
 
@@ -62,6 +63,8 @@ export class GameEventDisplayImpl implements GameEventDisplay {
             this.display.showPlayerEatenByWumpus();
         } else if (gameEvent instanceof PlayerIdleEvent) {
             this.movedByBats = false;
+        } else if (gameEvent instanceof PlayerShotWumpusEvent) {
+            this.display.showPlayerShotWumpus();
         }
     }
 }

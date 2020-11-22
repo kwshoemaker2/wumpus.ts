@@ -18,4 +18,6 @@ export interface WumpusDisplay {
     showPlayerMovedByBatsAgain(): void;
 
     showPlayerEatenByWumpus(): void;
+
+    showPlayerShotWumpus(): void;
 }

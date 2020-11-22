@@ -92,13 +92,60 @@ export class PlayerMovedToRoomEvent implements GameEvent {
     }
 }
 
-export class PlayerShotIntoRoomsEvent implements GameEvent {
+export class PlayerShotArrowEvent implements GameEvent {
+    private nextRoom: number;
+    private rooms: number[];
     public constructor(rooms: number[]) {
-
+        this.nextRoom = rooms[0];
+        this.rooms = rooms.slice(1);
     }
 
     public perform(gameState: GameState): GameEvent {
+        gameState.numArrows--;
+        if(gameState.cave.adjacentRoom(this.nextRoom)) {
+            return new ArrowEnteredRoomEvent(this.nextRoom, this.rooms);
+        } else {
+            return new ArrowEnteredRandomRoomEvent(this.rooms);
+        }
+    }
+}
+
+export class ArrowEnteredRoomEvent implements GameEvent {
+    private currentRoom: number;
+    private nextRoom: number;
+    private nextRooms: number[];
+    public constructor(currentRoom: number, nextRooms: number[]) {
+        this.currentRoom = currentRoom;
+        this.nextRoom = nextRooms[0];
+        this.nextRooms = nextRooms.slice(1);
+    }
+
+    public perform(gameState: GameState): GameEvent {
+        const enteredRoom = gameState.cave.getRoom(this.currentRoom);
+        if(enteredRoom.hasWumpus()) {
+            return new PlayerShotWumpusEvent();
+        }
+        return new PlayerIdleEvent();
+    }
+}
+
+export class PlayerShotWumpusEvent implements GameEvent {
+    public perform(gameState: GameState): GameEvent {
         gameState; // Unused
+        return new GameOverEvent();
+    }
+}
+
+export class ArrowEnteredRandomRoomEvent implements GameEvent {
+    private nextRoom: number;
+    private rooms: number[];
+
+    public constructor(rooms: number[]) {
+        this.nextRoom = rooms[0];
+        this.rooms = rooms.slice(1);
+    }
+
+    public perform(gameState: GameState): GameEvent {
         return null;
     }
 }
