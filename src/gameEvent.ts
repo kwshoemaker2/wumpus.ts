@@ -92,6 +92,17 @@ export class PlayerMovedToRoomEvent implements GameEvent {
     }
 }
 
+export class PlayerShotIntoRoomsEvent implements GameEvent {
+    public constructor(rooms: number[]) {
+
+    }
+
+    public perform(gameState: GameState): GameEvent {
+        gameState; // Unused
+        return null;
+    }
+}
+
 export class PlayerEnteredRoomEvent implements GameEvent {
     public perform(gameState: GameState): GameEvent {
         let result: GameEvent;

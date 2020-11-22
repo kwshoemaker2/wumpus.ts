@@ -17,7 +17,7 @@ describe("PlayerActionTranslatorImpl", () => {
 
     function setUserCommand(command: WumpusCommand) {
         const promise = new Promise<WumpusCommand>(resolve => { 
-            resolve(new WumpusCommand(WumpusCommandType.Quit, []))
+            resolve(command);
         });
         userInteractor.getUserCommand.returns(promise);
     }
@@ -32,6 +32,14 @@ describe("PlayerActionTranslatorImpl", () => {
 
     it("translates a move command successfully", async () => {
         setUserCommand(new WumpusCommand(WumpusCommandType.Move, [1]));
+
+        const playerAction = await playerActionTranslator.getPlayerAction();
+
+        expect(playerAction).instanceOf(PlayerActionImpl);
+    });
+
+    it("translates a shoot command successfully", async () => {
+        setUserCommand(new WumpusCommand(WumpusCommandType.Shoot, [1]));
 
         const playerAction = await playerActionTranslator.getPlayerAction();
 

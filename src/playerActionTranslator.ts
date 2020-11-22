@@ -1,7 +1,8 @@
 import { PlayerAction, PlayerActionImpl } from './playerAction'
 import { WumpusCommand, WumpusCommandType } from './wumpusCommand'
-import { PlayerMovedToRoomEvent, GameOverEvent } from './gameEvent'
+import { PlayerMovedToRoomEvent, GameOverEvent, PlayerShotIntoRoomsEvent } from './gameEvent'
 import { UserInteractor } from './userInteractor'
+import { assert } from 'console';
 
 /**
  * Translates a command from the user to a player action.
@@ -21,14 +22,13 @@ class PlayerActionFactory {
 
     createPlayerAction(command: WumpusCommand): PlayerAction {
         if(command.type === WumpusCommandType.Move) {
-            const roomNumber = command.args[0];
-            return new PlayerActionImpl(new PlayerMovedToRoomEvent(roomNumber));
-        }
-        else if(command.type === WumpusCommandType.Quit) {
+            return new PlayerActionImpl(new PlayerMovedToRoomEvent(command.args[0]));
+        } else if(command.type === WumpusCommandType.Shoot) {
+            return new PlayerActionImpl(new PlayerShotIntoRoomsEvent(command.args));
+        } else if(command.type === WumpusCommandType.Quit) {
             return new PlayerActionImpl(new GameOverEvent());
-        }
-        else
-        {
+        } else {
+            assert(false, "Unexpected command");
             return undefined;
         }
     }
