@@ -58,17 +58,12 @@ export class ConsoleUserInteractor implements UserInteractor {
     }
 
     private splitArgs(answer: string): string {
-        const split = answer.split(" ");
-        if(split.length > 1) {
-            return split[1];
-        } else {
-            return "";
-        }
+        return answer.slice(2);
     }
 
     private parseRooms(args: string): number[] {
         let rooms: number[] = [];
-        const strArgs = args.split(",");
+        const strArgs = args.split(" ");
         for(let i = 0; i < strArgs.length; i++) {
             const room = parseInt(strArgs[i]);
             if(!isNaN(room)) {

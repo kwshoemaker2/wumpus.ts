@@ -92,9 +92,9 @@ describe('ConsoleUserInteractor', () => {
         validateShootCommand(command, [1]);
     });
 
-    it('parses "s 1,2,3" into the right action', async () => {
+    it('parses "s 1 2 3" into the right action', async () => {
         consolePromptFake.withArgs(promptText)
-            .returns(makeConsolePromptAnswer("s 1,2,3"));
+            .returns(makeConsolePromptAnswer("s 1 2 3"));
 
         const command = await userInteractor.getUserCommand();
 
