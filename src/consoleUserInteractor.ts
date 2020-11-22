@@ -18,18 +18,13 @@ export class ConsoleUserInteractor implements UserInteractor {
         let validAnswer: boolean = false;
         let command: WumpusCommand = null;
         while(!validAnswer) {
-            const answer = await this.promptUser("-> Move or shoot? [ms?q] ");
+            const answer = await this.promptUser("Move or shoot? (m-s) ");
             if(answer === "q") {
                 command = new WumpusCommand(WumpusCommandType.Quit, []);
             } else if(answer.startsWith("m")) {
-                const rooms = this.parseRooms(answer);
-                if(rooms.length > 0) {
-                    command = new WumpusCommand(WumpusCommandType.Move, rooms);
-                } else {
-                    this.writeConsole("Move where? For example: 'm 1'");
-                }
+                command = await this.parseMoveCommand(answer);
             } else {
-                this.writeConsole(" > I don't understand. Try '?' for help.\n");
+                this.writeConsole("I don't understand!\n");
             }
             validAnswer = (command !== null);
         }
@@ -39,11 +34,34 @@ export class ConsoleUserInteractor implements UserInteractor {
         });
     }
 
-    private parseRooms(answer: string): number[] {
+    private async parseMoveCommand(answer: string): Promise<WumpusCommand> {
+        let args = this.splitArgs(answer);
+        let rooms = this.parseRooms(args);
+        while(rooms.length < 1) {
+            rooms = this.parseRooms(await this.promptUser("To which room do you wish to move? "));
+        }
+
+        return new Promise<WumpusCommand>((resolve) => {
+            resolve(new WumpusCommand(WumpusCommandType.Move, rooms));
+        });
+    }
+
+    private splitArgs(answer: string): string {
+        const split = answer.split(" ");
+        if(split.length > 1) {
+            return split[1];
+        } else {
+            return "";
+        }
+    }
+
+    private parseRooms(args: string): number[] {
         let rooms: number[] = [];
-        const strArgs = answer.split(" ").splice(1);
-        for(let i = 0; i < strArgs.length; i++) {
-            rooms.push(parseInt(strArgs[i]));
+        if(args.length > 0) {
+            const room = parseInt(args[0]);
+            if(!isNaN(room)) {
+                rooms.push(room);
+            }
         }
         return rooms;
     }

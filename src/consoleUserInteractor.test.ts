@@ -1,6 +1,5 @@
 import * as sinon from 'sinon';
 import { expect } from 'chai';
-import { ConsoleWrite } from "./consoleUtils";
 import { WumpusCommandType, WumpusCommand } from './wumpusCommand';
 import { ConsoleUserInteractor } from './consoleUserInteractor'
 
@@ -9,7 +8,7 @@ describe('ConsoleUserInteractor', () => {
     let consoleWriteFake: sinon.SinonStub;
     let consolePromptFake: sinon.SinonStub;
     let userInteractor: ConsoleUserInteractor;
-    const promptText = "-> Move or shoot? [ms?q] ";
+    const promptText = "Move or shoot? (m-s) ";
 
     beforeEach(() => {
         consoleWriteFake = sinon.stub();
@@ -30,49 +29,66 @@ describe('ConsoleUserInteractor', () => {
         expect(roomArg).equals(expectedRoom);
     }
 
-    it('Responds to "q" by exiting', () => {
+    it('Responds to "q" by exiting', async () => {
         consolePromptFake.withArgs(promptText)
             .returns(makeConsolePromptAnswer("q"));
-        const command = userInteractor.getUserCommand();
-        return command.then(result => expect(result.type).equals(WumpusCommandType.Quit));
+
+        const command = await userInteractor.getUserCommand();
+
+        expect(command.type).equals(WumpusCommandType.Quit)
     });
 
-    it('Parses "m 1" into the right action', () => {
+    it('Parses "m 1" into the right action', async () => {
         consolePromptFake.withArgs(promptText)
             .returns(makeConsolePromptAnswer("m 1"));
-        const command = userInteractor.getUserCommand();
-        return command.then((result) => {
-            validateMoveCommand(result, 1);
-        });
+
+        const command = await userInteractor.getUserCommand();
+
+        validateMoveCommand(command, 1);
     });
 
-    it('Prompts again when user enters "m"', () => {
+    it('keeps prompting for room to move to', async () => {
         consolePromptFake.onFirstCall().returns(makeConsolePromptAnswer("m"));
-        consolePromptFake.onSecondCall().returns(makeConsolePromptAnswer("m 1"));
-        const command = userInteractor.getUserCommand();
-        return command.then((result) => {
-            validateMoveCommand(result, 1);
+        consolePromptFake.onSecondCall().returns(makeConsolePromptAnswer(""));
+        consolePromptFake.onThirdCall().returns(makeConsolePromptAnswer("1"));
 
-            expect(consoleWriteFake.calledOnce).equals(true);
-            const message = consoleWriteFake.getCall(0).args[0];
-            expect(message).equals("Move where? For example: 'm 1'");
-        });
+        const command = await userInteractor.getUserCommand();
+
+        validateMoveCommand(command, 1);
+
+        expect(consolePromptFake.calledThrice).equals(true);
+
+        expect(consolePromptFake.getCall(1).args[0]).equals("To which room do you wish to move? ");
+        expect(consolePromptFake.getCall(2).args[0]).equals("To which room do you wish to move? ");
     });
 
-    it('Responds to invalid command by prompting again', () => {
+    it('keeps prompting for room to move to when player doesnt enter a number', async () => {
+        consolePromptFake.onFirstCall().returns(makeConsolePromptAnswer("m"));
+        consolePromptFake.onSecondCall().returns(makeConsolePromptAnswer("asdf"));
+        consolePromptFake.onThirdCall().returns(makeConsolePromptAnswer("1"));
+
+        const command = await userInteractor.getUserCommand();
+
+        validateMoveCommand(command, 1);
+
+        expect(consolePromptFake.calledThrice).equals(true);
+
+        expect(consolePromptFake.getCall(1).args[0]).equals("To which room do you wish to move? ");
+        expect(consolePromptFake.getCall(2).args[0]).equals("To which room do you wish to move? ");
+    });
+
+    it('Responds to invalid command by prompting again', async () => {
         consolePromptFake.onFirstCall().returns(makeConsolePromptAnswer("asdf"));
         consolePromptFake.onSecondCall().returns(makeConsolePromptAnswer("q"));
 
-        const command = userInteractor.getUserCommand();
-        return command.then((result) => {
-            expect(result.type).equals(WumpusCommandType.Quit);
-            expect(consolePromptFake.firstCall.lastArg).equals(promptText);
-            expect(consolePromptFake.secondCall.lastArg).equals(promptText);
+        const command = await userInteractor.getUserCommand();
 
-            expect(consoleWriteFake.calledOnce).equals(true);
-            const message = consoleWriteFake.getCall(0).args[0];
-            expect(message).equals(" > I don't understand. Try '?' for help.\n");
-        });
+        expect(command.type).equals(WumpusCommandType.Quit);
+        expect(consolePromptFake.firstCall.lastArg).equals(promptText);
+        expect(consolePromptFake.secondCall.lastArg).equals(promptText);
+
+        expect(consoleWriteFake.calledOnce).equals(true);
+        const message = consoleWriteFake.getCall(0).args[0];
+        expect(message).equals("I don't understand!\n");
     });
-
 });
