@@ -6,6 +6,7 @@ import { WumpusRoom } from './wumpusRoom'
 import * as GameEvent from './gameEvent'
 import { setRandomRangeFunction } from './wumpusRandom'
 import { GameState } from './gameState'
+import { cachedDataVersionTag } from 'v8'
 
 describe("GameEvent", () => {
     let cave: tsSinon.StubbedInstance<WumpusCave> = null;
@@ -78,14 +79,72 @@ describe("GameEvent", () => {
     });
 
     describe("ArrowEnteredRoomEvent", () => {
+        function setUpShootChain(firstRoomNum: number, chainRoomNumbers: number[]): void {
+            let toRoom = tsSinon.stubInterface<WumpusRoom>();
+            cave.getRoom.withArgs(firstRoomNum).returns(toRoom);
+            for(let i = 0; i < chainRoomNumbers.length; i++) {
+                const fromRoom = tsSinon.stubInterface<WumpusRoom>();
+                cave.getRoom.withArgs(chainRoomNumbers[i]).returns(fromRoom);
+                toRoom.hasNeighbor.withArgs(fromRoom).returns(true);
+                toRoom = fromRoom;
+            }
+        }
+
+        function setUpBrokenShootChain(firstRoomNum: number, chainRoomNumbers: number[]): void {
+            let toRoom = tsSinon.stubInterface<WumpusRoom>();
+            cave.getRoom.withArgs(firstRoomNum).returns(toRoom);
+            for(let i = 0; i < chainRoomNumbers.length; i++) {
+                const fromRoom = tsSinon.stubInterface<WumpusRoom>();
+                cave.getRoom.withArgs(chainRoomNumbers[i]).returns(fromRoom);
+
+                const continueChain = (i !== (chainRoomNumbers.length - 1));
+                toRoom.hasNeighbor.withArgs(fromRoom).returns(continueChain);
+
+                toRoom = fromRoom;
+            }
+        }
+
+        it("returns a player idle event when it enters the final room in the chain", () => {
+            const shootRoomNum = 1;
+            const nextRooms = [];
+            setUpShootChain(shootRoomNum, nextRooms);
+
+            const arrowEnteredRoom = new GameEvent.ArrowEnteredRoomEvent(shootRoomNum, nextRooms);
+            const nextEvent = arrowEnteredRoom.perform(gameState);
+
+            expect(nextEvent).instanceOf(GameEvent.PlayerIdleEvent);
+        });
+
+        it("passes through a chain of two rooms when there is a path between them", () => {
+            const shootRoomNum = 1;
+            const nextRooms = [2];
+            setUpShootChain(shootRoomNum, nextRooms);
+
+            const arrowEnteredRoom = new GameEvent.ArrowEnteredRoomEvent(shootRoomNum, nextRooms);
+            const nextEvent = arrowEnteredRoom.perform(gameState);
+
+            expect(nextEvent).instanceOf(GameEvent.ArrowEnteredRoomEvent);
+        });
+
+        it("enters a random room when there is not a path between two rooms", () => {
+            const shootRoomNum = 1;
+            const nextRooms = [2];
+            setUpBrokenShootChain(shootRoomNum, nextRooms);
+
+            const arrowEnteredRoom = new GameEvent.ArrowEnteredRoomEvent(shootRoomNum, nextRooms);
+            const nextEvent = arrowEnteredRoom.perform(gameState);
+
+            expect(nextEvent).instanceOf(GameEvent.ArrowEnteredRandomRoomEvent);
+        });
+
         it("returns a player shot wumpus event when the arrow enters the wumpus room", () => {
-            const shootRoom = 1;
+            const shootRoomNum = 1;
 
             const wumpusRoom = tsSinon.stubInterface<WumpusRoom>();
             wumpusRoom.hasWumpus.returns(true);
-            cave.getRoom.withArgs(shootRoom).returns(wumpusRoom);
+            cave.getRoom.withArgs(shootRoomNum).returns(wumpusRoom);
 
-            const arrowEnteredRoom = new GameEvent.ArrowEnteredRoomEvent(shootRoom, []);
+            const arrowEnteredRoom = new GameEvent.ArrowEnteredRoomEvent(shootRoomNum, []);
             const nextEvent = arrowEnteredRoom.perform(gameState);
 
             expect(nextEvent).instanceOf(GameEvent.PlayerShotWumpusEvent);
