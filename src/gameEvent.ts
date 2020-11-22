@@ -120,6 +120,9 @@ export class ArrowEnteredRoomEvent implements GameEvent {
         this.nextRooms = nextRooms.slice(1);
     }
 
+    public getCurrentRoom(): number { return this.currentRoomNum; }
+    public getNextRoom(): number { return this.nextRoomNum; }
+
     public perform(gameState: GameState): GameEvent {
         const enteredRoom = gameState.cave.getRoom(this.currentRoomNum);
         if(enteredRoom.hasWumpus()) {
@@ -139,13 +142,6 @@ export class ArrowEnteredRoomEvent implements GameEvent {
     }
 }
 
-export class PlayerShotWumpusEvent implements GameEvent {
-    public perform(gameState: GameState): GameEvent {
-        gameState; // Unused
-        return new GameOverEvent();
-    }
-}
-
 export class ArrowEnteredRandomRoomEvent implements GameEvent {
 
     public constructor() {
@@ -153,6 +149,13 @@ export class ArrowEnteredRandomRoomEvent implements GameEvent {
 
     public perform(gameState: GameState): GameEvent {
         return new PlayerIdleEvent();
+    }
+}
+
+export class PlayerShotWumpusEvent implements GameEvent {
+    public perform(gameState: GameState): GameEvent {
+        gameState; // Unused
+        return new GameOverEvent();
     }
 }
 

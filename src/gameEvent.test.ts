@@ -104,6 +104,29 @@ describe("GameEvent", () => {
             }
         }
 
+        function testShootChain(firstRoomNum: number, chainRoomNumbers: number[]): void {
+            let theEvent: GameEvent.GameEvent = new GameEvent.ArrowEnteredRoomEvent(firstRoomNum, chainRoomNumbers);
+            let currentRoomNum = firstRoomNum;
+            let i = 0;
+            do {
+                expect(theEvent).instanceOf(GameEvent.ArrowEnteredRoomEvent);
+                const arrowEntered = theEvent as GameEvent.ArrowEnteredRoomEvent;
+
+                expect(arrowEntered.getCurrentRoom(), `Expected current room for arrow to be ${currentRoomNum}`)
+                    .equals(currentRoomNum);
+                
+                if(i !== chainRoomNumbers.length) {
+                    const nextRoomNum = chainRoomNumbers[i];
+                    expect(arrowEntered.getNextRoom(), `Expected arrow in ${currentRoomNum} to be shot into ${nextRoomNum}`)
+                        .equals(nextRoomNum);
+                    currentRoomNum = nextRoomNum;
+                }
+
+                theEvent = theEvent.perform(gameState);
+                i++;
+            } while (i < chainRoomNumbers.length);
+        }
+
         it("returns a player idle event when it enters the final room in the chain", () => {
             const shootRoomNum = 1;
             const nextRooms = [];
@@ -115,6 +138,14 @@ describe("GameEvent", () => {
             expect(nextEvent).instanceOf(GameEvent.PlayerIdleEvent);
         });
 
+        it("sets up the correct chain for a one chain shot", () => {
+            const shootRoomNum = 1;
+            const nextRooms = [];
+            setUpShootChain(shootRoomNum, nextRooms);
+
+            testShootChain(shootRoomNum, nextRooms);
+        });
+
         it("passes through a chain of two rooms when there is a path between them", () => {
             const shootRoomNum = 1;
             const nextRooms = [2];
@@ -124,6 +155,14 @@ describe("GameEvent", () => {
             const nextEvent = arrowEnteredRoom.perform(gameState);
 
             expect(nextEvent).instanceOf(GameEvent.ArrowEnteredRoomEvent);
+        });
+
+        it("sets up the correct chain for a two chain shot", () => {
+            const shootRoomNum = 1;
+            const nextRooms = [2];
+            setUpShootChain(shootRoomNum, nextRooms);
+
+            testShootChain(shootRoomNum, nextRooms);
         });
 
         it("enters a random room when there is not a path between two rooms", () => {
