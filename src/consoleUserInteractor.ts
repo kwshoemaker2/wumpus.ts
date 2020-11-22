@@ -23,6 +23,8 @@ export class ConsoleUserInteractor implements UserInteractor {
                 command = new WumpusCommand(WumpusCommandType.Quit, []);
             } else if(answer.startsWith("m")) {
                 command = await this.parseMoveCommand(answer);
+            } else if(answer.startsWith("s")) {
+                command = await this.parseShootCommand(answer);
             } else {
                 this.writeConsole("I don't understand!\n");
             }
@@ -46,6 +48,15 @@ export class ConsoleUserInteractor implements UserInteractor {
         });
     }
 
+    private async parseShootCommand(answer: string): Promise<WumpusCommand> {
+        let args = this.splitArgs(answer);
+        let rooms = this.parseRooms(args);
+
+        return new Promise<WumpusCommand>((resolve) => {
+            resolve(new WumpusCommand(WumpusCommandType.Shoot, rooms));
+        });
+    }
+
     private splitArgs(answer: string): string {
         const split = answer.split(" ");
         if(split.length > 1) {
@@ -57,12 +68,14 @@ export class ConsoleUserInteractor implements UserInteractor {
 
     private parseRooms(args: string): number[] {
         let rooms: number[] = [];
-        if(args.length > 0) {
-            const room = parseInt(args[0]);
+        const strArgs = args.split(",");
+        for(let i = 0; i < strArgs.length; i++) {
+            const room = parseInt(strArgs[i]);
             if(!isNaN(room)) {
                 rooms.push(room);
             }
         }
+
         return rooms;
     }
 }

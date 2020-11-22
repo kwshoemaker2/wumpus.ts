@@ -29,7 +29,13 @@ describe('ConsoleUserInteractor', () => {
         expect(roomArg).equals(expectedRoom);
     }
 
-    it('Responds to "q" by exiting', async () => {
+    function validateShootCommand(command: WumpusCommand, expectedRooms: number[]): void
+    {
+        expect(command.type).equals(WumpusCommandType.Shoot);
+        expect(command.args).to.eql(expectedRooms);
+    }
+
+    it('responds to "q" by exiting', async () => {
         consolePromptFake.withArgs(promptText)
             .returns(makeConsolePromptAnswer("q"));
 
@@ -38,7 +44,7 @@ describe('ConsoleUserInteractor', () => {
         expect(command.type).equals(WumpusCommandType.Quit)
     });
 
-    it('Parses "m 1" into the right action', async () => {
+    it('parses "m 1" into the right action', async () => {
         consolePromptFake.withArgs(promptText)
             .returns(makeConsolePromptAnswer("m 1"));
 
@@ -77,7 +83,34 @@ describe('ConsoleUserInteractor', () => {
         expect(consolePromptFake.getCall(2).args[0]).equals("To which room do you wish to move? ");
     });
 
-    it('Responds to invalid command by prompting again', async () => {
+    it('parses "s 1" into the right action', async () => {
+        consolePromptFake.withArgs(promptText)
+            .returns(makeConsolePromptAnswer("s 1"));
+
+        const command = await userInteractor.getUserCommand();
+
+        validateShootCommand(command, [1]);
+    });
+
+    it('parses "s 1,2,3" into the right action', async () => {
+        consolePromptFake.withArgs(promptText)
+            .returns(makeConsolePromptAnswer("s 1,2,3"));
+
+        const command = await userInteractor.getUserCommand();
+
+        validateShootCommand(command, [1, 2, 3]);
+    });
+
+    it('parses "s" into the right action', async () => {
+        consolePromptFake.withArgs(promptText)
+            .returns(makeConsolePromptAnswer("s"));
+
+        const command = await userInteractor.getUserCommand();
+
+        validateShootCommand(command, []);
+    });
+
+    it('responds to invalid command by prompting again', async () => {
         consolePromptFake.onFirstCall().returns(makeConsolePromptAnswer("asdf"));
         consolePromptFake.onSecondCall().returns(makeConsolePromptAnswer("q"));
 
