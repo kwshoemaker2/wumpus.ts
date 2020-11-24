@@ -6,7 +6,8 @@ import { WumpusRoom } from './wumpusRoom'
 import * as GameEvent from './gameEvent'
 import { setRandomRangeFunction } from './wumpusRandom'
 import { GameState } from './gameState'
-import { cachedDataVersionTag } from 'v8'
+
+type WumpusRoomStub = tsSinon.StubbedInstance<WumpusRoom>;
 
 describe("GameEvent", () => {
     let cave: tsSinon.StubbedInstance<WumpusCave> = null;
@@ -79,29 +80,49 @@ describe("GameEvent", () => {
     });
 
     describe("ArrowEnteredRoomEvent", () => {
+        function createWumpusRoomStub(): WumpusRoomStub {
+            return tsSinon.stubInterface<WumpusRoom>();
+        }
+    
+        function addRoomToCave(roomNum: number, room: WumpusRoom) {
+            cave.getRoom.withArgs(roomNum).returns(room);
+        }
+    
+        function connectRooms(fromRoom: WumpusRoomStub, toRoom: WumpusRoomStub) {
+            fromRoom.hasNeighbor.withArgs(toRoom).returns(true);
+        }
+    
+        function disconnectRooms(fromRoom: WumpusRoomStub, toRoom: WumpusRoomStub) {
+            fromRoom.hasNeighbor.withArgs(toRoom).returns(false);
+        }
+
         function setUpShootChain(firstRoomNum: number, chainRoomNumbers: number[]): void {
-            let toRoom = tsSinon.stubInterface<WumpusRoom>();
-            cave.getRoom.withArgs(firstRoomNum).returns(toRoom);
+            let fromRoom = createWumpusRoomStub();
+
+            addRoomToCave(firstRoomNum, fromRoom);
             for(let i = 0; i < chainRoomNumbers.length; i++) {
-                const fromRoom = tsSinon.stubInterface<WumpusRoom>();
-                cave.getRoom.withArgs(chainRoomNumbers[i]).returns(fromRoom);
-                toRoom.hasNeighbor.withArgs(fromRoom).returns(true);
-                toRoom = fromRoom;
+                const toRoom = createWumpusRoomStub();
+                addRoomToCave(chainRoomNumbers[i], toRoom);
+                connectRooms(fromRoom, toRoom);
+                fromRoom = toRoom;
             }
         }
 
         function setUpBrokenShootChain(firstRoomNum: number, chainRoomNumbers: number[]): void {
-            let toRoom = tsSinon.stubInterface<WumpusRoom>();
-            cave.getRoom.withArgs(firstRoomNum).returns(toRoom);
-            for(let i = 0; i < chainRoomNumbers.length; i++) {
-                const fromRoom = tsSinon.stubInterface<WumpusRoom>();
-                cave.getRoom.withArgs(chainRoomNumbers[i]).returns(fromRoom);
+            let fromRoom = createWumpusRoomStub();
+            let toRoom: tsSinon.StubbedInstance<WumpusRoom> = null;
 
-                const continueChain = (i !== (chainRoomNumbers.length - 1));
-                toRoom.hasNeighbor.withArgs(fromRoom).returns(continueChain);
-
-                toRoom = fromRoom;
+            addRoomToCave(firstRoomNum, fromRoom);
+            for(let i = 0; i < chainRoomNumbers.length - 1; i++) {
+                toRoom = createWumpusRoomStub();
+                addRoomToCave(chainRoomNumbers[i], toRoom);
+                connectRooms(fromRoom, toRoom);
+                fromRoom = toRoom;
             }
+
+            toRoom = createWumpusRoomStub();
+            addRoomToCave(chainRoomNumbers[chainRoomNumbers.length - 1], toRoom);
+            disconnectRooms(fromRoom, toRoom);
         }
 
         function testShootChain(firstRoomNum: number, chainRoomNumbers: number[]): void {
