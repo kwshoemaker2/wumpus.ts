@@ -201,8 +201,12 @@ describe("GameEvent", () => {
     });
 
     describe("ArrowEnteredRoomEvent", () => {
+        function createArrowEnteredRoomEvent(firstRoomNum: number, chainRoomNumbers: number[]): GameEvent.ArrowEnteredRoomEvent {
+            return new GameEvent.ArrowEnteredRoomEvent(new GameEvent.ShootPath(firstRoomNum, chainRoomNumbers));
+        }
+
         function testShootChain(firstRoomNum: number, chainRoomNumbers: number[]): void {
-            let theEvent: GameEvent.GameEvent = new GameEvent.ArrowEnteredRoomEvent(firstRoomNum, chainRoomNumbers);
+            let theEvent: GameEvent.GameEvent = createArrowEnteredRoomEvent(firstRoomNum, chainRoomNumbers);
             let currentRoomNum = firstRoomNum;
             let i = 0;
             do {
@@ -229,7 +233,7 @@ describe("GameEvent", () => {
             const nextRooms = [];
             caveStubber.setUpRoomChain(shootRoomNum, nextRooms);
 
-            const arrowEnteredRoom = new GameEvent.ArrowEnteredRoomEvent(shootRoomNum, nextRooms);
+            const arrowEnteredRoom = createArrowEnteredRoomEvent(shootRoomNum, nextRooms);
             const nextEvent = arrowEnteredRoom.perform(gameState);
 
             expect(nextEvent).instanceOf(GameEvent.PlayerIdleEvent);
@@ -248,7 +252,7 @@ describe("GameEvent", () => {
             const nextRooms = [2];
             caveStubber.setUpRoomChain(shootRoomNum, nextRooms);
 
-            const arrowEnteredRoom = new GameEvent.ArrowEnteredRoomEvent(shootRoomNum, nextRooms);
+            const arrowEnteredRoom = createArrowEnteredRoomEvent(shootRoomNum, nextRooms);
             const nextEvent = arrowEnteredRoom.perform(gameState);
 
             expect(nextEvent).instanceOf(GameEvent.ArrowEnteredRoomEvent);
@@ -274,7 +278,7 @@ describe("GameEvent", () => {
             const neighborIdx = 1;
             randInt.returns(neighborIdx);
 
-            const arrowEnteredRoom = new GameEvent.ArrowEnteredRoomEvent(shootRoomNum, nextRooms);
+            const arrowEnteredRoom = createArrowEnteredRoomEvent(shootRoomNum, nextRooms);
             const nextEvent = arrowEnteredRoom.perform(gameState);
 
             expect(nextEvent).instanceOf(GameEvent.ArrowEnteredRandomRoomEvent);
@@ -292,7 +296,7 @@ describe("GameEvent", () => {
             wumpusRoom.hasWumpus.returns(true);
             cave.getRoom.withArgs(shootRoomNum).returns(wumpusRoom);
 
-            const arrowEnteredRoom = new GameEvent.ArrowEnteredRoomEvent(shootRoomNum, []);
+            const arrowEnteredRoom = createArrowEnteredRoomEvent(shootRoomNum, []);
             const nextEvent = arrowEnteredRoom.perform(gameState);
 
             expect(nextEvent).instanceOf(GameEvent.PlayerShotWumpusEvent);
@@ -305,7 +309,7 @@ describe("GameEvent", () => {
             cave.getCurrentRoom.returns(playersRoom);
             cave.getRoom.withArgs(shootRoomNum).returns(playersRoom);
 
-            const arrowEnteredRoom = new GameEvent.ArrowEnteredRoomEvent(shootRoomNum, []);
+            const arrowEnteredRoom = createArrowEnteredRoomEvent(shootRoomNum, []);
             const nextEvent = arrowEnteredRoom.perform(gameState);
 
             expect(nextEvent).instanceOf(GameEvent.PlayerShotSelfEvent);

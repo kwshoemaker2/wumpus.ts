@@ -1,5 +1,6 @@
 import { getRandomIntBetween } from './wumpusRandom'
 import { GameState } from './gameState'
+import { assert } from 'console';
 
 export interface GameEvent {
 
@@ -102,7 +103,7 @@ export class PlayerShotArrowEvent implements GameEvent {
     public perform(gameState: GameState): GameEvent {
         gameState.numArrows--;
         if(gameState.cave.adjacentRoom(this.nextRoom)) {
-            return new ArrowEnteredRoomEvent(this.nextRoom, this.rooms);
+            return new ArrowEnteredRoomEvent(new ShootPath(this.nextRoom, this.rooms));
         } else {
             const currentRoom = gameState.cave.getCurrentRoom();
             const currentRoomNeighbors = currentRoom.getNeighbors();
@@ -114,38 +115,64 @@ export class PlayerShotArrowEvent implements GameEvent {
     }
 }
 
-export class ArrowEnteredRoomEvent implements GameEvent {
-    private currentRoomNum: number;
-    private enterRoomNum: number;
-    private nextRooms: number[];
-    public constructor(currentRoom: number, nextRooms: number[]) {
-        this.currentRoomNum = currentRoom;
-        this.enterRoomNum = nextRooms[0];
-        this.nextRooms = nextRooms.slice(1);
+export class ShootPath {
+    private currentRoom: number;
+    private shootRooms: number[];
+
+    public constructor(currentRoom: number, shootRooms: number[]) {
+        this.currentRoom = currentRoom;
+        this.shootRooms = shootRooms;
     }
 
-    public getCurrentRoom(): number { return this.currentRoomNum; }
-    public getEnteredRoom(): number { return this.enterRoomNum; }
+    public getCurrentRoom(): number {
+        return this.currentRoom;
+    }
+
+    public getNextRoom(): number {
+        return this.shootRooms[0];
+    }
+
+    public endOfPath(): boolean {
+        return (this.getNextRoom() === undefined);
+    }
+
+    public moveToNextRoom(): void {
+        assert(!this.endOfPath(), "This should not be called if we're at the end of the path");
+        this.currentRoom = this.shootRooms[0];
+        this.shootRooms = this.shootRooms.slice(1);
+    }
+
+}
+
+export class ArrowEnteredRoomEvent implements GameEvent {
+    private shootPath: ShootPath;
+    public constructor(shootPath: ShootPath) {
+        this.shootPath = shootPath;
+    }
+
+    public getCurrentRoom(): number { return this.shootPath.getCurrentRoom(); }
+    public getEnteredRoom(): number { return this.shootPath.getNextRoom(); }
 
     public perform(gameState: GameState): GameEvent {
-        const enteredRoom = gameState.cave.getRoom(this.currentRoomNum);
+        const enteredRoom = gameState.cave.getRoom(this.getCurrentRoom());
         if(enteredRoom.hasWumpus()) {
             return new PlayerShotWumpusEvent();
         } else if(enteredRoom === gameState.cave.getCurrentRoom()) {
             return new PlayerShotSelfEvent();
         }
-
-        const nextRoom = gameState.cave.getRoom(this.enterRoomNum);
-        if(nextRoom) {
+        
+        if(this.shootPath.endOfPath()) {
+            return new PlayerIdleEvent();
+        } else {
+            const nextRoom = gameState.cave.getRoom(this.getEnteredRoom());
             if(enteredRoom.hasNeighbor(nextRoom))  {
-                return new ArrowEnteredRoomEvent(this.enterRoomNum, this.nextRooms);
+                this.shootPath.moveToNextRoom();
+                return new ArrowEnteredRoomEvent(this.shootPath);
             } else {
                 const enteredRoomNeighbors = enteredRoom.getNeighbors();
                 const nextRoomNum = enteredRoomNeighbors[getRandomIntBetween(0, enteredRoomNeighbors.length)].getRoomNumber();
-                return new ArrowEnteredRandomRoomEvent(this.currentRoomNum, this.enterRoomNum, nextRoomNum);
+                return new ArrowEnteredRandomRoomEvent(this.getCurrentRoom(), this.getEnteredRoom(), nextRoomNum);
             }
-        } else {
-            return new PlayerIdleEvent();
         }
     }
 }
@@ -181,7 +208,7 @@ export class ArrowEnteredRandomRoomEvent implements GameEvent {
 
     public perform(gameState: GameState): GameEvent {
         gameState; // Unused
-        return new ArrowEnteredRoomEvent(this.enterRoom, []);
+        return new ArrowEnteredRoomEvent(new ShootPath(this.enterRoom, []));
     }
 }
 
