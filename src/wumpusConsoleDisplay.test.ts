@@ -165,6 +165,16 @@ so long since the evil Wumpus cleaned his teeth that you immediately\n\
 passed out from the stench`);
     });
 
+    it('displays on the console when the arrow enters a random room', () => {
+        const fromRoom = 1;
+        const toRoom = 2;
+        const enteredRoom = 3;
+        display.showArrowEnteredRandomRoom(fromRoom, toRoom, enteredRoom);
+
+        expectConsoleWrite(`*thunk*  The arrow can't find a way from ${fromRoom} to ${toRoom} and flys randomly\n\
+into room ${enteredRoom}!\n`);
+    });
+
     it('displays on the console when the player shoots the wumpus', () => {
         display.showPlayerShotWumpus();
 

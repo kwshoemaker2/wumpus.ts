@@ -105,7 +105,12 @@ export class PlayerShotArrowEvent implements GameEvent {
         if(gameState.cave.adjacentRoom(this.nextRoom)) {
             return new ArrowEnteredRoomEvent(this.nextRoom, this.rooms);
         } else {
-            return new ArrowEnteredRandomRoomEvent();
+            const currentRoom = gameState.cave.getCurrentRoom();
+            const currentRoomNeighbors = currentRoom.getNeighbors();
+            const shootRoomNum = currentRoomNeighbors[getRandomIntBetween(0, currentRoomNeighbors.length)].getRoomNumber();
+            return new ArrowEnteredRandomRoomEvent(currentRoom.getRoomNumber(),
+                                                   this.nextRoom,
+                                                   shootRoomNum);
         }
     }
 }
@@ -134,7 +139,9 @@ export class ArrowEnteredRoomEvent implements GameEvent {
             if(enteredRoom.hasNeighbor(nextRoom))  {
                 return new ArrowEnteredRoomEvent(this.nextRoomNum, this.nextRooms);
             } else {
-                return new ArrowEnteredRandomRoomEvent();
+                const enteredRoomNeighbors = enteredRoom.getNeighbors();
+                const nextRoomNum = enteredRoomNeighbors[getRandomIntBetween(0, enteredRoomNeighbors.length)].getRoomNumber();
+                return new ArrowEnteredRandomRoomEvent(this.currentRoomNum, this.nextRoomNum, nextRoomNum);
             }
         } else {
             return new PlayerIdleEvent();
@@ -144,11 +151,22 @@ export class ArrowEnteredRoomEvent implements GameEvent {
 
 export class ArrowEnteredRandomRoomEvent implements GameEvent {
 
-    public constructor() {
+    private fromRoom: number;
+    private toRoom: number;
+    private nextRoom: number;
+    public constructor(fromRoom: number, toRoom: number, nextRoom: number) {
+        this.fromRoom = fromRoom;
+        this.toRoom = toRoom;
+        this.nextRoom = nextRoom;
     }
 
+    public getFromRoom(): number { return this.fromRoom; }
+    public getToRoom(): number { return this.toRoom; }
+    public getNextRoom(): number { return this.nextRoom; }
+
     public perform(gameState: GameState): GameEvent {
-        return new PlayerIdleEvent();
+        gameState; // Unused
+        return new ArrowEnteredRoomEvent(this.nextRoom, []);
     }
 }
 

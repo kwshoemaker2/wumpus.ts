@@ -89,6 +89,14 @@ so long since the evil Wumpus cleaned his teeth that you immediately\n\
 passed out from the stench`);
     }
 
+    public showArrowEnteredRandomRoom(fromRoomNum: number,
+                                      toRoomNum: number,
+                                      enteredRoomNum: number): void
+    {
+        this.writeConsole(`*thunk*  The arrow can't find a way from ${fromRoomNum} to ${toRoomNum} and flys randomly\n\
+into room ${enteredRoomNum}!\n`)
+    }
+
     public showPlayerShotWumpus(): void {
         this.writeConsole(`*thwock!* *groan* *crash*\n\n\
 A horrible roar fills the cave, and you realize, with a smile, that you\n\

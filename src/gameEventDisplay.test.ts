@@ -73,6 +73,12 @@ describe("GameEventDisplay", () => {
         expect(display.showPlayerEatenByWumpus.calledOnce).equals(true);
     });
 
+    it("tells player their arrow moved to a random room", () => {
+        gameEventDisplay.displayGameEvent(new GameEvent.ArrowEnteredRandomRoomEvent(1, 2, 3));
+
+        expect(display.showArrowEnteredRandomRoom.calledOnceWith(1, 2, 3)).equals(true);
+    });
+
     it("tells player they shot a wumpus", () => {
         gameEventDisplay.displayGameEvent(new GameEvent.PlayerShotWumpusEvent());
 

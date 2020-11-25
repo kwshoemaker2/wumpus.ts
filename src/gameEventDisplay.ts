@@ -7,7 +7,8 @@ import {
     PlayerSurvivedPitEvent,
     PlayerIdleEvent,
     PlayerEatenByWumpus,
-    PlayerShotWumpusEvent
+    PlayerShotWumpusEvent,
+    ArrowEnteredRandomRoomEvent
 } from './gameEvent';
 import { WumpusCave } from './wumpusCave';
 
@@ -63,6 +64,12 @@ export class GameEventDisplayImpl implements GameEventDisplay {
             this.display.showPlayerEatenByWumpus();
         } else if (gameEvent instanceof PlayerIdleEvent) {
             this.movedByBats = false;
+        } else if(gameEvent instanceof ArrowEnteredRandomRoomEvent) {
+            const arrowEnteredRandRoom = gameEvent as ArrowEnteredRandomRoomEvent;
+            this.display.showArrowEnteredRandomRoom(
+                arrowEnteredRandRoom.getFromRoom(),
+                arrowEnteredRandRoom.getToRoom(),
+                arrowEnteredRandRoom.getNextRoom());
         } else if (gameEvent instanceof PlayerShotWumpusEvent) {
             this.display.showPlayerShotWumpus();
         }
