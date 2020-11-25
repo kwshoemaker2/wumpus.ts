@@ -84,4 +84,10 @@ describe("GameEventDisplay", () => {
 
         expect(display.showPlayerShotWumpus.calledOnce).equals(true);
     });
+
+    it("tells player they shot themselves", () => {
+        gameEventDisplay.displayGameEvent(new GameEvent.PlayerShotSelfEvent());
+
+        expect(display.showPlayerShotSelf.calledOnce).equals(true);
+    });
 });

@@ -186,4 +186,14 @@ dead Wumpus is also quite well known, a stench plenty enough to slay the\n\
 mightiest adventurer at a single whiff!!\n`);
     });
 
+    it('displays on the console when the player shoots themselves', () => {
+        display.showPlayerShotSelf();
+
+        expectConsoleWrite(`\n*Thwack!*  A sudden piercing feeling informs you that the ricochet\n\
+of your wild arrow has resulted in it wedging in your side, causing\n\
+extreme agony.  The evil Wumpus, with its psychic powers, realizes this\n\
+and immediately rushes to your side, not to help, alas, but to EAT YOU!\n\
+(*CHOMP*)\n`);
+    });
+
 });

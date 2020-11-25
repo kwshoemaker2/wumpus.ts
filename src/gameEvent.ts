@@ -1,4 +1,3 @@
-import { WumpusCave } from './wumpusCave'
 import { getRandomIntBetween } from './wumpusRandom'
 import { GameState } from './gameState'
 
@@ -132,6 +131,8 @@ export class ArrowEnteredRoomEvent implements GameEvent {
         const enteredRoom = gameState.cave.getRoom(this.currentRoomNum);
         if(enteredRoom.hasWumpus()) {
             return new PlayerShotWumpusEvent();
+        } else if(enteredRoom === gameState.cave.getCurrentRoom()) {
+            return new PlayerShotSelfEvent();
         }
 
         const nextRoom = gameState.cave.getRoom(this.enterRoomNum);
@@ -146,6 +147,20 @@ export class ArrowEnteredRoomEvent implements GameEvent {
         } else {
             return new PlayerIdleEvent();
         }
+    }
+}
+
+export class PlayerShotWumpusEvent implements GameEvent {
+    public perform(gameState: GameState): GameEvent {
+        gameState; // Unused
+        return new GameOverEvent();
+    }
+}
+
+export class PlayerShotSelfEvent implements GameEvent {
+    public perform(gameState: GameState): GameEvent {
+        gameState; // Unused
+        return new GameOverEvent();
     }
 }
 
@@ -167,13 +182,6 @@ export class ArrowEnteredRandomRoomEvent implements GameEvent {
     public perform(gameState: GameState): GameEvent {
         gameState; // Unused
         return new ArrowEnteredRoomEvent(this.enterRoom, []);
-    }
-}
-
-export class PlayerShotWumpusEvent implements GameEvent {
-    public perform(gameState: GameState): GameEvent {
-        gameState; // Unused
-        return new GameOverEvent();
     }
 }
 

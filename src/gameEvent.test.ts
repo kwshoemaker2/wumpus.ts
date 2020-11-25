@@ -297,6 +297,19 @@ describe("GameEvent", () => {
 
             expect(nextEvent).instanceOf(GameEvent.PlayerShotWumpusEvent);
         });
+
+        it("returns a player shot self event when the arrow enters the player's room", () => {
+            const shootRoomNum = 1;
+
+            const playersRoom = tsSinon.stubInterface<WumpusRoom>();
+            cave.getCurrentRoom.returns(playersRoom);
+            cave.getRoom.withArgs(shootRoomNum).returns(playersRoom);
+
+            const arrowEnteredRoom = new GameEvent.ArrowEnteredRoomEvent(shootRoomNum, []);
+            const nextEvent = arrowEnteredRoom.perform(gameState);
+
+            expect(nextEvent).instanceOf(GameEvent.PlayerShotSelfEvent);
+        });
     });
 
     describe("ArrowEnteredRandomRoomEvent", () => {

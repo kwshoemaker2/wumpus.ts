@@ -8,7 +8,8 @@ import {
     PlayerIdleEvent,
     PlayerEatenByWumpus,
     PlayerShotWumpusEvent,
-    ArrowEnteredRandomRoomEvent
+    ArrowEnteredRandomRoomEvent,
+    PlayerShotSelfEvent
 } from './gameEvent';
 import { WumpusCave } from './wumpusCave';
 
@@ -72,6 +73,8 @@ export class GameEventDisplayImpl implements GameEventDisplay {
                 arrowEnteredRandRoom.getEnteredRoom());
         } else if (gameEvent instanceof PlayerShotWumpusEvent) {
             this.display.showPlayerShotWumpus();
+        } else if(gameEvent instanceof PlayerShotSelfEvent) {
+            this.display.showPlayerShotSelf();
         }
     }
 }
