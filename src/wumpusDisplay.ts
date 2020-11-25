@@ -19,6 +19,8 @@ export interface WumpusDisplay {
 
     showPlayerEatenByWumpus(): void;
 
+    showArrowWentNowhere(): void;
+
     showArrowEnteredRandomRoom(fromRoomNum: number,
                                toRoomNum: number,
                                enteredRoomNum: number): void;

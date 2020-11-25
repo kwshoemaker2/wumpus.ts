@@ -89,6 +89,10 @@ so long since the evil Wumpus cleaned his teeth that you immediately\n\
 passed out from the stench`);
     }
 
+    public showArrowWentNowhere(): void {
+        this.writeConsole("The arrow falls to the ground at your feet!\n");
+    }
+
     public showArrowEnteredRandomRoom(fromRoomNum: number,
                                       toRoomNum: number,
                                       enteredRoomNum: number): void

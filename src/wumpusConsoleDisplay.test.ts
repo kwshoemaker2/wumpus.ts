@@ -175,6 +175,12 @@ passed out from the stench`);
 into room ${enteredRoom}!\n`);
     });
 
+    it('displays on the console when the arrow goes nowhere', () => {
+        display.showArrowWentNowhere();
+
+        expectConsoleWrite("The arrow falls to the ground at your feet!\n");
+    });
+
     it('displays on the console when the player shoots the wumpus', () => {
         display.showPlayerShotWumpus();
 

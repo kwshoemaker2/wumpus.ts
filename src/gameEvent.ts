@@ -104,6 +104,14 @@ export class PlayerShotArrowEvent implements GameEvent {
 
     public perform(gameState: GameState): GameEvent {
         gameState.numArrows--;
+        if(this.nextRoom) {
+            return this.moveArrow(gameState);
+        } else {
+            return new ArrowWentNowhereEvent();
+        }
+    }
+
+    private moveArrow(gameState: GameState): GameEvent {
         if(gameState.cave.adjacentRoom(this.nextRoom)) {
             return new ArrowEnteredRoomEvent(new ShootPath(this.nextRoom, this.rooms));
         } else {
@@ -114,6 +122,13 @@ export class PlayerShotArrowEvent implements GameEvent {
                                                    this.nextRoom,
                                                    shootRoomNum);
         }
+    }
+}
+
+export class ArrowWentNowhereEvent implements GameEvent {
+    public perform(gameState: GameState): GameEvent {
+        gameState; // Unused
+        return new PlayerIdleEvent();
     }
 }
 

@@ -9,7 +9,8 @@ import {
     PlayerEatenByWumpus,
     PlayerShotWumpusEvent,
     ArrowEnteredRandomRoomEvent,
-    PlayerShotSelfEvent
+    PlayerShotSelfEvent,
+    ArrowWentNowhereEvent
 } from './gameEvent';
 import { WumpusCave } from './wumpusCave';
 
@@ -65,6 +66,8 @@ export class GameEventDisplayImpl implements GameEventDisplay {
             this.display.showPlayerEatenByWumpus();
         } else if (gameEvent instanceof PlayerIdleEvent) {
             this.movedByBats = false;
+        } else if(gameEvent instanceof ArrowWentNowhereEvent) {
+            this.display.showArrowWentNowhere();
         } else if(gameEvent instanceof ArrowEnteredRandomRoomEvent) {
             const arrowEnteredRandRoom = gameEvent as ArrowEnteredRandomRoomEvent;
             this.display.showArrowEnteredRandomRoom(

@@ -165,6 +165,13 @@ describe("GameEvent", () => {
             expect(gameState.numArrows, "Expected the arrow count to decrement").equals(9);
         });
 
+        it("returns an arrow went nowhere event when no path is specified", () => {
+            const playerShotArrow = new GameEvent.PlayerShotArrowEvent([]);
+            const nextEvent = playerShotArrow.perform(gameState);
+
+            expect(nextEvent).instanceOf(GameEvent.ArrowWentNowhereEvent);
+        });
+
         it("returns an arrow entered room event if the room is adjacent", () => {
             cave.adjacentRoom.withArgs(shootRoomNum).returns(true);
 
@@ -198,6 +205,10 @@ describe("GameEvent", () => {
             expect(arrowEnteredRandRoom.getToRoom(), "Incorrect to room").equals(shootRoomNum);
             expect(arrowEnteredRandRoom.getEnteredRoom(), "Incorrect next room").equals(neighborRoomNums[neighborIdx]);
         });
+    });
+
+    describe("ArrowWentNowhereEvent", () => {
+
     });
 
     describe("ArrowEnteredRoomEvent", () => {
