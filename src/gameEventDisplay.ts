@@ -69,7 +69,7 @@ export class GameEventDisplayImpl implements GameEventDisplay {
             this.display.showArrowEnteredRandomRoom(
                 arrowEnteredRandRoom.getFromRoom(),
                 arrowEnteredRandRoom.getToRoom(),
-                arrowEnteredRandRoom.getNextRoom());
+                arrowEnteredRandRoom.getEnteredRoom());
         } else if (gameEvent instanceof PlayerShotWumpusEvent) {
             this.display.showPlayerShotWumpus();
         }

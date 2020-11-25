@@ -117,16 +117,16 @@ export class PlayerShotArrowEvent implements GameEvent {
 
 export class ArrowEnteredRoomEvent implements GameEvent {
     private currentRoomNum: number;
-    private nextRoomNum: number;
+    private enterRoomNum: number;
     private nextRooms: number[];
     public constructor(currentRoom: number, nextRooms: number[]) {
         this.currentRoomNum = currentRoom;
-        this.nextRoomNum = nextRooms[0];
+        this.enterRoomNum = nextRooms[0];
         this.nextRooms = nextRooms.slice(1);
     }
 
     public getCurrentRoom(): number { return this.currentRoomNum; }
-    public getNextRoom(): number { return this.nextRoomNum; }
+    public getEnteredRoom(): number { return this.enterRoomNum; }
 
     public perform(gameState: GameState): GameEvent {
         const enteredRoom = gameState.cave.getRoom(this.currentRoomNum);
@@ -134,14 +134,14 @@ export class ArrowEnteredRoomEvent implements GameEvent {
             return new PlayerShotWumpusEvent();
         }
 
-        const nextRoom = gameState.cave.getRoom(this.nextRoomNum);
+        const nextRoom = gameState.cave.getRoom(this.enterRoomNum);
         if(nextRoom) {
             if(enteredRoom.hasNeighbor(nextRoom))  {
-                return new ArrowEnteredRoomEvent(this.nextRoomNum, this.nextRooms);
+                return new ArrowEnteredRoomEvent(this.enterRoomNum, this.nextRooms);
             } else {
                 const enteredRoomNeighbors = enteredRoom.getNeighbors();
                 const nextRoomNum = enteredRoomNeighbors[getRandomIntBetween(0, enteredRoomNeighbors.length)].getRoomNumber();
-                return new ArrowEnteredRandomRoomEvent(this.currentRoomNum, this.nextRoomNum, nextRoomNum);
+                return new ArrowEnteredRandomRoomEvent(this.currentRoomNum, this.enterRoomNum, nextRoomNum);
             }
         } else {
             return new PlayerIdleEvent();
@@ -153,20 +153,20 @@ export class ArrowEnteredRandomRoomEvent implements GameEvent {
 
     private fromRoom: number;
     private toRoom: number;
-    private nextRoom: number;
-    public constructor(fromRoom: number, toRoom: number, nextRoom: number) {
+    private enterRoom: number;
+    public constructor(fromRoom: number, toRoom: number, enterRoom: number) {
         this.fromRoom = fromRoom;
         this.toRoom = toRoom;
-        this.nextRoom = nextRoom;
+        this.enterRoom = enterRoom;
     }
 
     public getFromRoom(): number { return this.fromRoom; }
     public getToRoom(): number { return this.toRoom; }
-    public getNextRoom(): number { return this.nextRoom; }
+    public getEnteredRoom(): number { return this.enterRoom; }
 
     public perform(gameState: GameState): GameEvent {
         gameState; // Unused
-        return new ArrowEnteredRoomEvent(this.nextRoom, []);
+        return new ArrowEnteredRoomEvent(this.enterRoom, []);
     }
 }
 

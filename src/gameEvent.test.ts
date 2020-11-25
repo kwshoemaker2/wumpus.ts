@@ -175,7 +175,7 @@ describe("GameEvent", () => {
 
             const arrowEnteredRoom = nextEvent as GameEvent.ArrowEnteredRoomEvent;
             expect(arrowEnteredRoom.getCurrentRoom(), "Incorrect current room").equals(shootRoomNum);
-            expect(arrowEnteredRoom.getNextRoom(), "Incorrect next room").equals(undefined);
+            expect(arrowEnteredRoom.getEnteredRoom(), "Incorrect next room").equals(undefined);
         });
 
         it("returns an arrow entered random room event if the room is not adjacent", () => {
@@ -196,7 +196,7 @@ describe("GameEvent", () => {
             const arrowEnteredRandRoom = nextEvent as GameEvent.ArrowEnteredRandomRoomEvent;
             expect(arrowEnteredRandRoom.getFromRoom(), "Incorrect from room").equals(currentRoomNum);
             expect(arrowEnteredRandRoom.getToRoom(), "Incorrect to room").equals(shootRoomNum);
-            expect(arrowEnteredRandRoom.getNextRoom(), "Incorrect next room").equals(neighborRoomNums[neighborIdx]);
+            expect(arrowEnteredRandRoom.getEnteredRoom(), "Incorrect next room").equals(neighborRoomNums[neighborIdx]);
         });
     });
 
@@ -214,7 +214,7 @@ describe("GameEvent", () => {
                 
                 if(i !== chainRoomNumbers.length) {
                     const nextRoomNum = chainRoomNumbers[i];
-                    expect(arrowEntered.getNextRoom(), `Expected arrow in ${currentRoomNum} to be shot into ${nextRoomNum}`)
+                    expect(arrowEntered.getEnteredRoom(), `Expected arrow in ${currentRoomNum} to be shot into ${nextRoomNum}`)
                         .equals(nextRoomNum);
                     currentRoomNum = nextRoomNum;
                 }
@@ -282,7 +282,7 @@ describe("GameEvent", () => {
             const arrowEnteredRandRoom = nextEvent as GameEvent.ArrowEnteredRandomRoomEvent;
             expect(arrowEnteredRandRoom.getFromRoom(), "Incorrect from room").equals(shootRoomNum);
             expect(arrowEnteredRandRoom.getToRoom(), "Incorrect to room").equals(nextRooms[0]);
-            expect(arrowEnteredRandRoom.getNextRoom(), "Incorrect next room").equals(neighborRoomNums[neighborIdx]);
+            expect(arrowEnteredRandRoom.getEnteredRoom(), "Incorrect next room").equals(neighborRoomNums[neighborIdx]);
         });
 
         it("returns a player shot wumpus event when the arrow enters the wumpus room", () => {
@@ -312,7 +312,7 @@ describe("GameEvent", () => {
 
             const arrowEnteredRoom = nextEvent as GameEvent.ArrowEnteredRoomEvent;
             expect(arrowEnteredRoom.getCurrentRoom(), "Incorrect current room").equals(enterRoomNum);
-            expect(arrowEnteredRoom.getNextRoom(), "Incorrect next room").equals(undefined);
+            expect(arrowEnteredRoom.getEnteredRoom(), "Incorrect next room").equals(undefined);
         });
     });
 
