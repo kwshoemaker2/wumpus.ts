@@ -1,6 +1,8 @@
 import { getRandomIntBetween } from './wumpusRandom'
 import { GameState } from './gameState'
+import { WumpusRoom } from './wumpusRoom'
 import { assert } from 'console';
+import { Game } from './game';
 
 export interface GameEvent {
 
@@ -154,26 +156,51 @@ export class ArrowEnteredRoomEvent implements GameEvent {
     public getEnteredRoom(): number { return this.shootPath.getNextRoom(); }
 
     public perform(gameState: GameState): GameEvent {
-        const enteredRoom = gameState.cave.getRoom(this.getCurrentRoom());
-        if(enteredRoom.hasWumpus()) {
+        let result: GameEvent = this.checkIfShotSomething(gameState);
+        
+        if(!result) {
+            result = this.moveArrow(gameState);
+        }
+
+        return result;
+    }
+
+    private checkIfShotSomething(gameState: GameState): GameEvent {
+        const currentRoom = gameState.cave.getRoom(this.getCurrentRoom());
+        if(currentRoom.hasWumpus()) {
             return new PlayerShotWumpusEvent();
-        } else if(enteredRoom === gameState.cave.getCurrentRoom()) {
+        } else if(currentRoom === gameState.cave.getCurrentRoom()) {
             return new PlayerShotSelfEvent();
         }
-        
+    }
+
+    private moveArrow(gameState: GameState): GameEvent {
+        const currentRoom = gameState.cave.getRoom(this.getCurrentRoom());
         if(this.shootPath.endOfPath()) {
             return new PlayerIdleEvent();
         } else {
-            const nextRoom = gameState.cave.getRoom(this.getEnteredRoom());
-            if(enteredRoom.hasNeighbor(nextRoom))  {
-                this.shootPath.moveToNextRoom();
-                return new ArrowEnteredRoomEvent(this.shootPath);
-            } else {
-                const enteredRoomNeighbors = enteredRoom.getNeighbors();
-                const nextRoomNum = enteredRoomNeighbors[getRandomIntBetween(0, enteredRoomNeighbors.length)].getRoomNumber();
-                return new ArrowEnteredRandomRoomEvent(this.getCurrentRoom(), this.getEnteredRoom(), nextRoomNum);
-            }
+            return this.moveArrowToRoom(gameState, currentRoom);
         }
+    }
+
+    private moveArrowToRoom(gameState: GameState, currentRoom: WumpusRoom): GameEvent {
+        const nextRoom = gameState.cave.getRoom(this.getEnteredRoom());
+        if(currentRoom.hasNeighbor(nextRoom))  {
+            return this.moveArrowToNextRoom();
+        } else {
+            return this.moveArrowToRandomNeighbor(currentRoom);
+        }
+    }
+
+    private moveArrowToNextRoom(): GameEvent {
+        this.shootPath.moveToNextRoom();
+        return new ArrowEnteredRoomEvent(this.shootPath);
+    }
+
+    private moveArrowToRandomNeighbor(currentRoom: WumpusRoom): GameEvent {
+        const enteredRoomNeighbors = currentRoom.getNeighbors();
+        const nextRoomNum = enteredRoomNeighbors[getRandomIntBetween(0, enteredRoomNeighbors.length)].getRoomNumber();
+        return new ArrowEnteredRandomRoomEvent(this.getCurrentRoom(), this.getEnteredRoom(), nextRoomNum);
     }
 }
 
