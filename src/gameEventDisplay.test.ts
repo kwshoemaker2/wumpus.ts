@@ -5,6 +5,8 @@ import * as GameEvent from './gameEvent'
 import { WumpusRoom } from './wumpusRoom'
 import { WumpusCave } from './wumpusCave'
 import {GameEventDisplayImpl } from './gameEventDisplay'
+import { GameState } from './gameState'
+import { defaultNumArrows } from './wumpusOptions';
 
 describe("GameEventDisplay", () => {
     let display: tsSinon.StubbedInstance<WumpusDisplay> = null;
@@ -17,12 +19,13 @@ describe("GameEventDisplay", () => {
 
     it("displays the current room from the WumpusCave object", async () => {
         const cave = tsSinon.stubInterface<WumpusCave>();
+        const gameState = new GameState(cave, defaultNumArrows);
         const currentRoom = tsSinon.stubInterface<WumpusRoom>();
         cave.getCurrentRoom.onFirstCall().returns(currentRoom);
 
-        gameEventDisplay.displayCurrentRoom(cave);
+        gameEventDisplay.displayGameState(gameState);
 
-        expect(display.showRoomEntry.calledOnceWith(currentRoom)).equals(true);
+        expect(display.showGameState.calledOnceWith(gameState)).equals(true);
     });
 
     it("tells player they survived a pit", () => {

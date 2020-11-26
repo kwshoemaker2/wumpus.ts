@@ -3,6 +3,7 @@ import { WumpusRoom } from './wumpusRoom'
 import { WumpusDisplay } from './wumpusDisplay'
 import { WumpusOptions } from './wumpusOptions'
 import { ConsoleWrite } from './consoleUtils';
+import { GameState } from './gameState'
 
 /**
  * WumpusDisplay implementation that outputs to the console.
@@ -23,19 +24,20 @@ There are ${options.numBats} bats and ${options.numPits} pits scattered througho
 quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luck.\n`);
     }
 
-    public showRoomEntry(room: WumpusRoom): void {
-        this.writeConsole(`You are in room ${room.getRoomNumber()} of the cave`);
+    public showGameState(gameState: GameState): void {
+        const currentRoom = gameState.cave.getCurrentRoom();
+        this.writeConsole(`You are in room ${currentRoom.getRoomNumber()} of the cave`);
         
-        const neighbors: WumpusRoom[] = room.getNeighbors();
+        const neighbors: WumpusRoom[] = currentRoom.getNeighbors();
         this.printNeighbors(neighbors);
 
-        if(room.pitNearby()) {
+        if(currentRoom.pitNearby()) {
             this.writeConsole("*whoosh* (I feel a draft from some pits).");
         }
-        if(room.batsNearby()) {
+        if(currentRoom.batsNearby()) {
             this.writeConsole("*rustle* *rustle* (must be bats nearby).");
         }
-        if(room.wumpusNearby()) {
+        if(currentRoom.wumpusNearby()) {
             this.writeConsole("*sniff* (I can smell the evil Wumpus nearby!)");
         }
 

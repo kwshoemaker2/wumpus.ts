@@ -13,7 +13,7 @@ import {
     ArrowWentNowhereEvent,
     PlayerOutOfArrowsEvent
 } from './gameEvent';
-import { WumpusCave } from './wumpusCave';
+import { GameState } from './gameState'
 
 /**
  * Provides a display for each game event.
@@ -21,10 +21,9 @@ import { WumpusCave } from './wumpusCave';
 export interface GameEventDisplay {
 
     /**
-     * Display details about the current room the user is in.
-     * @param cave 
+     * Display details about the current game state.
      */
-    displayCurrentRoom(cave: WumpusCave): void;
+    displayGameState(gameState: GameState): void;
 
     /**
      * Display the game event to the user.
@@ -45,8 +44,8 @@ export class GameEventDisplayImpl implements GameEventDisplay {
         this.movedByBats = false;
     }
 
-    public displayCurrentRoom(cave: WumpusCave): void {
-        this.display.showRoomEntry(cave.getCurrentRoom());
+    public displayGameState(gameState: GameState): void {
+        this.display.showGameState(gameState);
     }
 
     public displayGameEvent(gameEvent: GameEvent): void {

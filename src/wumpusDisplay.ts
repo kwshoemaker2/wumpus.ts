@@ -1,11 +1,11 @@
 
-import { WumpusRoom } from './wumpusRoom'
+import { GameState } from './gameState'
 import { WumpusOptions } from './wumpusOptions'
 
 export interface WumpusDisplay {
     showIntroduction(options: WumpusOptions): void;
 
-    showRoomEntry(room: WumpusRoom): void;
+    showGameState(gameState: GameState): void;
 
     showPlayerHitWall(): void;
 

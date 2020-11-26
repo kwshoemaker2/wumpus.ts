@@ -2,7 +2,9 @@ import * as sinon from 'sinon'
 import { expect } from 'chai'
 import { WumpusConsoleDisplay } from './wumpusConsoleDisplay'
 import { WumpusRoom, WumpusRoomImpl } from './wumpusRoom'
-import { WumpusOptions } from './wumpusOptions'
+import { defaultNumArrows, WumpusOptions } from './wumpusOptions'
+import { WumpusCave, WumpusCaveImpl } from './wumpusCave'
+import { GameState } from './gameState'
 
 describe('WumpusConsoleDisplay', () => {
 
@@ -44,11 +46,14 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
         });
     });
 
-    describe('showRoomEntry', () => {
+    describe('showGameState', () => {
         let room: WumpusRoom;
+        let cave: WumpusCaveImpl;
+        let gameState: GameState;
         const roomNumber: number = 10;
         beforeEach(() => {
             room = new WumpusRoomImpl(roomNumber);
+            cave = new WumpusCaveImpl([room]);
         });
 
         function expectRoomEntryWrites(writes: string[]) {
@@ -57,7 +62,7 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
         }
 
         it('displays just the room if the room is empty', () => {
-            display.showRoomEntry(room);
+            display.showGameState(new GameState(cave, defaultNumArrows));
 
             expectRoomEntryWrites(['You are in room 10 of the cave']);
         });
@@ -69,7 +74,7 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
             room.addNeighbor(new WumpusRoomImpl(13));
             room.addNeighbor(new WumpusRoomImpl(14));
 
-            display.showRoomEntry(room);
+            display.showGameState(new GameState(cave, defaultNumArrows));
 
             expectRoomEntryWrites(['You are in room 10 of the cave',
                                    'There are tunnels leading to rooms 12, 13, 14',
@@ -83,7 +88,7 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
             room.addNeighbor(new WumpusRoomImpl(13));
             room.addNeighbor(new WumpusRoomImpl(14));
 
-            display.showRoomEntry(room);
+            display.showGameState(new GameState(cave, defaultNumArrows));
 
             expectRoomEntryWrites(['You are in room 10 of the cave',
                                    'There are tunnels leading to rooms 12, 13, 14',
@@ -97,7 +102,7 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
             room.addNeighbor(new WumpusRoomImpl(13));
             room.addNeighbor(new WumpusRoomImpl(14));
 
-            display.showRoomEntry(room);
+            display.showGameState(new GameState(cave, defaultNumArrows));
 
             expectRoomEntryWrites(['You are in room 10 of the cave',
                                    'There are tunnels leading to rooms 12, 13, 14',
@@ -109,7 +114,7 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
             room.addNeighbor(new WumpusRoomImpl(2));
             room.addNeighbor(new WumpusRoomImpl(3));
 
-            display.showRoomEntry(room);
+            display.showGameState(new GameState(cave, defaultNumArrows));
 
             expectRoomEntryWrites(['You are in room 10 of the cave',
                                    'There are tunnels leading to rooms 1, 2, 3']);

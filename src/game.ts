@@ -24,7 +24,7 @@ export class Game {
     public async run(): Promise<void> {
         let running: boolean = true;
         while(running) {
-            this.gameEventDisplay.displayCurrentRoom(this.gameState.cave);
+            this.gameEventDisplay.displayGameState(this.gameState);
             const playerAction = await this.playerActionTranslator.getPlayerAction();
             running = playerAction.perform(this.gameState, this.gameEventDisplay);
         }

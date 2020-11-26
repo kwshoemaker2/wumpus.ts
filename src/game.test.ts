@@ -31,14 +31,14 @@ describe("Game", () => {
         playerActionTranslator.getPlayerAction.onCall(callNumber).returns(promise)
     }
 
-    it("displays the current room at the start", async () => {
+    it("displays the game state at the start", async () => {
         const playerAction = tsSinon.stubInterface<PlayerAction>();
         playerAction.perform.returns(false);
         setPlayerAction(playerAction);
 
         await game.run();
 
-        expect(gameEventDisplay.displayCurrentRoom.calledOnceWith(cave)).equals(true)
+        expect(gameEventDisplay.displayGameState.calledOnceWith(gameState)).equals(true)
     });
 
     it("stops running after the first action returns false", async () => {
