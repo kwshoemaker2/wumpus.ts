@@ -26,7 +26,7 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
 
     public showGameState(gameState: GameState): void {
         const currentRoom = gameState.cave.getCurrentRoom();
-        this.writeConsole(`You are in room ${currentRoom.getRoomNumber()} of the cave`);
+        this.writeConsole(`You are in room ${currentRoom.getRoomNumber()} of the cave, and have ${gameState.numArrows} arrows left`);
         
         const neighbors: WumpusRoom[] = currentRoom.getNeighbors();
         this.printNeighbors(neighbors);

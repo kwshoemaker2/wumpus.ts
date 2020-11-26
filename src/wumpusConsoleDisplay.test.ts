@@ -64,7 +64,7 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
         it('displays just the room if the room is empty', () => {
             display.showGameState(new GameState(cave, defaultNumArrows));
 
-            expectRoomEntryWrites(['You are in room 10 of the cave']);
+            expectRoomEntryWrites(['You are in room 10 of the cave, and have 5 arrows left']);
         });
 
         it('displays a message if a pit is nearby', () => {
@@ -76,7 +76,7 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
 
             display.showGameState(new GameState(cave, defaultNumArrows));
 
-            expectRoomEntryWrites(['You are in room 10 of the cave',
+            expectRoomEntryWrites(['You are in room 10 of the cave, and have 5 arrows left',
                                    'There are tunnels leading to rooms 12, 13, 14',
                                    '*whoosh* (I feel a draft from some pits).']);
         });
@@ -90,7 +90,7 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
 
             display.showGameState(new GameState(cave, defaultNumArrows));
 
-            expectRoomEntryWrites(['You are in room 10 of the cave',
+            expectRoomEntryWrites(['You are in room 10 of the cave, and have 5 arrows left',
                                    'There are tunnels leading to rooms 12, 13, 14',
                                    '*rustle* *rustle* (must be bats nearby).']);
         });
@@ -104,7 +104,7 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
 
             display.showGameState(new GameState(cave, defaultNumArrows));
 
-            expectRoomEntryWrites(['You are in room 10 of the cave',
+            expectRoomEntryWrites(['You are in room 10 of the cave, and have 5 arrows left',
                                    'There are tunnels leading to rooms 12, 13, 14',
                                    '*sniff* (I can smell the evil Wumpus nearby!)']);
         });
@@ -116,7 +116,7 @@ quiver holds ${options.numArrows} custom super anti-evil Wumpus arrows. Good luc
 
             display.showGameState(new GameState(cave, defaultNumArrows));
 
-            expectRoomEntryWrites(['You are in room 10 of the cave',
+            expectRoomEntryWrites(['You are in room 10 of the cave, and have 5 arrows left',
                                    'There are tunnels leading to rooms 1, 2, 3']);
 
         });
