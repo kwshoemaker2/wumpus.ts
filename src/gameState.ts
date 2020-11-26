@@ -10,6 +10,8 @@ export class GameState {
         this.cave = cave;
         if(!numArrows) {
             this.numArrows = defaultNumArrows;
+        } else {
+            this.numArrows = numArrows;
         }
     }
 }

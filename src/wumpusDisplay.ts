@@ -25,6 +25,8 @@ export interface WumpusDisplay {
                                toRoomNum: number,
                                enteredRoomNum: number): void;
 
+    showPlayerOutOfArrows(): void;
+
     showPlayerShotWumpus(): void;
 
     showPlayerShotSelf(): void;

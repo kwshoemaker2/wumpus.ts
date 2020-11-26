@@ -175,6 +175,15 @@ passed out from the stench`);
 into room ${enteredRoom}!\n`);
     });
 
+    it('displays on the console when the player is out of arrows', () => {
+        display.showPlayerOutOfArrows();
+
+        expectConsoleWrite(`\nYou turn and look at your quiver, and realize with a sinking feeling\n\
+that you've just shot your last arrow (figuratively, too).  Sensing this\n\
+with its psychic powers, the evil Wumpus rampagees through the cave, finds\n\
+you, and with a mighty *ROAR* eats you alive!\n`);
+    });
+
     it('displays on the console when the arrow goes nowhere', () => {
         display.showArrowWentNowhere();
 

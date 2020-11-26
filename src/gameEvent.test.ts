@@ -208,7 +208,23 @@ describe("GameEvent", () => {
     });
 
     describe("ArrowWentNowhereEvent", () => {
+        it("returns a player idle event if the player has arrows left", () => {
+            gameState.numArrows = 1;
 
+            const arrowWentNowhere = new GameEvent.ArrowWentNowhereEvent();
+            const nextEvent = arrowWentNowhere.perform(gameState);
+
+            expect(nextEvent).instanceOf(GameEvent.PlayerIdleEvent);
+        });
+
+        it("returns a shot last arrow event if the player is out of arrows ", () => {
+            gameState.numArrows = 0;
+
+            const arrowWentNowhere = new GameEvent.ArrowWentNowhereEvent();
+            const nextEvent = arrowWentNowhere.perform(gameState);
+
+            expect(nextEvent).instanceOf(GameEvent.PlayerOutOfArrowsEvent);
+        });
     });
 
     describe("ArrowEnteredRoomEvent", () => {
@@ -324,6 +340,19 @@ describe("GameEvent", () => {
             const nextEvent = arrowEnteredRoom.perform(gameState);
 
             expect(nextEvent).instanceOf(GameEvent.PlayerShotSelfEvent);
+        });
+
+        it("returns an out of arrows event when the player shoots their last arrow", () => {
+            gameState.numArrows = 0;
+
+            const shootRoomNum = 1;
+            const nextRooms = [];
+            caveStubber.setUpRoomChain(shootRoomNum, nextRooms);
+
+            const arrowEnteredRoom = createArrowEnteredRoomEvent(shootRoomNum, []);
+            const nextEvent = arrowEnteredRoom.perform(gameState);
+
+            expect(nextEvent).instanceOf(GameEvent.PlayerOutOfArrowsEvent);
         });
     });
 

@@ -101,6 +101,13 @@ passed out from the stench`);
 into room ${enteredRoomNum}!\n`)
     }
 
+    public showPlayerOutOfArrows(): void {
+        this.writeConsole(`\nYou turn and look at your quiver, and realize with a sinking feeling\n\
+that you've just shot your last arrow (figuratively, too).  Sensing this\n\
+with its psychic powers, the evil Wumpus rampagees through the cave, finds\n\
+you, and with a mighty *ROAR* eats you alive!\n`);
+    }
+
     public showPlayerShotWumpus(): void {
         this.writeConsole(`*thwock!* *groan* *crash*\n\n\
 A horrible roar fills the cave, and you realize, with a smile, that you\n\

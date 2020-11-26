@@ -125,10 +125,22 @@ export class PlayerShotArrowEvent implements GameEvent {
     }
 }
 
+export class PlayerOutOfArrowsEvent implements GameEvent {
+    public perform(gameState: GameState): GameEvent {
+        gameState; // Unused
+        return new GameOverEvent();
+    }
+}
+
 export class ArrowWentNowhereEvent implements GameEvent {
     public perform(gameState: GameState): GameEvent {
         gameState; // Unused
-        return new PlayerIdleEvent();
+
+        if(gameState.numArrows === 0) {
+            return new PlayerOutOfArrowsEvent();
+        } else {
+            return new PlayerIdleEvent();
+        }
     }
 }
 
@@ -192,9 +204,17 @@ export class ArrowEnteredRoomEvent implements GameEvent {
     private moveArrow(gameState: GameState): GameEvent {
         const currentRoom = gameState.cave.getRoom(this.getCurrentRoom());
         if(this.shootPath.endOfPath()) {
-            return new PlayerIdleEvent();
+            return this.handleEndOfArrowPath(gameState);
         } else {
             return this.moveArrowToRoom(gameState, currentRoom);
+        }
+    }
+
+    private handleEndOfArrowPath(gameState: GameState): GameEvent {
+        if(gameState.numArrows === 0) {
+            return new PlayerOutOfArrowsEvent();
+        } else {
+            return new PlayerIdleEvent();
         }
     }
 
